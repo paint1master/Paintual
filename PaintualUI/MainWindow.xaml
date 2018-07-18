@@ -1,0 +1,76 @@
+﻿<Window x:Class="PaintualUI.MainWindow"
+        xmlns:Windows="clr-namespace:Cuisine.Windows;assembly=Cuisine"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PaintualUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="750" Width="1300"
+        KeyUp="Window_KeyUp">
+    <Grid>
+        <Menu Height="19" VerticalAlignment="Top" HorizontalContentAlignment="Left">
+            <MenuItem Header="File" >
+                <MenuItem Header="New" Click="New_MenuItem_Click" />
+                <MenuItem Header="Open" Click="Open_MenuItem_Click" />
+                <MenuItem Header="Save" Click="Save_MenuItem_Click" />
+                <MenuItem Header="Exit" Click="Exit_MenuItem_Click" />
+            </MenuItem>
+            <MenuItem Header="Edit" >
+                <MenuItem Header="Preferences" Click="Preferences_Click" ></MenuItem>
+            </MenuItem>
+            <MenuItem Header="View" >
+                <MenuItem Header="Brush Images" Click="BrushImages_Click" ></MenuItem>
+                <MenuItem Header="Color Picker (standard)" Click="ColorPickerStandard_Click" ></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Tools" >
+                <MenuItem Header="Debug" />
+                <MenuItem Header="Effects" >
+                    <MenuItem Header="Dots and Diagonals" />
+                    <MenuItem Header="Linear Stretch (Histogram Displacement)" >
+                        <MenuItem Header="Horizontal" />
+                        <MenuItem Header="Vertical" />
+                    </MenuItem>
+                    <MenuItem Header="Partitioned Gradient" />
+                    <MenuItem Header="Diffuse from Point"/>
+                    <MenuItem Header="Canvas Brush Horizontal" />
+                    <MenuItem Header="Blur Brush Horizontal" />
+                    <MenuItem Header="Cellular Automata" />
+                </MenuItem>
+                <MenuItem Header="Extraction">
+                    <MenuItem Header="Quick Extract and Save" Click="Extraction_QuickExtractAndSave_Click"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Brush Test Surface" ></MenuItem>
+                <MenuItem Header="Test Window" Click="TestWindow_Click" ></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Generators" >
+                <MenuItem Header="Gradients" />
+                <MenuItem Header="Noise" />
+                <MenuItem Header="Energy" />
+                <MenuItem Header="Noise Factory" Click="NoiseFactory_Click" />
+            </MenuItem>
+            <MenuItem Header="Window">
+            </MenuItem>
+            <MenuItem Header="Help" />
+        </Menu>
+        <ToolBar Name="AppToolBar" Margin="0,20,0,0" VerticalAlignment="Top" Height="30" Background="#FF505050" >
+            <Button Name="BtnDraw" Click="BtnDraw_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1">
+                <Image Source="Resources/Draw.png" />
+                <Button.BorderBrush>
+                    <SolidColorBrush Color="White" ></SolidColorBrush>
+                </Button.BorderBrush>
+            </Button>
+            <Button Name="BtnQuickSelect" Click="BtnQuickSelect_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1">
+                <Button.BorderBrush>
+                    <SolidColorBrush Color="White" ></SolidColorBrush>
+                </Button.BorderBrush>
+            </Button>
+        </ToolBar>
+
+        <Windows:WindowsManager x:Name="WindowsManager" Margin="0,50,0,28" />
+        <StatusBar Height="28" VerticalAlignment="Bottom" >
+            <ProgressBar x:Name="progBar" Height="10" Width="180"/>
+        </StatusBar>
+
+    </Grid>
+</Window>

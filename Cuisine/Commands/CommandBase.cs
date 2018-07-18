@@ -1,0 +1,80 @@
+﻿/**********************************************************
+
+Part of the Synergy code created by Ashish Kaila (https://www.codeproject.com/Articles/140209/Building-a-Docking-Window-Management-Solution-in-W),
+code which is licensed under The Code Project Open License (CPOL).
+Details of the license can be found in the accompanying file : cpol_license.htm
+
+**********************************************************/
+
+//
+// Copyright(C) MixModes Inc. 2011
+// 
+
+using System;
+using System.Windows.Input;
+
+namespace Cuisine.Commands
+{
+    /// <summary>
+    /// Base class for commands
+    /// </summary>
+    public class CommandBase : ICommand
+    {
+        // Private members
+        private readonly Action<object> _execute;
+        private readonly Predicate<object> _canExecute;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandBase"/> class.
+        /// </summary>
+        /// <param name="execute">The execute.</param>
+        public CommandBase(Action<object> execute)
+            : this (execute, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandBase"/> class.
+        /// </summary>
+        /// <param name="execute">The execute.</param>
+        /// <param name="canExecute">The can execute.</param>
+        public CommandBase(Action<object> execute, Predicate<object> canExecute)
+        {
+            Cuisine.Utilities.Validate.NotNull(execute, "execute");
+            _execute = execute;            
+            _canExecute = canExecute;
+        }
+
+        /// <summary>
+        /// Occurs when changes occur that affect whether or not the command should execute
+        /// </summary>
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        /// <summary>
+        /// Defines the method that determines whether the command can execute in its current state.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.  
+        /// If the command does not require data to be passed, this object can be set to null.</param>
+        /// <returns>
+        /// true if this command can be executed; otherwise, false.
+        /// </returns>
+        public bool CanExecute(object parameter)
+        {
+            return _canExecute != null ? _canExecute(parameter) : true;
+        }
+
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.  
+        /// If the command does not require data to be passed, this object can be set to null.</param>
+        public void Execute(object parameter)
+        {
+            _execute(parameter);
+        }
+    }
+}
