@@ -23,10 +23,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls
+namespace PaintualUI.Controls
 {
 	using System.ComponentModel.Composition;
-	using Gat.Controls.Model;
 
 	[Export]
 	public class OpenDialogViewModel : OpenDialogViewModelBase

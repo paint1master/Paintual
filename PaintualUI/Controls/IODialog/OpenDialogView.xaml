@@ -1,17 +1,15 @@
-﻿<UserControl x:Class="Gat.Controls.OpenDialogView"
+﻿<UserControl x:Class="PaintualUI.Controls.OpenDialogView"
 			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:local="clr-namespace:Gat.Controls"
-			 xmlns:models="clr-namespace:Gat.Controls.Model"
-			 xmlns:frmwrk="clr-namespace:Gat.Controls.Framework"
+			 xmlns:local="clr-namespace:PaintualUI.Controls"
 			 mc:Ignorable="d"
 			 d:DesignHeight="300"
 			 d:DesignWidth="300">
 
 	<UserControl.Resources>
-		<frmwrk:VisibilityConverter x:Key="VisibilityConverter" />
+		<local:VisibilityConverter x:Key="VisibilityConverter" />
 	</UserControl.Resources>
 	<UserControl.DataContext>
 		<local:OpenDialogViewModel x:Name="ViewModel"
@@ -38,7 +36,7 @@
 					  SelectedItemChanged="Folders_SelectedItemChanged"
 					  ItemsSource="{Binding Items}">
 				<TreeView.Resources>
-					<HierarchicalDataTemplate DataType="{x:Type models:OpenFolderRoot}"
+					<HierarchicalDataTemplate DataType="{x:Type local:OpenFolderRoot}"
 											  ItemsSource="{Binding Children}">
 						<StackPanel Orientation="Horizontal"
 									VerticalAlignment="Stretch"
@@ -49,7 +47,7 @@
 									   Margin="5,0" />
 						</StackPanel>
 					</HierarchicalDataTemplate>
-					<HierarchicalDataTemplate DataType="{x:Type models:OpenFolderItem}"
+					<HierarchicalDataTemplate DataType="{x:Type local:OpenFolderItem}"
 											  ItemsSource="{Binding Children}">
 						<StackPanel Orientation="Horizontal"
 									VerticalAlignment="Stretch"

@@ -100,6 +100,9 @@
     <Compile Include="Controls\ColorPicker\ColorPlane.xaml.cs" />
     <Compile Include="Controls\ColorPicker\Events.cs" />
     <Compile Include="Controls\DrawingBoard.xaml.cs" />
+    <Compile Include="Controls\FolderSelector.xaml.cs">
+      <DependentUpon>FolderSelector.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ImageZoom.xaml.cs">
       <DependentUpon>ImageZoom.xaml</DependentUpon>
     </Compile>
@@ -170,6 +173,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\DrawingBoard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\FolderSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -64,35 +64,14 @@ namespace PaintualUI.Code
                 return;
             }
 
+            if (g.Children[0] is PaintualUI.Controls.DrawingBoard == false)
+            {
+                return;
+            }
+
             PaintualUI.Controls.DrawingBoard db = (PaintualUI.Controls.DrawingBoard)g.Children[0];
 
             SetCurrentDrawingBoard(db);
-
-            // case where a tool window is being closed, ie the VisualPropertyPage
-            /*if (t_windowsManager.ActiveDocument == null)
-            {
-                // no need to change focus of current drawing board even if null
-                return;
-            }*/
-
-            // set the drawing board only if it is actually one among dockPane windows
-            /*if (t_windowsManager.ActiveDocument.Content is PaintualUI.Controls.DrawingBoard)
-            {
-                PaintualUI.Controls.DrawingBoard newBoard = (PaintualUI.Controls.DrawingBoard)t_windowsManager.ActiveDocument.Content;
-
-                if (newBoard != t_currentDrawingBoard)
-                {
-                    t_currentDrawingBoard = newBoard;
-                    RaiseCurrentDrawingBoardChanged();
-
-                    Engine.Viome w = t_currentDrawingBoard.GetViome();
-                    Engine.Application.Viomes.SetAsActiveWorkflow(w.Key);
-
-                    _app.VisualPropertyPageHandler.Refresh();
-                }
-
-
-            }*/
         }
 
         public void SetCurrentDrawingBoard(PaintualUI.Controls.DrawingBoard db)

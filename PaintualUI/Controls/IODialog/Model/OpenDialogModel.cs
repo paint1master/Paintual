@@ -23,12 +23,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Model
+namespace PaintualUI.Controls
 {
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
-	using Gat.Controls.Utilities;
 
 	internal class OpenDialogModel : OpenDialogModelBase
 	{

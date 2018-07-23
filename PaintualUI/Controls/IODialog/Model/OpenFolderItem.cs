@@ -23,15 +23,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Model
+namespace PaintualUI.Controls
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
 	using System.IO;
 	using System.Windows.Media;
-	using Gat.Controls.Framework;
-	using Gat.Controls.Utilities;
 
 	public class OpenFolderItem : ViewModelBase
 	{

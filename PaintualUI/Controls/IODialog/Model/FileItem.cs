@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Model
+namespace PaintualUI.Controls
 {
 	using System.Windows.Media;
 

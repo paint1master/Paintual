@@ -124,7 +124,7 @@ namespace PaintualUI
 
             DockPane pane = new DockPane();
             pane.MinHeight = 24;
-            pane.MinWidth = 100;
+            pane.MinWidth = 500;
             pane.Header = "Preferences";
             Grid g = new Grid();
             g.Background = Brushes.White;

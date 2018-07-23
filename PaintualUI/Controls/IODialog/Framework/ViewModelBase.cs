@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Framework
+namespace PaintualUI.Controls
 {
 	using System.ComponentModel;
 

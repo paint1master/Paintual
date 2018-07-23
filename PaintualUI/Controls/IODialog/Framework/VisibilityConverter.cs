@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Framework
+namespace PaintualUI.Controls
 {
 	using System.Windows;
 	using System.Windows.Data;

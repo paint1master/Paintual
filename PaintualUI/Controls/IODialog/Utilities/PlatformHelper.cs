@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls.Utilities
+namespace PaintualUI.Controls
 {
 	using System;
 

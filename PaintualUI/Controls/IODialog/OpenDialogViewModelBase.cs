@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls
+namespace PaintualUI.Controls
 {
 	using System;
 	using System.Collections.Generic;
@@ -31,9 +31,6 @@ namespace Gat.Controls
 	using System.Globalization;
 	using System.IO;
 	using System.Windows.Input;
-	using Gat.Controls.Framework;
-	using Gat.Controls.Model;
-	using Gat.Controls.Utilities;
 
 	public class OpenDialogViewModelBase : ViewModelBase
 	{

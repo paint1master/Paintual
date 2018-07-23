@@ -1,18 +1,46 @@
-﻿<UserControl x:Class="PaintualUI.Controls.Preferences"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PaintualUI.Controls"
+             xmlns:Controls="clr-namespace:Cuisine.Controls;assembly=Cuisine" 
+             xmlns:local="clr-namespace:PaintualUI.Controls" 
+             x:Class="PaintualUI.Controls.Preferences" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="500">
-    <Grid Background="#FF505050">
-        <Label Content="Application Preferences" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="141"/>
-        <Label Content="Brushes" HorizontalAlignment="Left" Margin="10,55,0,0" VerticalAlignment="Top"/>
-        <Label Content="Effects"  HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top"/>
-        <Label Content="Materials"  HorizontalAlignment="Left" Margin="10,107,0,0" VerticalAlignment="Top"/>
-        <Label Content="Images"  HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"/>
-        <Label Content="Content Lookup Folder"  HorizontalAlignment="Left" Margin="10,159,0,0" VerticalAlignment="Top"/>
-        <Label Content="Statistics Collector Folder"  HorizontalAlignment="Left" Margin="10,185,0,0" VerticalAlignment="Top"/>
+             d:DesignHeight="360" d:DesignWidth="500">
+    <Grid>
+        <Canvas Background="#FF505050" Margin="0,0,0,0">
+            <Label Content="Application Preferences" HorizontalAlignment="Left" VerticalAlignment="Top" Width="141" Canvas.Left="10" Canvas.Top="10">
+                <!-- translation index "1" -->
+            </Label>
+            <Label Content="Brushes" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="64">
+                <!-- translation index "2" -->
+            </Label>
+            <Label Content="Effects"  HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="99">
+                <!-- translation index "3" -->
+            </Label>
+            <Label Content="Materials"  HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="134">
+                <!-- translation index "4" -->
+            </Label>
+            <Label Content="Images"  HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="169">
+                <!-- translation index "5" -->
+            </Label>
+            <Label Content="Content Lookup Folder"  HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="204">
+                <!-- translation index "6" -->
+            </Label>
+            <Label Content="Statistics Collector Folder"  HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="239">
+                <!-- translation index "7" -->
+            </Label>
+            <Label Content="Language" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="10" Canvas.Top="274"/>
+            <local:FolderSelector x:Name="SelectorBrushes" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="55"/>
+            <local:FolderSelector x:Name="SelectorEffects" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="90"/>
+            <local:FolderSelector x:Name="SelectorMaterials" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="125"/>
+            <local:FolderSelector x:Name="SelectorImages" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="160"/>
+            <local:FolderSelector x:Name="SelectorContentLookup" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="195"/>
+            <local:FolderSelector x:Name="SelectorStatistics" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="354" Canvas.Left="136" Canvas.Top="230"/>
+            <RadioButton Content="English" GroupName="radioLanguage" Height="19" Canvas.Left="145" Canvas.Top="277" Width="102"/>
+            <RadioButton Content="French" GroupName="radioLanguage" Height="19" Canvas.Left="276" Canvas.Top="277" Width="102"/>
+            <Button Content="Save" Canvas.Left="415" Canvas.Top="330" Width="75"/>
+        </Canvas>
     </Grid>
 </UserControl>

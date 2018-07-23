@@ -23,7 +23,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Gat.Controls
+namespace PaintualUI.Controls
 {
 	using System.Windows;
 	using System.Windows.Controls;
@@ -42,7 +42,7 @@ namespace Gat.Controls
 
 		private void Folders_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
 		{
-			ViewModel.SelectedFolder = e.NewValue as Gat.Controls.Model.OpenFolderItem;
+			ViewModel.SelectedFolder = e.NewValue as PaintualUI.Controls.OpenFolderItem;
 		}
 
 		private void OnShow(object sender, OpenDialogEventArgs e)

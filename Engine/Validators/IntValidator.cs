@@ -43,7 +43,7 @@ namespace Engine.Validators
                 return true;
             }
 
-            errorMessage = Engine.Utilities.Language.LanguageFormat.Format("#", "Invalid value");
+            errorMessage = Engine.Utilities.Language.LanguageFormat.Format("ErrorMessages", "1", "Invalid value");
 
             return false;
         }
