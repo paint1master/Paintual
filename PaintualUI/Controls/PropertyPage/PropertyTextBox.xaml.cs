@@ -67,6 +67,13 @@ namespace PaintualUI.Controls.PropertyPage
             this.InfoIcon.Visibility = Visibility.Visible;
         }
 
+        public void ClearSignals()
+        {
+            this.InfoIcon.Status = Status.Normal;
+            this.InfoIcon.SetMessageWindow("", "");
+            this.InfoIcon.Visibility = Visibility.Hidden;
+        }
+
         public PropertyControlCommonContent CommonContent
         {
             get { return t_pccc; }

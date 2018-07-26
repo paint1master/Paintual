@@ -177,7 +177,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayName("Format")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Text)]
-        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty, "")]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty, @"\A[0]+$")]
         public string Format
         {
             get { return ((Engine.Attributes.StringAttribute)t_attributeCollection.Get(t_format_PropertyName)).Value; }

@@ -156,21 +156,23 @@ namespace PaintualUI.Code
 
         public void Refresh(object sender, PaintualUI.Code.CurrentDrawingBoardChangedEventArgs e)
         {
-            // TODO : later delete this method, we seem not needing the sender or eventargs because we now can get what we want from _app
             Refresh();
         }
 
         private DockPane CreateContainer()
         {
             DockPane pane = new DockPane();
-            pane.Close += Pane_Close;
+
             pane.MinHeight = 100;
-            pane.MinWidth = 100;
+            pane.MinWidth = 200;
+            pane.MaxWidth = 400;
             pane.Header = "Visual Property Page";
             Grid g = new Grid();
-            g.Background = Brushes.White;
+            g.Background = Brushes.DarkGray;
             g.Children.Add(t_visualPropertyPage);
             pane.Content = g;
+
+            pane.Close += Pane_Close;
 
             t_manager.AddPinnedWindow(pane, Dock.Right);
 

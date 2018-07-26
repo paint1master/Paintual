@@ -24,6 +24,8 @@ SOFTWARE.
 
 **********************************************************/
 
+using System.Text.RegularExpressions;
+
 namespace Engine.Validators
 {
     public class StringValidator : Validators.Validator
@@ -33,6 +35,11 @@ namespace Engine.Validators
         public StringValidator()
         {
 
+        }
+
+        public StringValidator(string regEx)
+        {
+            pattern = regEx;
         }
 
         public override bool Validate()
@@ -54,9 +61,19 @@ namespace Engine.Validators
             }
             else
             {
-                // TODO : implement rules so we can get actual validatation
-                validated = inputValue;
-                return true;
+                Regex r = new Regex(pattern);
+                Match match = r.Match(inputValue);
+
+                if (match.Success)
+                {
+                    validated = inputValue;
+                    return true;
+                }
+                else
+                {
+                    errorMessage = "The field value is not in the right format";
+                    return false;
+                }
             }
         }
 

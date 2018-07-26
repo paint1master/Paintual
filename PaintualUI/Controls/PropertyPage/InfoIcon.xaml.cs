@@ -30,6 +30,8 @@ namespace PaintualUI.Controls.PropertyPage
     {
         private Status t_status = Status.Normal;
         private PaintualUI.Controls.MessageWindow t_messageWindow;
+        private string t_propertyName;
+        private string t_errorMessage;
 
         public InfoIcon()
         {
@@ -66,9 +68,9 @@ namespace PaintualUI.Controls.PropertyPage
 
         internal void SetMessageWindow(string propertyName, string message)
         {
-            t_messageWindow = new MessageWindow();
-            t_messageWindow.ErrorTitle = propertyName;
-            t_messageWindow.ErrorMessage = message;
+            // cannot create instace of MessageWindow here because when closed is cannot be reopened with another message
+            t_propertyName = propertyName;
+            t_errorMessage = message;
         }
 
         private void InfoImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -80,6 +82,9 @@ namespace PaintualUI.Controls.PropertyPage
 
             if (t_status == Status.Error)
             {
+                t_messageWindow = new MessageWindow();
+                t_messageWindow.ErrorTitle = t_propertyName;
+                t_messageWindow.ErrorMessage = t_errorMessage;
                 t_messageWindow.Show();
             }
         }

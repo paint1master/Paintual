@@ -127,7 +127,7 @@ namespace PaintualUI
             pane.MinWidth = 500;
             pane.Header = "Preferences";
             Grid g = new Grid();
-            g.Background = Brushes.White;
+            g.Background = Brushes.DarkGray;
             g.Children.Add(pref);
             pane.Content = g;
             Dock direction = Dock.Right;

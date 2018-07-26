@@ -34,6 +34,8 @@ namespace PaintualUI.Controls.PropertyPage
 {
     public interface IPropertyControl
     {
+        void ClearSignals();
+
         void SignalError(string message);
 
         void UpdateVisual();

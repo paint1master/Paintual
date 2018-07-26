@@ -256,7 +256,7 @@ namespace PaintualUI.Controls.PropertyPage
                 switch (pi.ValidatorType)
                 {
                     case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        Engine.Validators.StringValidator strValid = new Engine.Validators.StringValidator();
+                        Engine.Validators.StringValidator strValid = new Engine.Validators.StringValidator(pi.RegularExpression);
                         strValid.CannotBeEmpty = true;
                         ptb.CommonContent.Validator = strValid;
                         break;
@@ -467,6 +467,10 @@ namespace PaintualUI.Controls.PropertyPage
             foreach (System.Windows.UIElement uie in FlowPanelContainer.Children)
             {
                 IPropertyControl ipc = (IPropertyControl)uie;
+
+                // required when user has entered invalid value, signals are being displayed. when user enters corrected values
+                // the validation process is executed again and in case of success, no signal must be displayed.
+                ipc.ClearSignals();
 
                 string propertyActualName = ipc.CommonContent.PropertyName; // i.e.: "Seed"
                 object validatedValue = null;
