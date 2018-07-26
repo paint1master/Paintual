@@ -11,10 +11,6 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PaintualSetup", "PaintualSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cuisine", "Cuisine\Cuisine.csproj", "{91827FBF-B7E1-4A00-9F06-D6F170855AC6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineCLI", "EngineCLI\EngineCLI.vcxproj", "{862121AC-7C04-44C3-8130-D3D056217165}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineC", "EngineC\EngineC.vcxproj", "{47A4A293-3FA0-488B-A34A-72251B60A8F7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,36 +61,16 @@ Global
 		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Debug|x86.Build.0 = Debug|Any CPU
 		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x64.ActiveCfg = Release|Any CPU
-		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x64.Build.0 = Release|Any CPU
+		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x64.ActiveCfg = Release|x64
+		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x64.Build.0 = Release|x64
 		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x86.ActiveCfg = Release|Any CPU
 		{91827FBF-B7E1-4A00-9F06-D6F170855AC6}.Release|x86.Build.0 = Release|Any CPU
-		{862121AC-7C04-44C3-8130-D3D056217165}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{862121AC-7C04-44C3-8130-D3D056217165}.Debug|x64.ActiveCfg = Debug|x64
-		{862121AC-7C04-44C3-8130-D3D056217165}.Debug|x64.Build.0 = Debug|x64
-		{862121AC-7C04-44C3-8130-D3D056217165}.Debug|x86.ActiveCfg = Debug|Win32
-		{862121AC-7C04-44C3-8130-D3D056217165}.Debug|x86.Build.0 = Debug|Win32
-		{862121AC-7C04-44C3-8130-D3D056217165}.Release|Any CPU.ActiveCfg = Release|Win32
-		{862121AC-7C04-44C3-8130-D3D056217165}.Release|x64.ActiveCfg = Release|x64
-		{862121AC-7C04-44C3-8130-D3D056217165}.Release|x64.Build.0 = Release|x64
-		{862121AC-7C04-44C3-8130-D3D056217165}.Release|x86.ActiveCfg = Release|Win32
-		{862121AC-7C04-44C3-8130-D3D056217165}.Release|x86.Build.0 = Release|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Debug|x64.ActiveCfg = Debug|x64
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Debug|x64.Build.0 = Debug|x64
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Debug|x86.ActiveCfg = Debug|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Debug|x86.Build.0 = Debug|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Release|Any CPU.ActiveCfg = Release|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Release|x64.ActiveCfg = Release|x64
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Release|x64.Build.0 = Release|x64
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Release|x86.ActiveCfg = Release|Win32
-		{47A4A293-3FA0-488B-A34A-72251B60A8F7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1E801699-5666-4C73-AB06-B2DB2304BEB2}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {1E801699-5666-4C73-AB06-B2DB2304BEB2}
 	EndGlobalSection
 EndGlobal

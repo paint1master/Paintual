@@ -122,11 +122,6 @@
     <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Logic.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EngineC\EngineC.vcxproj">
-      <Project>{47a4a293-3fa0-488b-a34a-72251b60a8f7}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
