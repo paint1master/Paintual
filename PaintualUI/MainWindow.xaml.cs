@@ -25,6 +25,8 @@ SOFTWARE.
 **********************************************************/
 
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -223,15 +225,45 @@ namespace PaintualUI
 
         private void TestWindow_Click(object sender, RoutedEventArgs e)
         {
-            /*PaintualW.Controls.TestWindow w = new Controls.TestWindow();
+            /*
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
-            var newContent = new DocumentContent();
-            newContent.ContentTypeDescription = "Test Window";
-            newContent.Title = "Test Window";
-            newContent.InfoTip = System.IO.Path.GetTempPath();
-            newContent.Content = w;
-            newContent.Show(dockManager, false);
-            newContent.Activate();*/
+            double[] numbers = new double[] { 13.45678, 14.56789 };
+
+            //for (int i = 0; i < 1_000_000_000; i++)
+            //{
+                //double result = numbers[0] * numbers[1];
+                double result = testMultArray(numbers); // = 196.0368907942
+            //}
+
+            stopWatch.Stop();
+            // Get the elapsed time as a TimeSpan value.
+            TimeSpan ts = stopWatch.Elapsed;
+
+            // Format and display the TimeSpan value.
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+            MessageBox.Show("RunTime " + elapsedTime);
+            */
+        }
+
+        // TODO : change path for release build
+        private const string DllFilePath = @"D:\Docs\My Projects\Paintual\Paintual\x64\Debug\EngineCpp.dll";
+
+        [DllImport(DllFilePath, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int testIncrement(int number);
+
+        [DllImport(DllFilePath, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double testMult(double a, double b);
+
+        [DllImport(DllFilePath, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double testMultArray(double[] d);
+
+        public int Test(int number)
+        {
+            return testIncrement(number);
         }
 
         private void ColorPickerStandard_Click(object sender, RoutedEventArgs e)
@@ -330,7 +362,17 @@ namespace PaintualUI
 
         private void BtnQuickSelect_Click(object sender, RoutedEventArgs e)
         {
+            
+        }
 
+        private void ScanGlitch_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.Scanner.Glitch());
+        }
+
+        private void ScanRadial_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.Scanner.Radial());
         }
     }
 }

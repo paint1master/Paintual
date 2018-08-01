@@ -30,12 +30,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Accord.Math;
+
 namespace Engine.Effects.Particles
 {
-    /// <summary>
-    /// Manages particles movement, actions, and states
-    /// </summary>
-    public class Pilot
+    public class BaseParticle
     {
+        protected Accord.Math.Vector3 t_position;
+        protected Accord.Math.Vector3 t_velocity;
+        //protected Accord.Math.Vector3 t_acceleration;
+
+
+        public BaseParticle()
+        {
+
+        }
+
+        public void Update()
+        {
+            //t_velocity += t_acceleration;
+            t_position += t_velocity;
+            //t_acceleration = t_acceleration * 0;
+        }
+
+        /*public void ApplyForce(Accord.Math.Vector3 force)
+        {
+            t_acceleration += force;
+        }*/
+
+        public virtual void Move(Accord.Math.Vector3 direction)
+        {
+            t_position += direction;
+        }
+
+        public Accord.Math.Vector3 Position
+        {
+            get { return t_position; }
+        }
     }
 }

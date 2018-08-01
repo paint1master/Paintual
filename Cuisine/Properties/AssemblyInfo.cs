@@ -52,10 +52,10 @@ using System.Windows.Markup;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.0.70")]
-[assembly: AssemblyFileVersion("0.0.7.0")]
+[assembly: AssemblyVersion("0.0.8.0")]
+[assembly: AssemblyFileVersion("0.0.8.0")]
 
-[assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Adorners")]
+/*[assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Adorners")]
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Behaviors")]
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Commands")]
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Controls")]
@@ -64,4 +64,4 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Extensions")]
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.ViewModels")]
 [assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Views")]
-[assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Windows")]
+[assembly: XmlnsDefinitionAttribute("http://mixmodes.com/visualFx", "MixModes.Synergy.VisualFramework.Windows")]*/

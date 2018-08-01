@@ -123,6 +123,8 @@ namespace Engine
 
         public void SetActivity(Engine.Tools.IGraphicActivity activity)
         {
+            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
+
             t_activity = activity;
             t_activity.Initialize(this);
 
@@ -151,6 +153,11 @@ namespace Engine
             }
         }
 
+        internal void SetUIAwarenessOfEnfOfProcess()
+        {
+            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.HandleEndOfProcess);
+        }
+
         public void FeedMouseAction(Engine.MousePoint e)
         {
             t_mouseAndKeyboardManager.FeedMouseAction(e);
@@ -170,16 +177,48 @@ namespace Engine
             // TODO just get the updated portion of the image to be displayed here
             BitmapSource bmpSource = BitmapSource.Create(t_canvas.Width, t_canvas.Height, 96, 96, PixelFormats.Bgra32, null, t_canvas.Array, t_canvas.Stride);
 
+            // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
+            // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
+            // that can be manipulated. web link also savec in bmp_creator/improving surface code
+
             return bmpSource;
+        }
+
+        public System.Windows.Media.Imaging.BitmapSource GetBmpImageProcessed()
+        {
+            if (CurrentEffect == null)
+            {
+                throw new InvalidOperationException(@"In VIOME.GetBmpImageProcessed(), cannot return ImageProcessed because no Effect is currently being used.");
+            }
+
+            if (CurrentEffect.ImageProcessed == null)
+            {
+                // happens when effect is called by used and Apply button has not been pusehd yet.
+                // return canvas instead
+                return GetBmpSource();
+            }
+            else
+            {
+                // TODO just get the updated portion of the image to be displayed here
+                BitmapSource bmpSource = BitmapSource.Create(CurrentEffect.ImageProcessed.Width, CurrentEffect.ImageProcessed.Height, 96, 96, PixelFormats.Bgra32, null, CurrentEffect.ImageProcessed.Array, CurrentEffect.ImageProcessed.Stride);
+
+                // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
+                // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
+                // that can be manipulated. web link also savec in bmp_creator/improving surface code
+
+                return bmpSource;
+            }
         }
 
         internal void AllowInvalidate()
         {
+            System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to TRUE"));
             t_allowInvalidate = true;
         }
 
         internal void DisallowInvalidate()
         {
+            System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to FALSE"));
             t_allowInvalidate = false;
         }
 
@@ -299,6 +338,14 @@ namespace Engine
                 }
 
                 return;
+            }
+
+            if (requestType == WorkflowDrawingBoardRequestType.HandleEndOfProcess)
+            {
+                if (InvalidateRequested != null)
+                {
+                    InvalidateRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
+                }
             }
         }
 
@@ -452,7 +499,9 @@ namespace Engine
         ZoomIn,
         ZoomOut,
         Invalidate,
-        ViewPortSize
+        ViewPortSize,
+        HandleEndOfProcess,
+        DetachHandleEndOfProcess
     }
 
     public enum WorkflowPropertyPageRequestType

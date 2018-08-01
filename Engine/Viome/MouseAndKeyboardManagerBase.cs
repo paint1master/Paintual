@@ -60,7 +60,8 @@ namespace Engine
                         case DrawingBoardModes.None:
                         case DrawingBoardModes.SuspendDraw:
                             t_workflow.CurrentDrawingBoardMode = DrawingBoardModes.Draw;
-                            t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.AllowInvalidate));
+                            // no threaded because drawing action would start before canvas is allowed to refresh its content.
+                            t_workflow.AllowInvalidate();
                             ActivityProcess(correctedPoint);
                             break;
                     }
@@ -84,7 +85,7 @@ namespace Engine
 
                     //t_motionAttribute.ThisIsLastMousePoint();
                     t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.MotionAttribute.Clear)); // <MousePoint, int>(t_motionAttribute.AddMousePoint, correctedPoint);
-                    t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.AllowInvalidate));
+                    t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.DisallowInvalidate));
                     break;
 
                 default:
@@ -150,7 +151,6 @@ namespace Engine
         {
             t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
             t_workflow.ThreadingQueue.RunAndForget(t_workflow.CurrentActivity.Process);
-            //t_queue.RunAndReturn<Engine.Surface.Canvas, List<MousePoint>, int>(t_activity.Process, t_canvas, t_motionAttribute.LinearInterpolate());
         }
     }
 }

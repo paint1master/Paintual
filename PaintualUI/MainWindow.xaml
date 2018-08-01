@@ -39,59 +39,66 @@
             </MenuItem>
             <MenuItem Header="Tools" >
                 <!-- translation index "11" -->
-                <MenuItem Header="Debug" >
+                <!--<MenuItem Header="Debug" >-->
                     <!-- translation index "12" -->
-                </MenuItem>
+                <!--</MenuItem>-->
                 <MenuItem Header="Effects" >
                     <!-- translation index "13" -->
-                    <MenuItem Header="Dots and Diagonals" />
+                    <!--<MenuItem Header="Dots and Diagonals" />-->
                     <!-- translation index "14" -->
-                    <MenuItem Header="Linear Stretch (Histogram Displacement)" >
+                    <!--<MenuItem Header="Linear Stretch (Histogram Displacement)" > -->
                         <!-- translation index "15" -->
-                        <MenuItem Header="Horizontal" >
-                            <!-- translation index "16" -->
-                        </MenuItem>
-                        <MenuItem Header="Vertical" >
-                            <!-- translation index "17" -->
-                        </MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="Partitioned Gradient" >
+                        <!--<MenuItem Header="Horizontal" >-->
+                        <!-- translation index "16" -->
+                        <!--</MenuItem>-->
+                        <!--<MenuItem Header="Vertical" >-->
+                        <!-- translation index "17" -->
+                        <!--</MenuItem>-->
+                    <!--</MenuItem>-->
+                    <!--<MenuItem Header="Partitioned Gradient" >-->
                         <!-- translation index "18" -->
-                    </MenuItem>
-                    <MenuItem Header="Diffuse from Point">
+                        <!--</MenuItem>-->
+                        <!--<MenuItem Header="Diffuse from Point">-->
                         <!-- translation index "19" -->
-                    </MenuItem>
-                    <MenuItem Header="Canvas Brush Horizontal" >
+                        <!--</MenuItem>-->
+                        <!--<MenuItem Header="Canvas Brush Horizontal" >-->
                         <!-- translation index "20" -->
-                    </MenuItem>
-                    <MenuItem Header="Blur Brush Horizontal" >
+                        <!--</MenuItem>-->
+                        <!--<MenuItem Header="Blur Brush Horizontal" >-->
                         <!-- translation index "21" -->
-                    </MenuItem>
-                    <MenuItem Header="Cellular Automata" >
+                        <!--</MenuItem>-->
+                        <!--<MenuItem Header="Cellular Automata" >-->
                         <!-- translation index "22" -->
+                        <!--</MenuItem>-->
+                        <MenuItem Header="Scan Glitch" Click="ScanGlitch_Click">
+
+                        </MenuItem>
+                        <MenuItem Header="Scan Radial" Click="ScanRadial_Click">
+
+                        </MenuItem>
+                    <!--</MenuItem> -->
+                    <MenuItem Header="Extraction">
+                        <!-- translation index "23" -->
+                        <MenuItem Header="Quick Extract and Save" Click="Extraction_QuickExtractAndSave_Click">
+                            <!-- translation index "24" -->
+                        </MenuItem>
                     </MenuItem>
-                </MenuItem>
-                <MenuItem Header="Extraction">
-                    <!-- translation index "23" -->
-                    <MenuItem Header="Quick Extract and Save" Click="Extraction_QuickExtractAndSave_Click">
-                        <!-- translation index "24" -->
-                    </MenuItem>
-                </MenuItem>
-                <MenuItem Header="Test Window" Click="TestWindow_Click" >
+                    <!--<MenuItem Header="Test Window" Click="TestWindow_Click" >-->
                     <!-- translation index "25" -->
+                    <!--</MenuItem> -->
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Generators" >
                 <!-- translation index "26" -->
-                <MenuItem Header="Gradients" >
+                <!--<MenuItem Header="Gradients" >-->
                     <!-- translation index "27" -->
-                </MenuItem>
-                <MenuItem Header="Noise" >
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Noise" >-->
                     <!-- translation index "28" -->
-                </MenuItem>
-                <MenuItem Header="Energy" >
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Energy" >-->
                     <!-- translation index "29" -->
-                </MenuItem>
+                <!--</MenuItem>-->
                 <MenuItem Header="Noise Factory" Click="NoiseFactory_Click" >
                     <!-- translation index "30" -->
                 </MenuItem>

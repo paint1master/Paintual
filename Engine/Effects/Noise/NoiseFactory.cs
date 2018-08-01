@@ -79,6 +79,11 @@ namespace Engine.Effects.Noise
 
         public override void Process()
         {
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+        }
+
+        private void ThreadedProcess()
+        {
             if (t_noiseType == NoiseTypes.Undefined)
             {
                 t_noiseType = NoiseTypes.FastNoise;
@@ -136,7 +141,9 @@ namespace Engine.Effects.Noise
             }
             
             t_imageProcessed = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
-            
+
+            t_workflow.AllowInvalidate();
+
             int height = t_imageProcessed.Height;
 
             int divide = Engine.Calc.Math.Division_Threading(height);
@@ -166,7 +173,7 @@ namespace Engine.Effects.Noise
                 dels[i].EndInvoke(cookies[i]);
             }
 
-            base.Process();
+            base.ProcessCompleted();
         }
 
         private delegate void Del_Process(Engine.Surface.Canvas image, Engine.Effects.Noise.IModule module, int yStart, int yEnd);

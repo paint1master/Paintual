@@ -147,7 +147,11 @@
     <Compile Include="Effects\Noise\ValueNoiseBasis.cs" />
     <Compile Include="Effects\Noise\Voronoi.cs" />
     <Compile Include="Effects\Particles\Auto\AutoParticle.cs" />
-    <Compile Include="Effects\Particles\Pilot.cs" />
+    <Compile Include="Effects\Particles\BaseParticle.cs" />
+    <Compile Include="Effects\Particles\LivingPixelParticle.cs" />
+    <Compile Include="Effects\Particles\PixelParticle.cs" />
+    <Compile Include="Effects\Scanner\Glitch.cs" />
+    <Compile Include="Effects\Scanner\Radial.cs" />
     <Compile Include="Effects\VisualProperties.cs" />
     <Compile Include="Effects\VisualPropertyItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

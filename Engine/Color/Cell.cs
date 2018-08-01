@@ -121,6 +121,19 @@ namespace Engine.Color
             imageData[offset] = t_alpha;
         }
 
+        public void WriteBytesWithAlpha(byte[] imageData, byte alpha, int offset)
+        {
+            if (offset >= imageData.Length)
+            {
+                throw new ArgumentOutOfRangeException(String.Format("the offset provided {0} would get outside the limit of the imageData array length of {1}", offset, imageData.Length));
+            }
+
+            imageData[offset++] = t_blue;
+            imageData[offset++] = t_green;
+            imageData[offset++] = t_red;
+            imageData[offset] = alpha;
+        }
+
         public void WriteInt(int[] imageData, int offset)
         {
             if (offset >= imageData.Length)

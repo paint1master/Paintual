@@ -64,6 +64,31 @@ namespace PaintualUI.Controls
 
         private void T_viome_InvalidateRequested(object sender, Engine.WorkflowDrawingBoardEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine(String.Format("InvalidateRequested in PaintualCanvas from {0}", sender.ToString()));
+
+            if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.Invalidate)
+            {
+                try
+                {
+                    this.InvalidateVisual();
+                }
+                catch (InvalidOperationException err)
+                {
+                    System.Diagnostics.Debug.WriteLine("In PaintualCanvas, InvalidateVisual() caused an error. Mostly due to cross thread invalid call.");
+                }
+            }
+            else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.HandleEndOfProcess)
+            {
+                t_viome.CurrentEffect.ProcessEnded += CurrentEffect_ProcessEnded;
+            }
+            else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess)
+            {
+                t_viome.CurrentEffect.ProcessEnded -= CurrentEffect_ProcessEnded;
+            }
+        }
+
+        private void CurrentEffect_ProcessEnded(object sender, EventArgs e)
+        {
             this.InvalidateVisual();
         }
 
@@ -76,6 +101,13 @@ namespace PaintualUI.Controls
         {
             if (t_viome == null)
             {
+                return;
+            }
+
+            if (t_viome.CurrentEffect != null)
+            {
+                drawingContext.DrawImage(t_viome.GetBmpImageProcessed(), t_viome.CoordinatesManager.GetImageSizeAndPosition());
+                base.OnRender(drawingContext);
                 return;
             }
 

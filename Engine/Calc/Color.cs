@@ -34,6 +34,20 @@ namespace Engine.Calc
 {
     public class Color
     {
+        /// <summary>
+        /// used to help determine if a color is dark or light
+        /// code taken here https://stackoverflow.com/questions/25426819/finding-out-if-a-hex-color-is-dark-or-light
+        /// </summary>
+        /// <param name="red"></param>
+        /// <param name=""></param>
+        /// <param name=""></param>
+        /// <param name="blue"></param>
+        /// <returns>possible values range from 0 to 255</returns>
+        public static float Luminance(Engine.Color.Cell c)
+        {
+            float y = (0.2126f * c.Red) + (0.7152f * c.Green) + (0.0722f * c.Blue);
+            return y;
+        }
 
         /// <summary>
         /// 
@@ -147,6 +161,15 @@ namespace Engine.Calc
             }
 
             return grid;
+        }
+
+        public static Engine.Color.Cell FastAlphaBlend(Engine.Color.Cell fg, Engine.Color.Cell bg)
+        {
+            byte iBlue = (byte)((fg.Alpha * (fg.Blue - bg.Blue)) / 256 + bg.Blue);
+            byte iGreen = (byte)((fg.Alpha * (fg.Green - bg.Green)) / 256 + bg.Green);
+            byte iRed = (byte)((fg.Alpha * (fg.Red - bg.Red)) / 256 + bg.Red);
+
+            return new Engine.Color.Cell(iBlue, iGreen, iRed, Engine.ColorOpacity.Opaque);
         }
     }
 }

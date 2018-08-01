@@ -74,10 +74,20 @@ namespace Engine.Effects
         /// Processes the effect on a copy of the current image stored in the Workflow,
         /// then updates the workflow image
         /// </summary>
+        /// <remarks>This method is called at the end of Process() in every class that inherits EffectBase.</remarks>
         public virtual void Process()
         {
+
+        }
+
+        // to be called by UI because Effect is being processed in separate thread
+        public virtual void ProcessCompleted()
+        {
             t_isImageProcessed = true;
-            t_workflow.SetImage(t_imageProcessed, true);
+            t_workflow.DisallowInvalidate();
+
+            t_workflow.SetImage(t_imageProcessed, false);
+            RaiseProcessEnded();
         }
 
         /// <summary>
@@ -142,5 +152,17 @@ namespace Engine.Effects
         }
 
         // TODO : does EffectBase need a Dispose() ? yes, dispose of VisualProperties
+
+        public event ProcessEndedEventHandler ProcessEnded;
+
+        private void RaiseProcessEnded()
+        {
+            if (ProcessEnded != null)
+            {
+                ProcessEnded(this, new EventArgs());
+            }
+        }
     }
+
+    public delegate void ProcessEndedEventHandler(object sender, EventArgs e);
 }
