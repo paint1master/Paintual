@@ -98,7 +98,7 @@ namespace Engine.Effects.Noise
                 double yDist = yCandidate - y;
                 double zDist = zCandidate - z;
                 value = (System.Math.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist)
-                  ) * Math.Sqrt3 - 1.0;
+                  ) * Engine.Calc.Math.Sqrt3 - 1.0;
             }
             else
             {

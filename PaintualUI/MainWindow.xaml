@@ -87,6 +87,9 @@
                     <!-- translation index "25" -->
                     <!--</MenuItem> -->
                 </MenuItem>
+                <MenuItem Header="Particle Pen" Click="ParticlePen_Click" >
+                    
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Generators" >
                 <!-- translation index "26" -->

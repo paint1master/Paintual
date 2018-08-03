@@ -55,8 +55,7 @@ namespace Engine.Effects.Particles
         {
             Engine.Color.Cell source = Engine.Surface.Ops.GetPixel(c, (int)t_position.X, (int)t_position.Y);
             t_cell.Alpha = alpha;
-            Engine.Color.Cell dest = Engine.Calc.Color.FastAlphaBlend(t_cell, source);
-            Engine.Surface.Ops.SetPixel(dest, c, (int)t_position.X, (int)t_position.Y);
+            Engine.Surface.Ops.SetPixel(Engine.Calc.Color.FastAlphaBlend(t_cell, source), c, (int)t_position.X, (int)t_position.Y);
         }
 
         public Engine.Color.Cell Pixel

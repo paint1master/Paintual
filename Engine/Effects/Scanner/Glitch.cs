@@ -37,6 +37,10 @@ namespace Engine.Effects.Scanner
         private Engine.Effects.Particles.PixelParticle[] t_particles;
         private Accord.Math.Vector3[,] t_flowField;
 
+        private const string paramName_X = "x";
+        private const string paramName_divSpread255 = "divSpread255";
+        private const string paramName_divSpread2f = "divSpread2f";
+
 
         private int steps = 10;
         private int spread = 45;
@@ -68,41 +72,13 @@ namespace Engine.Effects.Scanner
 
         private void ThreadedProcess()
         {
-            CreatePerlinNoisePlane();
+            t_imagePerlin = Engine.Effects.Noise.NoiseFactory.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
             CreateFlowField();
 
             t_workflow.AllowInvalidate();
             Flow();
 
             base.ProcessCompleted();
-        }
-
-        private void CreatePerlinNoisePlane()
-        {
-            Engine.Effects.Noise.IModule module = new Engine.Effects.Noise.Perlin();
-
-            ((Perlin)module).Frequency = t_frequency;
-            ((Perlin)module).NoiseQuality = NoiseQuality.Standard;
-            ((Perlin)module).Seed = t_seed;
-            ((Perlin)module).OctaveCount = t_octaves;
-            ((Perlin)module).Lacunarity = 2.0;
-            ((Perlin)module).Persistence = 0.5;
-
-            double value = 0;
-
-            for (int y = 0; y < t_imageSource.Height; y++)
-            {
-                for (int x = 0; x < t_imageSource.Width - 1; x++)
-                {
-                    value = (module.GetValue(x, y, 0) + 1) / 2.0;
-
-                    if (value < 0) value = 0;
-                    if (value > 1.0) value = 1.0;
-                    byte intensity = (byte)(value * 255.0);
-                    Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, t_imagePerlin, x, y);
-                }
-            }
         }
 
         private void CreateFlowField()
@@ -125,8 +101,7 @@ namespace Engine.Effects.Scanner
 
             for (int i = 0; i < t_particles.Length; i++)
             {
-                Particles.PixelParticle p = new Particles.PixelParticle(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
-                t_particles[i] = p;
+                t_particles[i] = new Engine.Effects.Particles.PixelParticle(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
             }
         }
 
@@ -148,6 +123,7 @@ namespace Engine.Effects.Scanner
                 {
                     ParticleDraw(alpha);
                     ParticlePickColors(x);
+
                     ParticleFlow(x, divSpread);
                 }
             }
@@ -155,17 +131,17 @@ namespace Engine.Effects.Scanner
 
         private void ParticleDraw(byte alpha)
         {
-            for (int y = 0; y < t_imageSource.Height; y++)
+            for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[y].Draw(t_imageProcessed, alpha);
+                t_particles[i].Draw(t_imageProcessed, alpha);
             }
         }
 
         private void ParticlePickColors(int x)
         {
-            for (int y = 0; y < t_imageSource.Height; y++)
+            for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[y].Pixel = Engine.Surface.Ops.GetPixel(t_imageSource, x, y);
+                t_particles[i].Pixel = Engine.Surface.Ops.GetPixel(t_imageSource, x, i);
             }
         }
 
@@ -178,23 +154,39 @@ namespace Engine.Effects.Scanner
             double divSpread255 = divSpread / 255;
             double divSpread2f = divSpread / 2f;
 
-            for (int y = 0; y < t_imageSource.Height; y++)
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
+
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+            paramList.Add(paramName_X, typeof(int), x);
+            paramList.Add(paramName_divSpread255, typeof(double), divSpread255);
+            paramList.Add(paramName_divSpread2f, typeof(double), divSpread2f);
+
+            loop.Loop(t_imageSource.Height, Threaded_ParticleFlow, paramList);
+            loop.Dispose();
+        }
+
+        private int Threaded_ParticleFlow(int start, int end, Engine.Threading.ParamList paramList)
+        {
+            int x = (int) paramList.Get(paramName_X).Value;
+            double divSpread255 = (double)paramList.Get(paramName_divSpread255).Value;
+            double divSpread2f = (double)paramList.Get(paramName_divSpread2f).Value;
+
+            for (int y = start; y < end; y++)
             {
                 Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
-                //Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imageSource, x, y);
                 double lum = (double)Engine.Calc.Color.Luminance(c);
                 double angle = (lum * divSpread255) - divSpread2f; // reduce to range from 0 to 90 (degrees) then shift to get -45 to 45 (degrees)
 
-                // TODO : move Engine.Effects.Noise.Math to Engine.Calc.Math
-                double rad = angle * Engine.Effects.Noise.Math.DEG_TO_RAD;
+                double rad = angle * Engine.Calc.Math.DEG_TO_RAD;
 
                 t_flowField[x, y].X = (float)System.Math.Cos(rad);
                 t_flowField[x, y].Y = (float)System.Math.Sin(rad);
 
                 t_particles[y].Move(t_flowField[x, y]);
             }
-        }
 
+            return 0;
+        }
 
         [Engine.Attributes.Meta.DisplayName("Steps")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]

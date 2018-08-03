@@ -55,7 +55,7 @@ namespace Engine.Effects.Particles
 
         public override void Move(Vector3 direction)
         {
-            if(t_life == 0)
+            if(t_life <= 0)
             {
                 // particle is dead
                 return;
@@ -74,11 +74,6 @@ namespace Engine.Effects.Particles
             double distance = System.Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
             t_life -= distance;
-
-            if (t_life < 0)
-            {
-                t_life = 0;
-            }
         }
 
         public double Life

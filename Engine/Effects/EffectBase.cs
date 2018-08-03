@@ -84,9 +84,13 @@ namespace Engine.Effects
         public virtual void ProcessCompleted()
         {
             t_isImageProcessed = true;
-            t_workflow.DisallowInvalidate();
 
             t_workflow.SetImage(t_imageProcessed, false);
+
+
+            // leaving a little time to thread stuff to be cleaned before updating final image
+            System.Threading.Thread.Sleep(100);
+            t_workflow.DisallowInvalidate();
             RaiseProcessEnded();
         }
 

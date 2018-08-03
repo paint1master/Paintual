@@ -138,7 +138,6 @@
     <Compile Include="Effects\Noise\FastTurbulence.cs" />
     <Compile Include="Effects\Noise\GradientNoiseBasis.cs" />
     <Compile Include="Effects\Noise\IModule.cs" />
-    <Compile Include="Effects\Noise\Math.cs" />
     <Compile Include="Effects\Noise\NoiseFactory.cs" />
     <Compile Include="Effects\Noise\Perlin.cs" />
     <Compile Include="Effects\Noise\RidgedMultifractal.cs" />
@@ -162,8 +161,10 @@
     <Compile Include="Surface\ImageData.cs" />
     <Compile Include="Surface\Ops.cs" />
     <Compile Include="Threading\BackgroundQueue.cs" />
+    <Compile Include="Threading\ProcessThreading.cs" />
     <Compile Include="Tools\IGraphicActivity.cs" />
     <Compile Include="Tools\MotionAttribute.cs" />
+    <Compile Include="Tools\ParticlePen.cs" />
     <Compile Include="Tools\QuickExtractAndSave.cs" />
     <Compile Include="Tools\ThinLineTool.cs" />
     <Compile Include="Tools\Tool.cs" />

@@ -47,7 +47,7 @@ namespace PaintualUI.Controls
             t_timer = new System.Windows.Threading.DispatcherTimer();
             t_timer.Tick += new EventHandler(UpdateVisual);
             t_timer.Interval = new TimeSpan(0, 0, 0, 0, 35); // below 35 not all draw points are shown on MouseUp // they will on next mouse down
-            // TODO : workflow to be able to inform PaintualCanvas that the timer can be stopped when there is no drawing activity, ie Effect activity
+            // timer runs continuously but VIOME has a flag that prevents unnecessary canvas refresh when there is no activity.
             t_timer.Start();
         }
 

@@ -83,7 +83,7 @@ namespace Engine
 
         public void SetImage(Engine.Surface.Canvas image)
         {
-            t_canvas = image;
+            t_canvas = Engine.Surface.Ops.Copy(image);
             t_coordinatesManager.SetImageSize(image.Width, image.Height);
         }
 
@@ -177,6 +177,9 @@ namespace Engine
             // TODO just get the updated portion of the image to be displayed here
             BitmapSource bmpSource = BitmapSource.Create(t_canvas.Width, t_canvas.Height, 96, 96, PixelFormats.Bgra32, null, t_canvas.Array, t_canvas.Stride);
 
+
+            //System.Windows.Media.RenderOptions.SetBitmapScalingMode(bmpSource, BitmapScalingMode.LowQuality);
+            
             // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
             // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
             // that can be manipulated. web link also savec in bmp_creator/improving surface code

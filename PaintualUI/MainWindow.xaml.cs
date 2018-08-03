@@ -177,7 +177,7 @@ namespace PaintualUI
 
             if (string.IsNullOrEmpty(fileName))
             {
-                canvas = new Engine.Surface.Canvas(600, 600, Engine.Color.Cell.ShadeOfGray(255));
+                canvas = new Engine.Surface.Canvas(1200, 1200, Engine.Color.Cell.ShadeOfGray(255));
             }
             else
             {
@@ -373,6 +373,11 @@ namespace PaintualUI
         private void ScanRadial_Click(object sender, RoutedEventArgs e)
         {
             SetActivity(new Engine.Effects.Scanner.Radial());
+        }
+
+        private void ParticlePen_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Tools.ParticlePen());
         }
     }
 }

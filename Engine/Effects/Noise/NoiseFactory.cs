@@ -57,6 +57,8 @@ namespace Engine.Effects.Noise
         private double t_lacunarity;
         private double t_persistence;
 
+        private const string paramName_module = "module";
+
         public NoiseFactory()
         {
             t_visualProperties = new VisualProperties("Noise Factory", typeof(NoiseFactory));
@@ -91,7 +93,8 @@ namespace Engine.Effects.Noise
 
             Engine.Effects.Noise.IModule module;
 
-            // TODO : indicate source of this portion of code
+            // switch block : source and info at : https://libnoisedotnet.codeplex.com/downloads/get/720936
+            // and http://libnoise.sourceforge.net/tutorials/tutorial8.html
 
             switch (t_noiseType)
             {
@@ -144,47 +147,29 @@ namespace Engine.Effects.Noise
 
             t_workflow.AllowInvalidate();
 
-            int height = t_imageProcessed.Height;
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
 
-            int divide = Engine.Calc.Math.Division_Threading(height);
-            
-            Del_Process[] dels = new Del_Process[divide];
-            IAsyncResult[] cookies = new IAsyncResult[divide];
-            
-            int quarterHeight = height / divide;
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+            paramList.Add(paramName_module, typeof(Engine.Effects.Noise.IModule), module);
 
-            int[] ys = new int[divide];
-            int[] heights = new int[divide];
-
-            for (int i = 0; i < divide; i++)
-            {
-                dels[i] = Thread_Process;
-                ys[i] = (quarterHeight * i);
-                heights[i] = quarterHeight * (i + 1);
-            }
-
-            for (int i = 0; i < divide; i++)
-            {
-                cookies[i] = dels[i].BeginInvoke(t_imageProcessed, module, ys[i], heights[i], null, null);
-            }
-
-            for (int i = 0; i < divide; i++)
-            {
-                dels[i].EndInvoke(cookies[i]);
-            }
+            loop.Loop(t_imageSource.Height, Threaded_Process, paramList);
+            loop.Dispose();
 
             base.ProcessCompleted();
         }
 
-        private delegate void Del_Process(Engine.Surface.Canvas image, Engine.Effects.Noise.IModule module, int yStart, int yEnd);
-
-        private static void Thread_Process(Engine.Surface.Canvas image, Engine.Effects.Noise.IModule module, int yStart, int yEnd)
+        private int Threaded_Process(int start, int end, Engine.Threading.ParamList paramList)
         {
+            Engine.Effects.Noise.IModule module = (Engine.Effects.Noise.IModule)paramList.Get(paramName_module).Value;
+
             double value = 0;
 
-            for (int y = yStart; y < yEnd; y++)
+            // loop block : source and info at : https://libnoisedotnet.codeplex.com/downloads/get/720936
+            // and http://libnoise.sourceforge.net/tutorials/tutorial8.html
+
+            for (int y = start; y < end; y++)
             {
-                for (int x = 0; x < image.Width - 1; x++)
+                for (int x = 0; x < t_imageProcessed.Width - 1; x++)
                 {
                     value = (module.GetValue(x, y, 10) + 1) / 2.0;
 
@@ -192,9 +177,43 @@ namespace Engine.Effects.Noise
                     if (value > 1.0) value = 1.0;
                     byte intensity = (byte)(value * 255.0);
                     Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, image, x, y);
+                    Engine.Surface.Ops.SetPixel(c, t_imageProcessed, x, y);
                 }
             }
+
+            return 0;
+        }
+
+        public static Engine.Surface.Canvas CreatePerlinNoisePlane(Engine.Surface.Canvas source, double frequency, int seed, int octaves)
+        {
+            Engine.Surface.Canvas perlinSurface = new Canvas(source.Width, source.Height);
+
+            Engine.Effects.Noise.IModule module = new Engine.Effects.Noise.Perlin();
+
+            ((Perlin)module).Frequency = frequency;
+            ((Perlin)module).NoiseQuality = NoiseQuality.Standard;
+            ((Perlin)module).Seed = seed;
+            ((Perlin)module).OctaveCount = octaves;
+            ((Perlin)module).Lacunarity = 2.0;
+            ((Perlin)module).Persistence = 0.5;
+
+            double value = 0;
+
+            for (int y = 0; y < perlinSurface.Height; y++)
+            {
+                for (int x = 0; x < perlinSurface.Width - 1; x++)
+                {
+                    value = (module.GetValue(x, y, 0) + 1) / 2.0;
+
+                    if (value < 0) value = 0;
+                    if (value > 1.0) value = 1.0;
+                    byte intensity = (byte)(value * 255.0);
+                    Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
+                    Engine.Surface.Ops.SetPixel(c, perlinSurface, x, y);
+                }
+            }
+
+            return perlinSurface;
         }
 
         [Engine.Attributes.Meta.DisplayName("Seed")]

@@ -34,7 +34,7 @@ using System.Windows;
 
 namespace Engine
 {
-    public class CoordinatesManager
+    public class CoordinatesManager : IDisposable
     {
         private double t_zoomFactor = 1d;
 

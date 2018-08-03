@@ -28,7 +28,7 @@ using System;
 namespace Engine.Effects.Noise
 {
     public class GradientNoiseBasis
-        : Math
+        : Engine.Calc.Math
     {
         private const int XNoiseGen = 1619;
         private const int YNoiseGen = 31337;
@@ -315,35 +315,35 @@ namespace Engine.Effects.Noise
                     zs = (z - z0);
                     break;
                 case NoiseQuality.Standard:
-                    xs = SCurve3(x - x0);
-                    ys = SCurve3(y - y0);
-                    zs = SCurve3(z - z0);
+                    xs = Engine.Calc.Math.SCurve3(x - x0);
+                    ys = Engine.Calc.Math.SCurve3(y - y0);
+                    zs = Engine.Calc.Math.SCurve3(z - z0);
                     break;
                 case NoiseQuality.High:
-                    xs = SCurve5(x - x0);
-                    ys = SCurve5(y - y0);
-                    zs = SCurve5(z - z0);
+                    xs = Engine.Calc.Math.SCurve5(x - x0);
+                    ys = Engine.Calc.Math.SCurve5(y - y0);
+                    zs = Engine.Calc.Math.SCurve5(z - z0);
                     break;
             }
 
             double n0, n1, ix0, ix1, iy0, iy1;
             n0 = GradientNoise(x, y, z, x0, y0, z0, seed);
             n1 = GradientNoise(x, y, z, x1, y0, z0, seed);
-            ix0 = LinearInterpolate(n0, n1, xs);
+            ix0 = Engine.Calc.Math.LinearInterpolate(n0, n1, xs);
             n0 = GradientNoise(x, y, z, x0, y1, z0, seed);
             n1 = GradientNoise(x, y, z, x1, y1, z0, seed);
-            ix1 = LinearInterpolate(n0, n1, xs);
-            iy0 = LinearInterpolate(ix0, ix1, ys);
+            ix1 = Engine.Calc.Math.LinearInterpolate(n0, n1, xs);
+            iy0 = Engine.Calc.Math.LinearInterpolate(ix0, ix1, ys);
 
             n0 = GradientNoise(x, y, z, x0, y0, z1, seed);
             n1 = GradientNoise(x, y, z, x1, y0, z1, seed);
-            ix0 = LinearInterpolate(n0, n1, xs);
+            ix0 = Engine.Calc.Math.LinearInterpolate(n0, n1, xs);
             n0 = GradientNoise(x, y, z, x0, y1, z1, seed);
             n1 = GradientNoise(x, y, z, x1, y1, z1, seed);
-            ix1 = LinearInterpolate(n0, n1, xs);
-            iy1 = LinearInterpolate(ix0, ix1, ys);
+            ix1 = Engine.Calc.Math.LinearInterpolate(n0, n1, xs);
+            iy1 = Engine.Calc.Math.LinearInterpolate(ix0, ix1, ys);
 
-            return LinearInterpolate(iy0, iy1, zs);
+            return Engine.Calc.Math.LinearInterpolate(iy0, iy1, zs);
         }
 
         private double GradientNoise(double fx, double fy, double fz, int ix,

@@ -27,7 +27,7 @@ using System;
 namespace Engine.Effects.Noise
 {
     public class FastNoiseBasis
-        : Math
+        : Engine.Calc.Math
     {
         private int[] RandomPermutations = new int[512];
         private int[] SelectedPermutations = new int[512];
@@ -67,27 +67,27 @@ namespace Engine.Effects.Noise
                     w = (z - z0);
                     break;
                 case NoiseQuality.Standard:
-                    u = SCurve3(x - x0);
-                    v = SCurve3(y - y0);
-                    w = SCurve3(z - z0);
+                    u = Engine.Calc.Math.SCurve3(x - x0);
+                    v = Engine.Calc.Math.SCurve3(y - y0);
+                    w = Engine.Calc.Math.SCurve3(z - z0);
                     break;
                 case NoiseQuality.High:
-                    u = SCurve5(x - x0);
-                    v = SCurve5(y - y0);
-                    w = SCurve5(z - z0);
+                    u = Engine.Calc.Math.SCurve5(x - x0);
+                    v = Engine.Calc.Math.SCurve5(y - y0);
+                    w = Engine.Calc.Math.SCurve5(z - z0);
                     break;
             }
 
             int A = SelectedPermutations[X] + Y, AA = SelectedPermutations[A] + Z, AB = SelectedPermutations[A + 1] + Z,
                 B = SelectedPermutations[X + 1] + Y, BA = SelectedPermutations[B] + Z, BB = SelectedPermutations[B + 1] + Z;
 
-            double a = LinearInterpolate(GradientTable[AA], GradientTable[BA], u);
-            double b = LinearInterpolate(GradientTable[AB], GradientTable[BB], u);
-            double c = LinearInterpolate(a, b, v);
-            double d = LinearInterpolate(GradientTable[AA + 1], GradientTable[BA + 1], u);
-            double e = LinearInterpolate(GradientTable[AB + 1], GradientTable[BB + 1], u);
-            double f = LinearInterpolate(d, e, v);
-            return LinearInterpolate(c, f, w);
+            double a = Engine.Calc.Math.LinearInterpolate(GradientTable[AA], GradientTable[BA], u);
+            double b = Engine.Calc.Math.LinearInterpolate(GradientTable[AB], GradientTable[BB], u);
+            double c = Engine.Calc.Math.LinearInterpolate(a, b, v);
+            double d = Engine.Calc.Math.LinearInterpolate(GradientTable[AA + 1], GradientTable[BA + 1], u);
+            double e = Engine.Calc.Math.LinearInterpolate(GradientTable[AB + 1], GradientTable[BB + 1], u);
+            double f = Engine.Calc.Math.LinearInterpolate(d, e, v);
+            return Engine.Calc.Math.LinearInterpolate(c, f, w);
         }
 
         public int Seed

@@ -46,7 +46,7 @@ namespace Engine.Effects.Noise
             int xInt = (x > 0.0 ? (int)x : (int)x - 1);
             double distFromSmallerSphere = distFromCenter - xInt;
             double distFromLargerSphere = 1.0 - distFromSmallerSphere;
-            double nearestDist = Math.GetSmaller(distFromSmallerSphere, distFromLargerSphere);
+            double nearestDist = Engine.Calc.Math.GetSmaller(distFromSmallerSphere, distFromLargerSphere);
             return 1.0 - (nearestDist * 4.0); // Puts it in the -1.0 to +1.0 range.
         }
     }

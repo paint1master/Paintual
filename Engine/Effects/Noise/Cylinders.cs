@@ -45,7 +45,7 @@ namespace Engine.Effects.Noise
             int distFromCenter0 = (distFromCenter > 0.0 ? (int)distFromCenter : (int)distFromCenter - 1);
             double distFromSmallerSphere = distFromCenter - distFromCenter0;
             double distFromLargerSphere = 1.0 - distFromSmallerSphere;
-            double nearestDist = Math.GetSmaller(distFromSmallerSphere, distFromLargerSphere);
+            double nearestDist = Engine.Calc.Math.GetSmaller(distFromSmallerSphere, distFromLargerSphere);
             return 1.0 - (nearestDist * 4.0);
         }
     }

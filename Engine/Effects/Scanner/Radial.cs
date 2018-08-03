@@ -31,11 +31,12 @@ using Engine.Effects.Noise;
 
 namespace Engine.Effects.Scanner
 {
-    public class Radial :EffectBase
+    public class Radial : EffectBase
     {
         private Engine.Surface.Canvas t_imagePerlin;
         private Engine.Effects.Particles.LivingPixelParticle[] t_particles;
         private Accord.Math.Vector3[,] t_flowField;
+        private int t_particleCount = 200;
 
         private int steps = 10;
         private double t_frequency = 0.01;
@@ -67,9 +68,10 @@ namespace Engine.Effects.Scanner
 
         private void ThreadedProcess()
         {
-            CreatePerlinNoisePlane();
+            t_imagePerlin = Engine.Effects.Noise.NoiseFactory.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
             CreateFlowField();
 
+            // call this as late as possible, just before actual effect processing
             t_workflow.AllowInvalidate();
             Flow();
 
@@ -119,8 +121,7 @@ namespace Engine.Effects.Scanner
                     double lum = (double)Engine.Calc.Color.Luminance(c);
                     double angle = (lum * 360 / 255);
 
-                    // TODO : move Engine.Effects.Noise.Math to Engine.Calc.Math
-                    double rad = angle * Engine.Effects.Noise.Math.DEG_TO_RAD;
+                    double rad = angle * Engine.Calc.Math.DEG_TO_RAD;
 
                     t_flowField[x, y].X = (float)System.Math.Cos(rad);
                     t_flowField[x, y].Y = (float)System.Math.Sin(rad);
@@ -130,17 +131,16 @@ namespace Engine.Effects.Scanner
 
         private void CreateParticles(byte alpha)
         {
-            Engine.Color.Cell color = new Engine.Color.Cell(200, 220, 230, alpha);
+            //Engine.Color.Cell color = new Engine.Color.Cell(200, 220, 230, alpha); beige
+            Engine.Color.Cell color = new Engine.Color.Cell(220, 210, 200, alpha); // light blue
 
-            t_particles = new Particles.LivingPixelParticle[t_imageSource.Height];
-            //t_particles = new Particles.LivingPixelParticle[5];
+            t_particles = new Particles.LivingPixelParticle[t_particleCount];
 
             for (int i = 0; i < t_particles.Length; i++)
             {
                 // particles are centered on screen
                 Particles.LivingPixelParticle p = new Particles.LivingPixelParticle(color, t_imageSource.Width / 2, t_imageSource.Height / 2, t_particleLife, t_expansion);
                 t_particles[i] = p;
-
             }
         }
 
@@ -150,115 +150,114 @@ namespace Engine.Effects.Scanner
             // because it reduces the alpha value to 0
             for (int s = 1; s <= steps; s++)
             {
-                //byte alpha = (byte)(Engine.ColorOpacity.Opaque * s / steps);
-                byte alpha = 127;
+                byte alpha = (byte)(Engine.ColorOpacity.Opaque * s / steps);
+                //byte alpha = 127;
 
                 // particles need to be reset to left of image at each pass
                 // otherwise they go off and only one layer of alpha particles are saved in image
                 CreateParticles(alpha);
 
-                double life = 0;
-
-                do
-                {
-                    life = 0;
-                    ParticleDraw();
-                    ParticleUpdateColors(ref life);
-                    ParticleFlow(ref life);
-                } while (life > t_particleLife); // instead of 0 because it takes too long to kill all particles.
-            }
-        }
-
-        private void ParticleDraw()
-        {
-            for (int y = 0; y < t_particles.Length; y++)
-            {
-                t_particles[y].Draw(t_imageProcessed);
-            }
-        }
-
-        private void ParticleUpdateColors(ref double life)
-        {
-            // life is used to limit the number of times the colors are being updated
-            int mod = (int)life;
-            if (mod % 10 != 0)
-            {
-                return;
-            }
-
-            int rd = Engine.Calc.Math.Rand.Next(2);
-            rd = rd - 1; // to get positive and negative values to change the color
-
-            foreach(var p in t_particles)
-            {
-                Engine.Color.Cell c = p.Pixel;
-                int b = (int)c.Blue;
-                b += rd;
-
-                if (b < 0)
-                    b = 0;
-
-                if (b > 255)
-                    b = 255;
-
-                int g = (int)c.Green;
-                g += rd;
-
-                if (g < 0)
-                    g = 0;
-
-                if (g > 255)
-                    g = 255;
-
-                int r = (int)c.Red;
-                r += rd;
-
-                if (r < 0)
-                    r = 0;
-
-                if (r > 255)
-                    r = 255;
-
-                c.Blue = (byte)b;
-                c.Green = (byte)g;
-                c.Red = (byte)r;
-
-                p.Pixel = c;
+                /*
+                Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
+                loop.Loop(t_particles.Length, ParticleFlow, null);
+                loop.Dispose();
+                // for some reason, last image refresh does not always work
+                // bug exists only when threading Flow()
+                System.Threading.Thread.Sleep(200);
+                */
+                ParticleFlow(0, t_particles.Length, null);
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="x"></param>
-        private void ParticleFlow(ref double life)
+        private int ParticleFlow(int start, int end, Engine.Threading.ParamList lst)
         {
-            foreach (var p in t_particles)
+            double life = 0;
+
+            do
             {
-                if (p.Life < 0)
+                life = 0;
+
+                for (int i = start; i < end; i++)
                 {
-                    continue;
+                    t_particles[i].Draw(t_imageProcessed);
+
                 }
 
-                Accord.Math.Vector3 pos = p.Position;
-
-                if (pos.X < 0 || pos.X >= t_imageProcessed.Width)
+                // life is used to limit the number of times the colors are being updated
+                if ((int)life % 10 == 0)
                 {
-                    p.Die();
-                    life += 0;
-                    continue;
+                    int rd = Engine.Calc.Math.Rand.Next(10);
+                    rd = rd - 5; // to get positive and negative values to change the color
+
+                    for (int j = start; j < end; j++)
+                    {
+                        Engine.Color.Cell c = t_particles[j].Pixel;
+                        int b = (int)c.Blue;
+                        b += rd;
+
+                        if (b < 0)
+                            b = 0;
+
+                        if (b > 255)
+                            b = 255;
+
+                        int g = (int)c.Green;
+                        g += rd;
+
+                        if (g < 0)
+                            g = 0;
+
+                        if (g > 255)
+                            g = 255;
+
+                        int r = (int)c.Red;
+                        r += rd;
+
+                        if (r < 0)
+                            r = 0;
+
+                        if (r > 255)
+                            r = 255;
+
+                        c.Blue = (byte)b;
+                        c.Green = (byte)g;
+                        c.Red = (byte)r;
+
+                        t_particles[j].Pixel = c;
+                    }
                 }
 
-                if (pos.Y < 0 || pos.Y >= t_imageProcessed.Height)
+                for (int i = start; i < end; i++)
                 {
-                    p.Die();
-                    life += 0;
-                    continue;
+                    if (t_particles[i].Life < 0)
+                    {
+                        continue;
+                    }
+
+                    Accord.Math.Vector3 pos = t_particles[i].Position;
+
+                    if (pos.X < 0 || pos.X >= t_imageProcessed.Width)
+                    {
+                        t_particles[i].Die();
+                        continue;
+                    }
+
+                    if (pos.Y < 0 || pos.Y >= t_imageProcessed.Height)
+                    {
+                        t_particles[i].Die();
+                        continue;
+                    }
+
+                    t_particles[i].Move(t_flowField[(int)t_particles[i].Position.X, (int)t_particles[i].Position.Y]);
+                    life += t_particles[i].Life;
                 }
 
-                p.Move(t_flowField[(int)p.Position.X, (int)p.Position.Y]);
-                life += p.Life;
-            }
+            } while (life > t_particleLife);
+
+            return 0;
         }
 
         [Engine.Attributes.Meta.DisplayName("Steps")]
