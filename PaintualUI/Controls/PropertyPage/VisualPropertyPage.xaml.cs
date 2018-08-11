@@ -39,28 +39,60 @@ namespace PaintualUI.Controls.PropertyPage
     /// </summary>
     public partial class VisualPropertyPage : UserControl
     {
-        private Engine.Viome t_workflow;
-        private Engine.Effects.VisualProperties t_visualProperties;
+        private Engine.Workflow t_workflow;
 
         /// <summary>
-        /// holds property values, used when switching from drawing board to drawing board so that the UI and the Graphic activity
-        /// remember values set by user. Current instance is saved in the corresponding tool or effect instance.
+        /// Remembers the property values entered by the user so when the user switches from drawing board to drawing board the UI of the
+        /// VisualPropertyPage can be repopulated with the corresponding values.
         /// </summary>
         private Engine.Attributes.AttributeCollection t_properties;
 
-        public VisualPropertyPage() => InitializeComponent();
+        public VisualPropertyPage()
+        {
+            InitializeComponent();
 
-        public void Build(Engine.Effects.VisualProperties vp)
+            /// this is now required because we used call .UpdateVisual() on all templated controls
+            /// when creating them but now we need to call that method only when the VisualPropertyPage is fully loaded
+            /// because templated controls are fully instantiated later than user controls (!!??!!)
+            this.Loaded += VisualPropertyPage_Loaded;
+        }
+
+        private void VisualPropertyPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateControlVisuals();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="w"></param>
+        /// <remarks>Called by the VisualPropertyPageManager</remarks>
+        internal void Build(Engine.Workflow w)
         {
             Clear();
 
-            // this can happen for tools or effects that do not have visual properties
+            t_workflow = w;
+
+            if (w.GraphicActivity == null)
+            {
+                return;
+            }
+
+            Engine.Tools.IGraphicActivity activity = w.GraphicActivity;
+            Engine.Effects.VisualProperties vp = activity.GetVisualProperties();
+
+
+            // this can happen for tools or effects that have no visual properties
             if (vp == null)
             {
                 return;
             }
 
-            t_visualProperties = vp;
+            if (vp.Count == 0)
+            {
+                return;
+            }
+
             t_properties = new Engine.Attributes.AttributeCollection();
 
             Dictionary<string, Engine.Effects.VisualPropertyItem> items = vp.GetItems();
@@ -71,16 +103,20 @@ namespace PaintualUI.Controls.PropertyPage
             }
         }
 
+        /// <summary>
+        /// Removes all controls from the FlowPanelContainer
+        /// </summary>
         public void Clear()
         {
-            FlowPanelContainer.Children.Clear();
-            t_visualProperties = null;
-            t_properties = null;
-        }
+            // explicitly removes children controls and set them to null
+            while (FlowPanelContainer.Children.Count > 0)
+            {
+                UIElement uie = FlowPanelContainer.Children[0];
+                FlowPanelContainer.Children.Remove(uie);
+                uie = null;
+            }
 
-        public void SetWorkflow(Engine.Viome w)
-        {
-            t_workflow = w;
+            t_properties = null;
         }
 
         #region Build
@@ -88,7 +124,7 @@ namespace PaintualUI.Controls.PropertyPage
         {
             Engine.Effects.VisualPropertyItem pi = key.Value;
 
-            System.Windows.Controls.UserControl ctrl = null;
+            PaintualUI.Controls.PropertyPage.TPropertyControl ctrl = null;
 
             switch (pi.DisplayControlType)
             {
@@ -132,14 +168,14 @@ namespace PaintualUI.Controls.PropertyPage
             pi.Index = FlowPanelContainer.Children.Count - 1;
         }
 
-        private System.Windows.Controls.UserControl BuildPropertyFolderSelector(Engine.Effects.VisualPropertyItem pi)
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyFolderSelector(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyFolderSelector pfs = new PropertyPage.PropertyFolderSelector();
+            PaintualUI.Controls.PropertyPage.TPropertyFolderSelector pfs = new PropertyPage.TPropertyFolderSelector();
             pfs.Name = pi.ActualPropertyName;
-            pfs.CommonContent.PropertyName = pi.ActualPropertyName;
-            pfs.CommonContent.LabelText = pi.DisplayName;
-            pfs.CommonContent.DataType = pi.DataType;
-            pfs.UpdateVisual();
+            pfs.PropertyName = pi.ActualPropertyName;
+            pfs.LabelText = pi.DisplayName;
+            pfs.DataType = pi.DataType;
+            //pfs.UpdateVisual(); now in Loaded event handler
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.StringAttribute());
 
@@ -148,7 +184,7 @@ namespace PaintualUI.Controls.PropertyPage
                 switch (pi.ValidatorType)
                 {
                     case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        pfs.CommonContent.Validator = new Engine.Validators.StringValidator();
+                        pfs.Validators.Add(new Engine.Validators.StringValidator());
                         break;
                     default:
                         throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
@@ -158,14 +194,16 @@ namespace PaintualUI.Controls.PropertyPage
             return pfs;
         }
 
-        private System.Windows.Controls.UserControl BuildPropertyIntBox(Engine.Effects.VisualPropertyItem pi)
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyIntBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyIntBox pib = new PropertyIntBox();
+            PaintualUI.Controls.PropertyPage.TPropertyIntBox pib = new TPropertyIntBox();
+
             pib.Name = pi.ActualPropertyName;
-            pib.CommonContent.PropertyName = pi.ActualPropertyName;
-            pib.CommonContent.LabelText = pi.DisplayName;
-            pib.CommonContent.DataType = pi.DataType;
-            pib.UpdateVisual();
+            pib.PropertyName = pi.ActualPropertyName;
+            pib.LabelText = pi.DisplayName;
+            pib.DataType = pi.DataType;
+            pib.DefaultValue = pi.DefaultValue;
+            //pfs.UpdateVisual(); now in Loaded event handler
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.IntAttribute());
 
@@ -174,7 +212,12 @@ namespace PaintualUI.Controls.PropertyPage
                 switch (pi.ValidatorType)
                 {
                     case Engine.Attributes.Meta.ValidatorTypes.Int:
-                        pib.CommonContent.Validator = new Engine.Validators.IntValidator();
+                        pib.Validators.Add(new Engine.Validators.IntValidator());
+
+                        if (pi.RangeMinimumValue != null && pi.RangeMaximumValue != null)
+                        {
+                            pib.Validators.Add(new Engine.Validators.RangeIntValidator(pi.RangeMinimumValue.Value, pi.RangeMaximumValue.Value));
+                        }
                         break;
                     default:
                         throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported.", pi.ValidatorType));
@@ -184,14 +227,15 @@ namespace PaintualUI.Controls.PropertyPage
             return pib;
         }
 
-        private System.Windows.Controls.UserControl BuildPropertyDoubleBox(Engine.Effects.VisualPropertyItem pi)
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyDoubleBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyDoubleBox pdb = new PropertyDoubleBox();
+            PaintualUI.Controls.PropertyPage.TPropertyDoubleBox pdb = new TPropertyDoubleBox();
             pdb.Name = pi.ActualPropertyName;
-            pdb.CommonContent.PropertyName = pi.ActualPropertyName;
-            pdb.CommonContent.LabelText = pi.DisplayName;
-            pdb.CommonContent.DataType = pi.DataType;
-            pdb.UpdateVisual();
+            pdb.PropertyName = pi.ActualPropertyName;
+            pdb.LabelText = pi.DisplayName;
+            pdb.DataType = pi.DataType;
+            pdb.DefaultValue = pi.DefaultValue;
+            //pfs.UpdateVisual(); now in Loaded event handler
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.DoubleAttribute());
 
@@ -200,7 +244,7 @@ namespace PaintualUI.Controls.PropertyPage
                 switch (pi.ValidatorType)
                 {
                     case Engine.Attributes.Meta.ValidatorTypes.Double:
-                        pdb.CommonContent.Validator = new Engine.Validators.DoubleValidator();
+                        pdb.Validators.Add(new Engine.Validators.DoubleValidator());
                         break;
                     default:
                         throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
@@ -210,27 +254,27 @@ namespace PaintualUI.Controls.PropertyPage
             return pdb;
         }
 
-        private System.Windows.Controls.UserControl BuildPropertyRadioButtons(Engine.Effects.VisualPropertyItem pi)
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyRadioButtons(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyRadioButtons prb = new PropertyPage.PropertyRadioButtons();
+            PaintualUI.Controls.PropertyPage.TPropertyRadioButtons prb = new PropertyPage.TPropertyRadioButtons();
             prb.Name = pi.ActualPropertyName;
-            prb.CommonContent.PropertyName = pi.ActualPropertyName;
-            prb.CommonContent.LabelText = pi.DisplayName;
-            prb.CommonContent.DataType = pi.DataType;
-            prb.CommonContent.ValueList = pi.ValueList;
-            prb.CommonContent.DefaultValue = pi.DefaultValue;
+            prb.PropertyName = pi.ActualPropertyName;
+            prb.LabelText = pi.DisplayName;
+            prb.DataType = pi.DataType;
+            prb.ValueList = pi.ValueList;
+            prb.DefaultValue = pi.DefaultValue;
 
             // in this case we only store the selected value for future usage
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.IntAttribute());
 
-            prb.UpdateVisual();
+            //pfs.UpdateVisual(); now in Loaded event handler
 
             if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
             {
                 switch (pi.ValidatorType)
                 {
                     case Engine.Attributes.Meta.ValidatorTypes.ValueList:
-                        prb.CommonContent.Validator = new Engine.Validators.ValueListValidator(pi.ValueList);
+                        prb.Validators.Add(new Engine.Validators.ValueListValidator(pi.ValueList));
                         break;
                     default:
                         throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported.", pi.ValidatorType));
@@ -240,14 +284,14 @@ namespace PaintualUI.Controls.PropertyPage
             return prb;
         }
 
-        private System.Windows.Controls.UserControl BuildPropertyTextBox(Engine.Effects.VisualPropertyItem pi)
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyTextBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyTextBox ptb = new PropertyTextBox();
+            PaintualUI.Controls.PropertyPage.TPropertyTextBox ptb = new TPropertyTextBox();
             ptb.Name = pi.ActualPropertyName;
-            ptb.CommonContent.PropertyName = pi.ActualPropertyName;
-            ptb.CommonContent.LabelText = pi.DisplayName;
-            ptb.CommonContent.DataType = pi.DataType;
-            ptb.UpdateVisual();
+            ptb.PropertyName = pi.ActualPropertyName;
+            ptb.LabelText = pi.DisplayName;
+            ptb.DataType = pi.DataType;
+            //pfs.UpdateVisual(); now in Loaded event handler
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.StringAttribute());
 
@@ -258,7 +302,7 @@ namespace PaintualUI.Controls.PropertyPage
                     case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
                         Engine.Validators.StringValidator strValid = new Engine.Validators.StringValidator(pi.RegularExpression);
                         strValid.CannotBeEmpty = true;
-                        ptb.CommonContent.Validator = strValid;
+                        ptb.Validators.Add(strValid);
                         break;
                     default:
                         throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
@@ -267,24 +311,40 @@ namespace PaintualUI.Controls.PropertyPage
 
             return ptb;
         }
+
+        private void UpdateControlVisuals()
+        {
+            foreach (UIElement uie in FlowPanelContainer.Children)
+            {
+                PaintualUI.Controls.PropertyPage.TPropertyControl tpc = (PaintualUI.Controls.PropertyPage.TPropertyControl)uie;
+
+                if (tpc != null)
+                {
+                    tpc.UpdateVisual();
+                }
+            }
+        }
         #endregion // Build
+
+
 
         #region Fill
         /// <summary>
         /// Retrieves values passed to tool of effect and put them in controls. This is used when user changes active drawing board
         /// </summary>
         /// <param name="collectedValues">The collected VisualPropertyPage values saved in the tool or effect corresponding to the current drawing board</param>
-        public void Fill(Engine.Attributes.AttributeCollection collectedValues)
+        public void Fill(Engine.Workflow w)
         {
-            // the following should never happen if Build() is called before Fill() in VisualPropertyPageManager
-            if (t_visualProperties == null)
+            Engine.Effects.VisualProperties vp  = w.GraphicActivity.GetVisualProperties();
+
+            if (vp == null)
             {
                 return;
             }
 
-            t_properties = collectedValues;
+            //t_properties = collectedValues;
 
-            Dictionary<string, Engine.Effects.VisualPropertyItem> items = t_visualProperties.GetItems();
+            Dictionary<string, Engine.Effects.VisualPropertyItem> items = vp.GetItems();
 
             foreach (KeyValuePair<string, Engine.Effects.VisualPropertyItem> key in items)
             {
@@ -335,56 +395,64 @@ namespace PaintualUI.Controls.PropertyPage
 
         private void FillPropertyIntBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyIntBox pib = (PaintualUI.Controls.PropertyPage.PropertyIntBox)this.FlowPanelContainer.Children[pi.Index];
+            PaintualUI.Controls.PropertyPage.TPropertyIntBox pib = (PaintualUI.Controls.PropertyPage.TPropertyIntBox)this.FlowPanelContainer.Children[pi.Index];
 
             // get collected values from tool or effect
             Engine.Attributes.IAttribute attr = t_properties.Get(pi.ActualPropertyName);
 
-            pib.TextBox.Text = ((int)attr.Value).ToString();
+            pib.DefaultValue = ((int)attr.Value).ToString();
+            pib.UpdateVisual();
         }
 
         private void FillPropertyDoubleBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyDoubleBox pdb = (PaintualUI.Controls.PropertyPage.PropertyDoubleBox)this.FlowPanelContainer.Children[pi.Index];
+            PaintualUI.Controls.PropertyPage.TPropertyDoubleBox pdb = (PaintualUI.Controls.PropertyPage.TPropertyDoubleBox)this.FlowPanelContainer.Children[pi.Index];
 
             // get collected values from tool or effect
             Engine.Attributes.IAttribute attr = t_properties.Get(pi.ActualPropertyName);
 
-            pdb.TextBox.Text = ((double)attr.Value).ToString();
+            pdb.DefaultValue = ((double)attr.Value).ToString();
+            pdb.UpdateVisual();
         }
 
         private void FillPropertyTextBox(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyTextBox ptb = (PaintualUI.Controls.PropertyPage.PropertyTextBox)this.FlowPanelContainer.Children[pi.Index];
+            PaintualUI.Controls.PropertyPage.TPropertyTextBox ptb = (PaintualUI.Controls.PropertyPage.TPropertyTextBox)this.FlowPanelContainer.Children[pi.Index];
 
             // get collected values from tool or effect
             Engine.Attributes.IAttribute attr = t_properties.Get(pi.ActualPropertyName);
 
-            ptb.TextBox.Text = (string)attr.Value;
+            ptb.DefaultValue = (string)attr.Value;
+            ptb.UpdateVisual();
         }
 
         private void FillPropertyRadioButtons(Engine.Effects.VisualPropertyItem pi)
         {
+            PaintualUI.Controls.PropertyPage.TPropertyRadioButtons prb = (PaintualUI.Controls.PropertyPage.TPropertyRadioButtons)this.FlowPanelContainer.Children[pi.Index];
 
+            // get collected values from tool or effects
+            Engine.Attributes.IAttribute attr = t_properties.Get(pi.ActualPropertyName);
+            prb.DefaultValue = attr.Value;
+            prb.UpdateVisual();
         }
 
         private void FillPropertyFolderSelector(Engine.Effects.VisualPropertyItem pi)
         {
-            PaintualUI.Controls.PropertyPage.PropertyFolderSelector pfs = (PaintualUI.Controls.PropertyPage.PropertyFolderSelector)this.FlowPanelContainer.Children[pi.Index];
+            PaintualUI.Controls.PropertyPage.TPropertyFolderSelector pfs = (PaintualUI.Controls.PropertyPage.TPropertyFolderSelector)this.FlowPanelContainer.Children[pi.Index];
 
             // get collected values from tool or effect
             Engine.Attributes.IAttribute attr = t_properties.Get(pi.ActualPropertyName);
 
-            pfs.TextBox.Text = (string)attr.Value;
+            pfs.DefaultValue = (string)attr.Value;
+            pfs.UpdateVisual();
         }
-
 
         #endregion // Fill
 
         #region Process
         private void BtnApply_Click(object sender, RoutedEventArgs e)
         {
-            if (t_workflow.CurrentActivity == null)
+            if (t_workflow.GraphicActivity == null)
             {
                 MessageBox.Show("No effect or tool selected.");
                 return;
@@ -394,7 +462,7 @@ namespace PaintualUI.Controls.PropertyPage
 
             if (t_workflow.CurrentEffect != null)
             {
-                hasErrors = ProcessEffect(sender, e);
+                hasErrors = Apply();
 
                 if (!hasErrors)
                 {
@@ -406,109 +474,78 @@ namespace PaintualUI.Controls.PropertyPage
 
             if (t_workflow.CurrentTool != null)
             {
-                t_workflow.CurrentTool.HasErrors = ProcessTool(sender, e);
+                t_workflow.CurrentTool.HasErrors = Apply();
 
                 return;
             }
         }
 
-        private bool ProcessEffect(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Validates and passes the values to the selected GraphicActivity (tool, effect, animation).
+        /// </summary>
+        /// <returns>Indicates whether or not the validation process raised an error or not.</returns>
+        private bool Apply()
         {
-            Engine.Effects.EffectBase effect = t_workflow.CurrentEffect;
-            Type effectType = effect.GetType();
+            Engine.Tools.IGraphicActivity ga = t_workflow.GraphicActivity;
+            Type gaType = ga.GetType();
 
             bool hasErrors = false;
 
             foreach (System.Windows.UIElement uie in FlowPanelContainer.Children)
             {
-                IPropertyControl ipc = (IPropertyControl)uie;
-
-                string propertyActualName = ipc.CommonContent.PropertyName; // i.e.: "Seed"
-                object validatedValue = null;
-
-                if (ipc.CommonContent.Validator != null)
-                {
-                    ipc.CommonContent.Validator.InputValue = ipc.EnteredValue;
-                    bool result = ipc.CommonContent.Validator.Validate();
-
-                    if (!result)
-                    {
-                        ipc.SignalError(ipc.CommonContent.Validator.ErrorMessage);
-                        hasErrors = true;
-                        continue;
-                    }
-
-                    validatedValue = ((Engine.Validators.IValidated)ipc.CommonContent.Validator).Validated;
-
-                    // there is a special case where the selected value is an enum, this is being handled by the IntAttribute class
-                    t_properties.Get(propertyActualName).SetValue(validatedValue); 
-                }
-
-                PropertyInfo prop = effectType.GetProperty(propertyActualName, BindingFlags.Public | BindingFlags.Instance);
-
-                if (prop != null && prop.CanWrite)
-                {
-                    prop.SetValue(effect, validatedValue, null);
-                }
-            }
-
-            effect.CollectedPropertyValues = t_properties;
-
-            return hasErrors;
-        }
-
-        private bool ProcessTool(object sender, RoutedEventArgs e)
-        {
-            Engine.Tools.Tool tool = t_workflow.CurrentTool;
-            Type toolType = tool.GetType();
-
-            bool hasErrors = false;
-
-            foreach (System.Windows.UIElement uie in FlowPanelContainer.Children)
-            {
-                IPropertyControl ipc = (IPropertyControl)uie;
+                TPropertyControl ipc = (TPropertyControl)uie;
 
                 // required when user has entered invalid value, signals are being displayed. when user enters corrected values
                 // the validation process is executed again and in case of success, no signal must be displayed.
                 ipc.ClearSignals();
 
-                string propertyActualName = ipc.CommonContent.PropertyName; // i.e.: "Seed"
+                string propertyActualName = ipc.PropertyName; // i.e.: "Seed"
                 object validatedValue = null;
 
-                if (ipc.CommonContent.Validator != null)
+                if (ipc.Validators.Count > 0)
                 {
-                    ipc.CommonContent.Validator.InputValue = ipc.EnteredValue;
-                    bool result = ipc.CommonContent.Validator.Validate();
-
-                    if (!result)
+                    foreach (Engine.Validators.Validator v in ipc.Validators)
                     {
-                        ipc.SignalError(ipc.CommonContent.Validator.ErrorMessage);
-                        hasErrors = true;
-                        continue;
+                        v.InputValue = ipc.EnteredValue;
+                        bool result = v.Validate();
+
+                        if (!result)
+                        {
+                            ipc.SignalError(v.ErrorMessage);
+                            hasErrors = true;
+                            continue;
+                        }
                     }
 
-                    validatedValue = ((Engine.Validators.IValidated)ipc.CommonContent.Validator).Validated;
+                    if (!hasErrors)
+                    {
+                        // using the interface IValidated which can return an object; specific validators return a value specific to the control data type
+                        validatedValue = ((Engine.Validators.IValidated)ipc.Validators[ipc.Validators.Count - 1]).Validated;
 
-                    // there is a special case where the selected value is an enum, this is being handled by the IntAttribute class
-                    t_properties.Get(propertyActualName).SetValue(validatedValue);
+                        // there is a special case where the selected value is an enum, this is being handled by the IntAttribute class
+                        t_properties.Get(propertyActualName).SetValue(validatedValue);
+                    }
+                }
+                else
+                {
+                    // no validator
+
+                    validatedValue = ipc.EnteredValue;
                 }
 
-                PropertyInfo prop = toolType.GetProperty(propertyActualName, BindingFlags.Public | BindingFlags.Instance);
+                PropertyInfo prop = gaType.GetProperty(propertyActualName, BindingFlags.Public | BindingFlags.Instance);
 
                 if (prop != null && prop.CanWrite)
                 {
-                    prop.SetValue(tool, validatedValue, null);
+                    prop.SetValue(ga, validatedValue, null);
                 }
             }
 
-            tool.CollectedPropertyValues = t_properties;
+            ga.CollectedPropertyValues = t_properties;
 
             return hasErrors;
-
-            // tool.Process would call the sequence to draw on the canvas
-            // here we only needed to pass to the tool the properties set by user in the UI
-            //tool.Process();
         }
+
         #endregion // Process
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)

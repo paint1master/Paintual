@@ -48,22 +48,24 @@
         <ControlTemplate.Triggers>
             <Trigger Property="IsSelected"
                      Value="True">
-                <Setter Property="Background"
-                        Value="{DynamicResource ActiveTabItemBackground}" />
+                <Setter Property="Background" Value="#FF909090"></Setter>
+                <Setter Property="Foreground" Value="White"></Setter>
                 <Setter Property="Background"
                         TargetName="CloseButton"
                         Value="{DynamicResource ActiveTabItemCloseButtonHoverBackground}" />
                 <Setter Property="Visibility"
                         TargetName="CloseButton"
                         Value="Visible" />
-                <Setter Property="Foreground"
-                        Value="Black" />
             </Trigger>
             <Trigger Property="IsMouseOver"
                      Value="True">
                 <Setter Property="Visibility"
                         TargetName="CloseButton"
                         Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="False">
+                <Setter Property="Background" Value="#FFEEEEEE" />
+                <Setter Property="Foreground" Value="#FF909090"></Setter>
             </Trigger>
         </ControlTemplate.Triggers>
       

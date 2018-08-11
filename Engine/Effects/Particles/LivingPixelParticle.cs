@@ -5,19 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Accord.Math;
 
-namespace Engine.Effects.Particles
+namespace Engine.Effects.Particles.Obsolete
 {
-    public class LivingPixelParticle : PixelParticle
+    [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
+    public class LivingPixelParticle_O : PixelParticle_O
     {
         double t_life = 0;
         private Accord.Math.Vector3 t_direction;
 
-        public LivingPixelParticle() : base()
+        public LivingPixelParticle_O() : base()
         {
 
         }
 
-        public LivingPixelParticle(Engine.Color.Cell c, int x, int y) : base(c, x, y)
+        public LivingPixelParticle_O(Engine.Color.Cell c, int x, int y) : base(c, x, y)
         {
 
         }
@@ -30,7 +31,7 @@ namespace Engine.Effects.Particles
         /// <param name="y"></param>
         /// <param name="life"></param>
         /// <param name="expansion">A coefficient that increases the magnitude of the direction vector.</param>
-        public LivingPixelParticle(Engine.Color.Cell c, int x, int y, double life, int expansion) : base(c, x, y)
+        public LivingPixelParticle_O(Engine.Color.Cell c, int x, int y, double life, int expansion) : base(c, x, y)
         {
             t_life = life;
 

@@ -28,11 +28,13 @@ namespace Engine.Tools
 {
     public interface IGraphicActivity
     {
-        void Initialize(Engine.Viome w);
+        void Initialize(Engine.Workflow w);
+
+        void PreProcess();
 
         void Process();
 
-        IGraphicActivity Duplicate(Engine.Viome w);
+        IGraphicActivity Duplicate(Engine.Workflow w);
 
         Engine.Attributes.AttributeCollection CollectedPropertyValues { get; set; }
 
@@ -41,6 +43,8 @@ namespace Engine.Tools
         Engine.Surface.Canvas ImageSource { get; } // image set through Initialize(w), workflow contains the canvas image source.
 
         Engine.Surface.Canvas ImageProcessed { get; }
+
+        string Name { get; }
 
         bool HasVisualProperties { get; }
     }

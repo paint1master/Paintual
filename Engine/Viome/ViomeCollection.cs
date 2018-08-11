@@ -34,42 +34,42 @@ namespace Engine
 {
     public class ViomeCollection
     {
-        private Dictionary<int, Engine.Viome> t_workflows;
+        private Dictionary<int, Engine.Viome> t_viomes;
 
-        // if workflow key is set to -1, then no workflow is active
-        private int t_activeWorkflowKey;
+        // if VIOME key is set to -1, then no Viome is active
+        private int t_activeViomeKey;
 
         internal ViomeCollection()
         {
-            t_workflows = new Dictionary<int, Viome>();
+            t_viomes = new Dictionary<int, Viome>();
         }
 
-        public Viome NewWorkflow(Engine.Surface.Canvas c)
+        internal Viome NewViome(Engine.Workflow w)
         {
-            int key = ViomeCollection.CreateWorkflowKey();
+            int key = ViomeCollection.CreateViomeKey();
 
-            if (t_workflows.ContainsKey(key))
+            if (t_viomes.ContainsKey(key))
             {
                 throw new ArgumentException(String.Format("A Viome with the specified key ({0}) already exists in the Application.", key));
             }
 
-            Engine.Viome w = new Viome(key);
-            t_workflows.Add(key, w);
+            Engine.Viome v = new Viome(w, key);
+            t_viomes.Add(key, v);
 
-            t_activeWorkflowKey = key;
-            w.SetImage(c);
-            RaiseWorkflowChanged();
-            return w;
+            t_activeViomeKey = key;
+            v.ChangeImage(w.Canvas, true);
+            RaiseViomeChanged();
+            return v;
         }
 
-        public Viome GetWorkflow(int key)
+        public Viome GetViome(int key)
         {
             if (key == -1)
             {
-                throw new ArgumentOutOfRangeException(String.Format("In {0}, the provided Viome key {1} cannot be retrieved.", "ViomeCollection.GetWorkflow", key));
+                throw new ArgumentOutOfRangeException(String.Format("In {0}, the provided Viome key {1} cannot be retrieved.", "ViomeCollection.GetViome", key));
             }
 
-            Viome w = t_workflows[key];
+            Viome w = t_viomes[key];
 
             if (w == null)
             {
@@ -79,74 +79,72 @@ namespace Engine
             return w;
         }
 
-        public void SetAsActiveWorkflow(int key)
+        public void SetAsActiveViome(int key)
         {
             if (key == -1)
             {
-                throw new ArgumentOutOfRangeException(String.Format("In {0}, the provided workflow key {1} cannot be set as active.", "WorkflowCollection.SetAsActiveWorkflow", key));
+                throw new ArgumentOutOfRangeException(String.Format("In {0}, the provided Viome key {1} cannot be set as active.", "ViomeCollection.SetAsActiveViome", key));
             }
 
-            if (t_workflows.ContainsKey(key))
+            if (t_viomes.ContainsKey(key))
             {
-                if (key != t_activeWorkflowKey)
+                if (key != t_activeViomeKey)
                 {
-                    t_activeWorkflowKey = key;
-                    RaiseWorkflowChanged();
+                    t_activeViomeKey = key;
+                    RaiseViomeChanged();
                 }
             }
             else
             {
-                throw new ArgumentException(String.Format("The Workflow with the specified key ({0}) does not exist in the Application.", key));
+                throw new ArgumentException(String.Format("The Viome with the specified key ({0}) does not exist in the Application.", key));
             }
         }
 
-        public void EndWorkflow(int key)
+        public void EndViome(int key)
         {
             if (key == -1)
             {
                 return;
             }
 
-            Engine.Viome w = t_workflows[key];
+            Engine.Viome v = t_viomes[key];
 
-            t_workflows.Remove(key);
+            t_viomes.Remove(key);
 
-            w.Dispose();
-
-
+            v.Dispose();
         }
 
-        public Viome GetActiveWorkflow()
+        public Viome GetActiveViome()
         {
-            if (t_workflows.ContainsKey(t_activeWorkflowKey))
+            if (t_viomes.ContainsKey(t_activeViomeKey))
             {
-                return t_workflows[t_activeWorkflowKey];
+                return t_viomes[t_activeViomeKey];
             }
             else
             {
-                throw new ArgumentException(String.Format("The Viome with the specified key ({0}) does not exist in the Application.", t_activeWorkflowKey));
+                throw new ArgumentException(String.Format("The Viome with the specified key ({0}) does not exist in the Application.", t_activeViomeKey));
             }            
         }
 
         /// <summary>
-        /// Removes workflow activity focus (no workflow is set to active).  
+        /// Removes Viome activity focus (no Viome is set as active).  
         /// </summary>
-        public void DeactivateWorkflow()
+        public void DeactivateViome()
         {
-            t_activeWorkflowKey = -1;
-            RaiseWorkflowChanged();
+            t_activeViomeKey = -1;
+            RaiseViomeChanged();
         }
 
         #region Events
 
-        public delegate void WorkflowChangedEventHandler(object sender, WorkflowEventArgs e);
-        public event WorkflowChangedEventHandler WorkflowChanged;
+        public delegate void ViomeChangedEventHandler(object sender, ViomeEventArgs e);
+        public event ViomeChangedEventHandler ViomeChanged;
 
-        private void RaiseWorkflowChanged()
+        private void RaiseViomeChanged()
         {
-            if (WorkflowChanged != null)
+            if (ViomeChanged != null)
             {
-                WorkflowChanged(this, new WorkflowEventArgs( t_workflows[t_activeWorkflowKey]));
+                ViomeChanged(this, new ViomeEventArgs( t_viomes[t_activeViomeKey]));
             }
         }
 
@@ -154,7 +152,7 @@ namespace Engine
 
         #region Static
         private static int s_key = 0;
-        public static int CreateWorkflowKey()
+        public static int CreateViomeKey()
         {
             s_key++;
 
@@ -163,13 +161,13 @@ namespace Engine
         #endregion
     }
 
-    public class WorkflowEventArgs : EventArgs
+    public class ViomeEventArgs : EventArgs
     {
         public Viome Viome { get; set; }
 
-        public WorkflowEventArgs(Viome w)
+        public ViomeEventArgs(Viome v)
         {
-            Viome = w;
+            Viome = v;
         }
     }
 }

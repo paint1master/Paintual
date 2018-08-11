@@ -39,6 +39,7 @@ namespace Engine
         // these public static readonly have their values set once, since they are collections, 
         // collection content may, of course, vary
         public static readonly Engine.ViomeCollection Viomes = new Engine.ViomeCollection();
+        public static readonly Engine.WorkflowCollection Workflows = new Engine.WorkflowCollection();
         public static readonly Engine.Preferences Prefs = new Engine.Preferences();
         public static readonly Engine.DefaultValues DefaultValues = new DefaultValues();
         public static readonly Engine.UISelectedValues UISelectedValues = new UISelectedValues();

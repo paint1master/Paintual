@@ -45,6 +45,23 @@ namespace Engine.Calc
         public static Random Rand = new Random(lastColor);
 
         /// <summary>
+        /// Returns a random float that is comprised within the specified range. ie: if range is 3, float can be
+        /// anything between -2.999... and 2.9... .
+        /// </summary>
+        /// <param name="range">An int representing a range. ie: 3 allows a range from -3 to 3</param>
+        /// <returns></returns>
+        public static float NextFloatRandomInRange(double range)
+        {
+            double d = Rand.NextDouble();
+
+            float f = (float)((d * range) - (range / 2));
+
+            //System.Diagnostics.Debug.WriteLine(String.Format("random : {0}", f));
+
+            return f;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="value">The value that is checked against the min and max values. If the values falls off the limits, the limit value is returned.</param>

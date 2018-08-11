@@ -56,7 +56,12 @@ namespace PaintualUI.Code
         {
             System.Windows.Controls.TabControl tabControl = e.TabControl;
 
-            System.Windows.Controls.Grid g = tabControl.SelectedContent as System.Windows.Controls.Grid;
+            // SelectedContent is what is to become the previously selected item
+            //System.Windows.Controls.Grid g = tabControl.SelectedContent as System.Windows.Controls.Grid;
+
+            // SelectedItem is the one becoming active which gives the right DrawingBoard for our code
+            Cuisine.Windows.DocumentContent dc = (Cuisine.Windows.DocumentContent)tabControl.SelectedItem;
+            System.Windows.Controls.Grid g = (System.Windows.Controls.Grid)dc.Content;
 
             // can occur when new drawingBoard is created and is not set as a document in the DocumentContainer (one with tabs)
             if (g == null)
@@ -79,36 +84,22 @@ namespace PaintualUI.Code
             if (db != t_currentDrawingBoard)
             {
                 t_currentDrawingBoard = db;
+
+                Engine.Workflow w = t_currentDrawingBoard.GetWorkflow();
+                Engine.Application.Workflows.SetAsActiveWorkflow(w.Key);
+
+                // VisualPropertyPage has registered to this event
                 RaiseCurrentDrawingBoardChanged();
-
-                Engine.Viome w = t_currentDrawingBoard.GetViome();
-                Engine.Application.Viomes.SetAsActiveWorkflow(w.Key);
-
-                _app.VisualPropertyPageHandler.Refresh();
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>the current drawing board, may return null.</returns>
         public PaintualUI.Controls.DrawingBoard GetCurrentDrawingBoard()
         {
-            if (t_currentDrawingBoard != null)
-            {
-                return t_currentDrawingBoard;
-            }
-
-            /*if (t_windowsManager.ActiveDocument == null)
-            {
-                // no drawing board created yet.
-                return null;
-            }
-
-            if (t_windowsManager.ActiveDocument.Content is PaintualUI.Controls.DrawingBoard)
-            {
-                t_currentDrawingBoard = (PaintualUI.Controls.DrawingBoard)t_windowsManager.ActiveDocument.Content;
-
-                return t_currentDrawingBoard;
-            }*/
-
-            return null;
+             return t_currentDrawingBoard;
         }
 
         public event CurrentDrawingBoardChangedEventHandler CurrentDrawingBoardChanged;

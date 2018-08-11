@@ -51,14 +51,14 @@ namespace Engine.Effects
         /// </summary>
         protected Engine.Attributes.AttributeCollection t_collectedAttributeValues;
 
-        protected Engine.Viome t_workflow;
+        protected Engine.Workflow t_workflow;
 
         public EffectBase()
         {
             t_visualProperties = new VisualProperties("Effect Base", typeof(EffectBase));
         }
 
-        public void Initialize(Viome w)
+        public void Initialize(Workflow w)
         {
             t_workflow = w;
             t_imageSource = w.Canvas;
@@ -68,6 +68,14 @@ namespace Engine.Effects
         {
             t_visualProperties.Fill();
             return t_visualProperties;
+        }
+
+        /// <summary>
+        /// Allows an effect to do some work before the actual process (compatibility with tool)
+        /// </summary>
+        public virtual void PreProcess()
+        {
+
         }
 
         /// <summary>
@@ -90,7 +98,7 @@ namespace Engine.Effects
 
             // leaving a little time to thread stuff to be cleaned before updating final image
             System.Threading.Thread.Sleep(100);
-            t_workflow.DisallowInvalidate();
+            t_workflow.Viome.DisallowInvalidate();
             RaiseProcessEnded();
         }
 
@@ -99,7 +107,7 @@ namespace Engine.Effects
         /// </summary>
         /// <param name="w">The workflow to which a copy of this effect is to be applied to.</param>
         /// <returns></returns>
-        public virtual Engine.Tools.IGraphicActivity Duplicate(Engine.Viome w)
+        public virtual Engine.Tools.IGraphicActivity Duplicate(Engine.Workflow w)
         {
             EffectBase eb = new EffectBase();
             eb.Initialize(w);
@@ -144,6 +152,8 @@ namespace Engine.Effects
                 return false;
             }
         }
+
+        public virtual string Name { get => "EffectBase"; }
 
         public int Width
         {

@@ -60,6 +60,7 @@ namespace Engine
                         case DrawingBoardModes.None:
                         case DrawingBoardModes.SuspendDraw:
                             t_workflow.CurrentDrawingBoardMode = DrawingBoardModes.Draw;
+                            ActivityPreProcess(correctedPoint);
                             // no threaded because drawing action would start before canvas is allowed to refresh its content.
                             t_workflow.AllowInvalidate();
                             ActivityProcess(correctedPoint);
@@ -151,6 +152,12 @@ namespace Engine
         {
             t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
             t_workflow.ThreadingQueue.RunAndForget(t_workflow.CurrentActivity.Process);
+        }
+
+        private void ActivityPreProcess(Engine.MousePoint correctedPoint)
+        {
+            t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
+            t_workflow.ThreadingQueue.RunAndForget(t_workflow.CurrentActivity.PreProcess);
         }
     }
 }

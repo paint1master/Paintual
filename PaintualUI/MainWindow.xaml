@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PaintualUI"
-        xmlns:Controls="clr-namespace:Cuisine.Controls;assembly=Cuisine" x:Class="PaintualUI.MainWindow"
+        xmlns:Controls="clr-namespace:Cuisine.Controls;assembly=Cuisine" xmlns:Controls1="clr-namespace:PaintualUI.Controls" x:Class="PaintualUI.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1300"
         KeyUp="Window_KeyUp">
@@ -37,84 +37,80 @@
                     <!-- translation index "10" -->
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Tools" >
-                <!-- translation index "11" -->
-                <!--<MenuItem Header="Debug" >-->
-                    <!-- translation index "12" -->
+
+            <MenuItem Header="Drawing">
+                <MenuItem Header="Grainy Pen" Click="GrainyTool_Click" />
+                <MenuItem Header="Particle Pen" Click="ParticlePen_Click" />
+                <MenuItem Header="Force Particles" Click="ForceParticles_Click" />
+            </MenuItem>
+
+            <MenuItem Header="Effects" >
+                <!-- translation index "13" -->
+                <!--<MenuItem Header="Dots and Diagonals" />-->
+                <!-- translation index "14" -->
+                <!--<MenuItem Header="Linear Stretch (Histogram Displacement)" > -->
+                <!-- translation index "15" -->
+                <!--<MenuItem Header="Horizontal" >-->
+                <!-- translation index "16" -->
                 <!--</MenuItem>-->
-                <MenuItem Header="Effects" >
-                    <!-- translation index "13" -->
-                    <!--<MenuItem Header="Dots and Diagonals" />-->
-                    <!-- translation index "14" -->
-                    <!--<MenuItem Header="Linear Stretch (Histogram Displacement)" > -->
-                        <!-- translation index "15" -->
-                        <!--<MenuItem Header="Horizontal" >-->
-                        <!-- translation index "16" -->
-                        <!--</MenuItem>-->
-                        <!--<MenuItem Header="Vertical" >-->
-                        <!-- translation index "17" -->
-                        <!--</MenuItem>-->
-                    <!--</MenuItem>-->
-                    <!--<MenuItem Header="Partitioned Gradient" >-->
-                        <!-- translation index "18" -->
-                        <!--</MenuItem>-->
-                        <!--<MenuItem Header="Diffuse from Point">-->
-                        <!-- translation index "19" -->
-                        <!--</MenuItem>-->
-                        <!--<MenuItem Header="Canvas Brush Horizontal" >-->
-                        <!-- translation index "20" -->
-                        <!--</MenuItem>-->
-                        <!--<MenuItem Header="Blur Brush Horizontal" >-->
-                        <!-- translation index "21" -->
-                        <!--</MenuItem>-->
-                        <!--<MenuItem Header="Cellular Automata" >-->
-                        <!-- translation index "22" -->
-                        <!--</MenuItem>-->
-                        <MenuItem Header="Scan Glitch" Click="ScanGlitch_Click">
-
-                        </MenuItem>
-                        <MenuItem Header="Scan Radial" Click="ScanRadial_Click">
-
-                        </MenuItem>
-                    <!--</MenuItem> -->
-                    <MenuItem Header="Extraction">
-                        <!-- translation index "23" -->
-                        <MenuItem Header="Quick Extract and Save" Click="Extraction_QuickExtractAndSave_Click">
-                            <!-- translation index "24" -->
-                        </MenuItem>
+                <!--<MenuItem Header="Vertical" >-->
+                <!-- translation index "17" -->
+                <!--</MenuItem>-->
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Partitioned Gradient" >-->
+                <!-- translation index "18" -->
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Diffuse from Point">-->
+                <!-- translation index "19" -->
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Canvas Brush Horizontal" >-->
+                <!-- translation index "20" -->
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Blur Brush Horizontal" >-->
+                <!-- translation index "21" -->
+                <!--</MenuItem>-->
+                <!--<MenuItem Header="Cellular Automata" >-->
+                <!-- translation index "22" -->
+                <!--</MenuItem>-->
+                <MenuItem Header="Scan Glitch" Click="ScanGlitch_Click"/>
+                <MenuItem Header="Radial" Click="ScanRadial_Click"/>
+                <!--</MenuItem> -->
+                <MenuItem Header="Extraction">
+                    <!-- translation index "23" -->
+                    <MenuItem Header="Quick Extract and Save" Click="Extraction_QuickExtractAndSave_Click">
+                        <!-- translation index "24" -->
                     </MenuItem>
-                    <!--<MenuItem Header="Test Window" Click="TestWindow_Click" >-->
-                    <!-- translation index "25" -->
-                    <!--</MenuItem> -->
-                </MenuItem>
-                <MenuItem Header="Particle Pen" Click="ParticlePen_Click" >
-                    
                 </MenuItem>
             </MenuItem>
+
             <MenuItem Header="Generators" >
                 <!-- translation index "26" -->
                 <!--<MenuItem Header="Gradients" >-->
-                    <!-- translation index "27" -->
+                <!-- translation index "27" -->
                 <!--</MenuItem>-->
                 <!--<MenuItem Header="Noise" >-->
-                    <!-- translation index "28" -->
+                <!-- translation index "28" -->
                 <!--</MenuItem>-->
                 <!--<MenuItem Header="Energy" >-->
-                    <!-- translation index "29" -->
+                <!-- translation index "29" -->
                 <!--</MenuItem>-->
                 <MenuItem Header="Noise Factory" Click="NoiseFactory_Click" >
                     <!-- translation index "30" -->
                 </MenuItem>
             </MenuItem>
+
             <MenuItem Header="Window">
                 <!-- translation index "31" -->
+                <MenuItem Header="Test Window" Click="TestWindow_Click" >
+                    <!-- translation index "25" -->
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Help" >
                 <!-- translation index "32" -->
             </MenuItem>
         </Menu>
         <ToolBar x:Name="AppToolBar" Margin="0,20,0,0" VerticalAlignment="Top" Height="30" Background="#FF505050" >
-            <Button x:Name="BtnDraw" Click="BtnDraw_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="White">
+            <Button x:Name="BtnDraw" Click="GrainyTool_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="White">
                 <Image Source="Resources/Draw.png" />
             </Button>
             <Button x:Name="BtnQuickSelect" Click="BtnQuickSelect_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="White"/>
@@ -123,6 +119,7 @@
         <Windows:WindowsManager x:Name="WindowsManager" Margin="0,50,0,28" />
         <StatusBar Height="28" VerticalAlignment="Bottom" >
             <ProgressBar x:Name="progBar" Height="10" Width="180"/>
+            <Controls1:PerformanceMonitor Height="10" Width="130"/>
         </StatusBar>
 
     </Grid>

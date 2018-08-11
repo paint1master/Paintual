@@ -54,13 +54,8 @@ namespace Engine.Attributes.Meta
             this.typeDeclaration = typeDeclaration;
         }
 
-        public Engine.PropertyDataTypes DataType {
-            get { return dataType; }
-        }
+        public Engine.PropertyDataTypes DataType { get => this.dataType; }
 
-        public Type TypeDeclaration
-        {
-            get { return typeDeclaration; }
-        }
+        public Type TypeDeclaration { get => this.typeDeclaration; }
     }
 }

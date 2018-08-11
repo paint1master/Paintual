@@ -24,22 +24,16 @@ SOFTWARE.
 
 **********************************************************/
 
-using System;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Cuisine.Windows;
-
 
 namespace PaintualUI.Code
 {
     /// <summary>
     /// Helps managing the interaction between the VisualPropertyPage, 
-    /// its Panel container, MainWindow, the active Viom, and the graphic activity (tool, effect)
+    /// its Panel container, MainWindow, the active Viom, and the graphic activity (tool, effect, animation)
     /// </summary>
     internal class VisualPropertyPageManager
     {
@@ -58,21 +52,16 @@ namespace PaintualUI.Code
             _app.ActiveContentHelper.CurrentDrawingBoardChanged += Refresh;
         }
 
-
-
         /// <summary>
-        /// Loads an instance of the VisualPropertyPage and/or updates its control contents
+        /// Creates an instance of the VisualPropertyPage and has it fills its content according to the
+        /// current DrawingBoard and selected tool, effect, animation.
         /// </summary>
-        public void Show()
+        public void Show(Engine.Workflow w)
         {
-            Nullify();
-
-            PaintualUI.Controls.PropertyPage.VisualPropertyPage vpp = new PaintualUI.Controls.PropertyPage.VisualPropertyPage();
-            t_visualPropertyPage = vpp;
-
-            // required for the event that updates vpp content gets fired.
-            Engine.Viome v = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetViome();
-            vpp.SetWorkflow(v);
+            /// must create a new instance because there is a bug about child control already existing
+            /// suspecting that it has to do with the VPP being contained in the DockPane
+            /// ideally VPP does not need to be recreated, just re-filled with proper set of controls
+            t_visualPropertyPage  = new PaintualUI.Controls.PropertyPage.VisualPropertyPage();
 
             if (t_docContent == null)
             {
@@ -82,81 +71,24 @@ namespace PaintualUI.Code
             {
                 t_docContent.Content = t_visualPropertyPage;
             }
+
+            t_visualPropertyPage.Build(w);
         }
 
-        /// <summary>
-        /// Clears the VisualPage of any controls that may have been created for a tool or effect.
-        /// </summary>
-        /// <remarks>If the VisualPropertyPage has not been instanced yet, calling this method has no effect.</remarks>
-        public void Clear()
-        {
-            if (t_visualPropertyPage != null)
-            {
-                t_visualPropertyPage.Clear();
-            }
-        }
-
-
-        /// <summary>
-        /// Closes the VisualPropertyPage and the visual container
-        /// </summary>
-        public void Close()
-        {
-            /*Nullify();
-
-            if (t_docContent != null)
-            {
-                t_docContent.Close();
-                t_docContent = null;
-            }*/
-        }
-
-        /// <summary>
-        /// Builds the controls in the VisualPropertyPage based on the content of the provided VisualProperties instance.
-        /// </summary>
-        public void Build()
-        {
-            if(t_visualPropertyPage != null)
-            {
-                Engine.Viome v = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetViome();
-                Engine.Tools.IGraphicActivity activity = v.CurrentActivity;
-                Engine.Effects.VisualProperties vp = activity.GetVisualProperties();
-
-                t_visualPropertyPage.Build(vp);
-            }
-        }
-
-        /// <summary>
+        /*/// <summary>
         /// Rebuilds the controls in the VisualPropertyPage and fills the controls with values saved within the Graphic activity
         /// (effect, tool) set in the provided Viome instance.
         /// </summary>
-        public void Refresh()
+        private void Refresh()
         {
-            if (t_visualPropertyPage == null)
-            {
-                return;
-            }
+            Engine.Workflow w = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetWorkflow();
 
-            Clear();
-
-            // Build() sets also the visual properties in the current VisualPropertyPage
-            Build();
-
-            // fill
-            Engine.Viome v = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetViome();
-            Engine.Tools.IGraphicActivity activity = v.CurrentActivity;
-
-            // null can occur when image is loaded, tool or effect selected but no values entered yet in VisualPropertyPage
-            // Refresh is called by DockManager whenever focus changes between windows and containers
-            if (activity.CollectedPropertyValues != null)
-            {
-                t_visualPropertyPage.Fill(activity.CollectedPropertyValues);
-            }
-        }
+            Show(w);
+        }*/
 
         public void Refresh(object sender, PaintualUI.Code.CurrentDrawingBoardChangedEventArgs e)
         {
-            Refresh();
+            Show(e.DrawingBoard.GetWorkflow());
         }
 
         private DockPane CreateContainer()
@@ -182,14 +114,6 @@ namespace PaintualUI.Code
         private void Pane_Close(object sender, System.Windows.RoutedEventArgs e)
         {
             t_docContent = null;
-        }
-
-        private void Nullify()
-        {
-            if (t_visualPropertyPage != null)
-            {
-                t_visualPropertyPage = null;
-            }
         }
     }
 }

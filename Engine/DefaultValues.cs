@@ -38,8 +38,8 @@ namespace Engine
     /// </summary>
     public class DefaultValues
     {
-        private Engine.Surface.Canvas defaultImageForBrush;
-        private bool t_defaultImageForBrushLoaded = false;
+        //private Engine.Surface.Canvas defaultImageForBrush;
+        //private bool t_defaultImageForBrushLoaded = false;
 
         // motion related values
         private bool interpolateMouseMoves;

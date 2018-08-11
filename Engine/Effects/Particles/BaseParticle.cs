@@ -37,26 +37,47 @@ namespace Engine.Effects.Particles
     public class BaseParticle
     {
         protected Accord.Math.Vector3 t_position;
-        protected Accord.Math.Vector3 t_velocity;
-        //protected Accord.Math.Vector3 t_acceleration;
-
 
         public BaseParticle()
         {
 
         }
 
-        public void Update()
+        public BaseParticle(Accord.Math.Vector3 position)
         {
-            //t_velocity += t_acceleration;
-            t_position += t_velocity;
-            //t_acceleration = t_acceleration * 0;
+            t_position = position;
         }
 
-        /*public void ApplyForce(Accord.Math.Vector3 force)
+        public virtual void Move(Accord.Math.Vector3 direction)
         {
-            t_acceleration += force;
-        }*/
+            t_position += direction;
+        }
+
+        public Accord.Math.Vector3 Position
+        {
+            get { return t_position; }
+        }
+    }
+}
+
+namespace Engine.Effects.Particles.Obsolete
+{
+    [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
+    public class BaseParticle_O
+    {
+        protected Accord.Math.Vector3 t_position;
+        protected Accord.Math.Vector3 t_velocity;
+
+
+        public BaseParticle_O()
+        {
+
+        }
+
+        public void Update()
+        {
+            t_position += t_velocity;
+        }
 
         public virtual void Move(Accord.Math.Vector3 direction)
         {

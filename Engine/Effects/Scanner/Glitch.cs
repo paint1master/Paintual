@@ -34,7 +34,7 @@ namespace Engine.Effects.Scanner
     public class Glitch : EffectBase
     {
         private Engine.Surface.Canvas t_imagePerlin;
-        private Engine.Effects.Particles.PixelParticle[] t_particles;
+        private Engine.Effects.Particles.Obsolete.PixelParticle_O[] t_particles;
         private Accord.Math.Vector3[,] t_flowField;
 
         private const string paramName_X = "x";
@@ -50,11 +50,11 @@ namespace Engine.Effects.Scanner
 
         public Glitch()
         {
-            t_visualProperties = new VisualProperties("Scanner Glitch", typeof(Glitch));
+            t_visualProperties = new VisualProperties(Name, typeof(Glitch));
         }
 
 
-        public override IGraphicActivity Duplicate(Viome w)
+        public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
             Glitch g = new Glitch();
             g.Initialize(w);
@@ -67,7 +67,7 @@ namespace Engine.Effects.Scanner
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
             t_imagePerlin = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
 
-            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
@@ -75,7 +75,7 @@ namespace Engine.Effects.Scanner
             t_imagePerlin = Engine.Effects.Noise.NoiseFactory.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
             CreateFlowField();
 
-            t_workflow.AllowInvalidate();
+            t_workflow.Viome.AllowInvalidate();
             Flow();
 
             base.ProcessCompleted();
@@ -97,11 +97,11 @@ namespace Engine.Effects.Scanner
 
         private void CreateParticles()
         {
-            t_particles = new Particles.PixelParticle[t_imageSource.Height];
+            t_particles = new Particles.Obsolete.PixelParticle_O[t_imageSource.Height];
 
             for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[i] = new Engine.Effects.Particles.PixelParticle(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
+                t_particles[i] = new Engine.Effects.Particles.Obsolete.PixelParticle_O(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
             }
         }
 
@@ -188,10 +188,13 @@ namespace Engine.Effects.Scanner
             return 0;
         }
 
+        public override string Name { get => "Scanner Glitch"; }
+
         [Engine.Attributes.Meta.DisplayName("Steps")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(20)]
         public int Steps
         {
             get { return steps; }
@@ -203,6 +206,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(90)]
         public int Spread
         {
             get { return spread; }
@@ -213,6 +217,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(458)]
         public int Seed
         {
             get { return t_seed; }
@@ -223,6 +228,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(0.05d)]
         public double Frequency
         {
             get { return t_frequency; }
@@ -233,6 +239,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(2)]
         public int Octaves
         {
             get { return t_octaves; }

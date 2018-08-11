@@ -92,6 +92,16 @@ namespace Engine
         {
             ActualMousePoint = actualMousePoint;
         }
+
+        public static int[] Delta(MousePoint previous, MousePoint current)
+        {
+            int[] delta = new int[2];
+
+            delta[0] = current.X - previous.X;
+            delta[1] = current.Y - previous.Y;
+
+            return delta;
+        }
     }
 
     public struct Rectangle

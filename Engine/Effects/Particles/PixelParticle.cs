@@ -30,25 +30,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine.Effects.Particles
+namespace Engine.Effects.Particles.Obsolete
 {
-    public class PixelParticle : BaseParticle
+    [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
+    public class PixelParticle_O : BaseParticle_O
     {
         protected Engine.Color.Cell t_cell; // the pixel;
 
-        public PixelParticle() : base()
+        public PixelParticle_O() : base()
         {
             
         }
 
-        public PixelParticle(Engine.Color.Cell c)
+        public PixelParticle_O(Engine.Color.Cell c)
         {
             t_cell = c;
         }
 
-        public PixelParticle(Engine.Color.Cell c, int x, int y) : this(c)
+        public PixelParticle_O(Engine.Color.Cell c, int x, int y) : this(c)
         {
             t_position = new Accord.Math.Vector3((float)x, (float)y, 0);
+        }
+
+        public PixelParticle_O(Engine.Color.Cell c, float x, float y) : this(c)
+        {
+            t_position = new Accord.Math.Vector3(x, y, 0);
         }
 
         public void Draw(Engine.Surface.Canvas c, byte alpha)

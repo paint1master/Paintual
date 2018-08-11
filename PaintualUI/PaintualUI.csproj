@@ -125,30 +125,32 @@
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PaintualCanvas.xaml.cs" />
+    <Compile Include="Controls\PerformanceMonitor.xaml.cs">
+      <DependentUpon>PerformanceMonitor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Preferences.xaml.cs" />
     <Compile Include="Controls\PropertyPage\InfoIcon.xaml.cs">
       <DependentUpon>InfoIcon.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PropertyPage\IPropertyControl.cs" />
-    <Compile Include="Controls\PropertyPage\PropertyControlCommonContent.cs" />
-    <Compile Include="Controls\PropertyPage\PropertyDoubleBox.xaml.cs" />
-    <Compile Include="Controls\PropertyPage\PropertyFolderSelector.xaml.cs">
-      <DependentUpon>PropertyFolderSelector.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PropertyPage\PropertyIntBox.xaml.cs" />
-    <Compile Include="Controls\PropertyPage\PropertyRadioButtons.xaml.cs">
-      <DependentUpon>PropertyRadioButtons.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PropertyPage\PropertyTextBox.xaml.cs" />
     <Compile Include="Controls\PropertyPage\RadioButton.xaml.cs">
       <DependentUpon>RadioButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PropertyPage\TPropertyControl.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyFolderSelector.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyIntBox.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyRadioButtons.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyTextBox.cs" />
     <Compile Include="Controls\PropertyPage\VisualPropertyPage.xaml.cs" />
     <Compile Include="Controls\SelectionGlass.xaml.cs">
       <DependentUpon>SelectionGlass.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\SelectionHandle.cs" />
     <Compile Include="Controls\SelectionRectangle.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyDoubleBox.cs" />
+    <Compile Include="ControlTestWindow.xaml.cs">
+      <DependentUpon>ControlTestWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DockTest.xaml.cs">
       <DependentUpon>DockTest.xaml</DependentUpon>
     </Compile>
@@ -196,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\PerformanceMonitor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Preferences.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -203,26 +209,6 @@
     <Page Include="Controls\PropertyPage\InfoIcon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\PropertyPage\PropertyDoubleBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\PropertyPage\PropertyFolderSelector.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\PropertyPage\PropertyIntBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\PropertyPage\PropertyRadioButtons.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\PropertyPage\PropertyTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\PropertyPage\RadioButton.xaml">
       <SubType>Designer</SubType>
@@ -233,6 +219,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\SelectionGlass.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ControlTestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -253,6 +243,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -38,21 +38,19 @@ using System.Windows.Input;
 namespace Engine
 {
     /// <summary>
-    /// Viome : Visual Input Output Manager (Workflow)
+    /// Viome : Visual Input Output Manager
     /// </summary>
     public class Viome : IDisposable
     {
         private int t_key;
-        private Engine.Surface.Canvas t_canvas;
+        private Engine.Workflow t_workflow;
 
         private DrawingBoardModes t_currentDrawingBoardMode = DrawingBoardModes.None;
         private Engine.CoordinatesManager t_coordinatesManager;
         /// <summary>
         /// Interpolates mouse points and calls Draw
         /// </summary>
-        private Engine.Tools.MotionAttribute t_motionAttribute;
-
-        private Engine.Tools.IGraphicActivity t_activity;
+        private Engine.MotionAttribute t_motionAttribute;
 
         private Engine.Threading.BackgroundQueue t_queue;
         private bool t_allowInvalidate = false;
@@ -60,13 +58,14 @@ namespace Engine
         private MouseAndKeyboardManagerBase t_mouseAndKeyboardManager;
 
 
-        public Viome(int key)
+        public Viome(Engine.Workflow w, int key)
         {
+            t_workflow = w;
             t_key = key;
             t_coordinatesManager = new Engine.CoordinatesManager();
             t_coordinatesManager.ZoomFactorChanged += T_coordinatesManager_ZoomFactorChanged;
             t_coordinatesManager.ImagePositionChanged += T_coordinatesManager_ImagePositionChanged;
-            t_motionAttribute = new Tools.MotionAttribute(this);
+            t_motionAttribute = new Engine.MotionAttribute(this);
             t_queue = new Engine.Threading.BackgroundQueue("Workflow", true);
             t_mouseAndKeyboardManager = new MouseAndKeyboardManagerBase(this);
         }
@@ -81,30 +80,19 @@ namespace Engine
             RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
         }
 
-        public void SetImage(Engine.Surface.Canvas image)
-        {
-            t_canvas = Engine.Surface.Ops.Copy(image);
-            t_coordinatesManager.SetImageSize(image.Width, image.Height);
-        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="image"></param>
         /// <param name="forceRefresh">Forces the UI to refresh the visual</param>
-        public void SetImage(Engine.Surface.Canvas image, bool forceRefresh)
+        public void ChangeImage(Engine.Surface.Canvas image, bool forceRefresh)
         {
-            SetImage(image);
+            t_coordinatesManager.SetImageSize(image.Width, image.Height);
 
             if (forceRefresh)
             {
                 RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
             }
-        }
-
-        public void SaveImage(string fileName, Engine.Surface.ImageFileFormats format)
-        {
-            Engine.Surface.Ops.Save(t_canvas, fileName, format);
         }
 
         internal void SelectionGlassRequest(SelectionGlassRequestType type)
@@ -121,14 +109,11 @@ namespace Engine
             }
         }
 
-        public void SetActivity(Engine.Tools.IGraphicActivity activity)
+        public void ChangeActivity(Engine.Tools.IGraphicActivity activity)
         {
             RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
 
-            t_activity = activity;
-            t_activity.Initialize(this);
-
-            if (t_activity is Engine.Effects.EffectBase)
+            if (t_workflow.GraphicActivity is Engine.Effects.EffectBase)
             {
                 // for effects, must disable mouse input in workflow because
                 // they are working on different thread and cause failure in EffectBase.Process()
@@ -138,12 +123,12 @@ namespace Engine
                 // the Draw button remplaces the current activity with a (drawing) tool.
             }
             
-            if(t_activity is Engine.Tools.Tool)
+            if(t_workflow.GraphicActivity is Engine.Tools.Tool)
             {
                 t_currentDrawingBoardMode = DrawingBoardModes.None; // will cycle to SuspendDraw and Draw
             }
 
-            if (t_activity.HasVisualProperties)
+            if (t_workflow.GraphicActivity.HasVisualProperties)
             {
                 RaisePropertyPageActionRequested(WorkflowPropertyPageRequestType.ContentUpdate);
             }
@@ -172,47 +157,6 @@ namespace Engine
             t_mouseAndKeyboardManager.FeedKeyCode(e);
         }
 
-        public System.Windows.Media.Imaging.BitmapSource GetBmpSource()
-        {
-            // TODO just get the updated portion of the image to be displayed here
-            BitmapSource bmpSource = BitmapSource.Create(t_canvas.Width, t_canvas.Height, 96, 96, PixelFormats.Bgra32, null, t_canvas.Array, t_canvas.Stride);
-
-
-            //System.Windows.Media.RenderOptions.SetBitmapScalingMode(bmpSource, BitmapScalingMode.LowQuality);
-            
-            // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
-            // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
-            // that can be manipulated. web link also savec in bmp_creator/improving surface code
-
-            return bmpSource;
-        }
-
-        public System.Windows.Media.Imaging.BitmapSource GetBmpImageProcessed()
-        {
-            if (CurrentEffect == null)
-            {
-                throw new InvalidOperationException(@"In VIOME.GetBmpImageProcessed(), cannot return ImageProcessed because no Effect is currently being used.");
-            }
-
-            if (CurrentEffect.ImageProcessed == null)
-            {
-                // happens when effect is called by used and Apply button has not been pusehd yet.
-                // return canvas instead
-                return GetBmpSource();
-            }
-            else
-            {
-                // TODO just get the updated portion of the image to be displayed here
-                BitmapSource bmpSource = BitmapSource.Create(CurrentEffect.ImageProcessed.Width, CurrentEffect.ImageProcessed.Height, 96, 96, PixelFormats.Bgra32, null, CurrentEffect.ImageProcessed.Array, CurrentEffect.ImageProcessed.Stride);
-
-                // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
-                // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
-                // that can be manipulated. web link also savec in bmp_creator/improving surface code
-
-                return bmpSource;
-            }
-        }
-
         internal void AllowInvalidate()
         {
             System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to TRUE"));
@@ -234,11 +178,6 @@ namespace Engine
             get { return t_allowInvalidate; }
         }
 
-        public Engine.Surface.Canvas Canvas
-        {
-            get { return t_canvas; }
-        }
-
         public Engine.CoordinatesManager CoordinatesManager
         {
             get { return t_coordinatesManager; }
@@ -246,33 +185,7 @@ namespace Engine
 
         public Engine.Tools.IGraphicActivity CurrentActivity
         {
-            get { return t_activity; }
-        }
-
-        public Engine.Effects.EffectBase CurrentEffect
-        {
-            get
-            {
-                if (t_activity is Engine.Effects.EffectBase)
-                {
-                    return (Engine.Effects.EffectBase)t_activity;
-                }
-
-                return null;
-            }
-        }
-
-        public Engine.Tools.Tool CurrentTool
-        {
-            get
-            {
-                if (t_activity is Engine.Tools.Tool)
-                {
-                    return (Engine.Tools.Tool)t_activity;
-                }
-
-                return null;
-            }
+            get { return t_workflow.GraphicActivity; }
         }
 
         internal DrawingBoardModes CurrentDrawingBoardMode { get => t_currentDrawingBoardMode; set => t_currentDrawingBoardMode = value; }
@@ -282,7 +195,7 @@ namespace Engine
             get { return t_key; }
         }
 
-        internal Engine.Tools.MotionAttribute MotionAttribute
+        internal Engine.MotionAttribute MotionAttribute
         {
             get { return t_motionAttribute; }
         }
@@ -301,28 +214,8 @@ namespace Engine
         // the following not used at this time
         public event WorkflowPropertyPageEventHandler PropertyPageContentUpdateRequested;
 
-        private void RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType requestType)
+        internal void RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType requestType)
         {
-            /*if (requestType == WorkflowDrawingBoardRequestType.ZoomIn)
-            {
-                if (ZoomInRequested != null)
-                {
-                    ZoomInRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
-                }
-
-                return;
-            }
-
-            if (requestType == WorkflowDrawingBoardRequestType.ZoomOut)
-            {
-                if (ZoomOutRequested != null)
-                {
-                    ZoomOutRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
-                }
-
-                return;
-            }*/
-
             if (requestType == WorkflowDrawingBoardRequestType.Invalidate)
             {
                 if (InvalidateRequested != null)
@@ -437,8 +330,7 @@ namespace Engine
                     // allocated for them.
                     if (isDisposing)
                     {
-                        t_canvas = null;
-                        t_activity = null;
+                        t_workflow = null;
 
                         t_coordinatesManager.Dispose();
                         t_coordinatesManager = null;

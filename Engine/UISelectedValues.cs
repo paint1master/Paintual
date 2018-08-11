@@ -38,9 +38,9 @@ namespace Engine
     /// </summary>
     public class UISelectedValues
     {
-        private Engine.Color.Cell t_selectedColor;
+        //private Engine.Color.Cell t_selectedColor;
         //private Engine.Tools.Attributes.IAttribute m_selectedBrushImage;
-        private Type m_selectedTool;
+        //private Type m_selectedTool;
 
         // motion related values
         private bool interpolateMouseMoves;

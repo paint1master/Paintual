@@ -32,15 +32,22 @@ using System.Threading.Tasks;
 
 namespace PaintualUI.Controls.PropertyPage
 {
-    public interface IPropertyControl
+    public interface ITPropertyControl
     {
         void ClearSignals();
 
         void SignalError(string message);
 
+        /// <summary>
+        /// Builds the children controls.
+        /// </summary>
+        void BuildVisual();
+
+        /// <summary>
+        /// Updates the content of visual controls (textbox, drop lists, etc) to display values set by the engine.
+        /// </summary>
         void UpdateVisual();
 
-        PropertyControlCommonContent CommonContent { get; }
         string EnteredValue { get; }
     }
 }

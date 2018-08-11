@@ -11,56 +11,49 @@ namespace Engine.Tools
     public class ParticlePen : Engine.Tools.Tool
     {
         private Engine.Surface.Canvas t_imagePerlin;
-        private Engine.Effects.Particles.LivingPixelParticle[] t_particles;
+        private Engine.Effects.Particles.Obsolete.LivingPixelParticle_O[] t_particles;
         private Accord.Math.Vector3[,] t_flowField;
 
-        IAsyncResult[] cookies;
+        private Engine.Utilities.Iterativ.Skipper t_skipper;
+        private int t_skipperValue;
 
         private int steps = 3;
-        private double t_frequency = 0.001;
+        private double t_frequency = 0.02;
         private int t_seed = 2;
         private int t_octaves = 4;
-        private double t_particleLife = 30;
+        private double t_particleLife = 200;
         private int t_expansion = 2;
         private byte t_alpha = 100;
-
-        int t_reduceCounter = 0;
-        int t_reduce = 7;
 
         public ParticlePen()
         {
             t_visualProperties = new Engine.Effects.VisualProperties("Particle Pen", typeof(ParticlePen));
         }
 
-        public override void Initialize(Viome w)
+        public override void Initialize(Engine.Workflow w)
         {
             base.Initialize(w);
 
-            t_imagePerlin = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
+            t_imagePerlin = Engine.Effects.Noise.NoiseFactory.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
 
-            CreatePerlinNoisePlane();
             CreateFlowField();
         }
 
         public override void BeforeDraw(int x, int y)
         {
-            throw new NotImplementedException();
+            // in Initialize, it's too early to get UI values (!!??!!)
+            t_skipper = new Utilities.Iterativ.Skipper(t_skipperValue);
         }
 
         internal override void Draw(MousePoint p)
         {
-            if (t_reduceCounter < t_reduce)
-            {
-                t_reduceCounter++;
+            if (!t_skipper.Skip())
                 return;
-            }
 
             Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imageSource, p.X, p.Y);
             CreateParticles(c, p.X, p.Y, t_alpha);
 
             Flow(p.X, p.Y);
-
-            t_reduceCounter = 0;
         }
 
         public override int AfterDraw(Point p)
@@ -68,40 +61,12 @@ namespace Engine.Tools
             throw new NotImplementedException();
         }
 
-        public override IGraphicActivity Duplicate(Viome w)
+        public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
             ParticlePen tlt = new ParticlePen();
             tlt.Initialize(w);
 
             return tlt;
-        }
-
-        private void CreatePerlinNoisePlane()
-        {
-            Engine.Effects.Noise.IModule module = new Engine.Effects.Noise.Perlin();
-
-            ((Perlin)module).Frequency = t_frequency;
-            ((Perlin)module).NoiseQuality = NoiseQuality.Standard;
-            ((Perlin)module).Seed = t_seed;
-            ((Perlin)module).OctaveCount = t_octaves;
-            ((Perlin)module).Lacunarity = 2.0;
-            ((Perlin)module).Persistence = 0.5;
-
-            double value = 0;
-
-            for (int y = 0; y < t_imageSource.Height; y++)
-            {
-                for (int x = 0; x < t_imageSource.Width - 1; x++)
-                {
-                    value = (module.GetValue(x, y, 0) + 1) / 2.0;
-
-                    if (value < 0) value = 0;
-                    if (value > 1.0) value = 1.0;
-                    byte intensity = (byte)(value * 255.0);
-                    Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, t_imagePerlin, x, y);
-                }
-            }
         }
 
         private void CreateFlowField()
@@ -129,12 +94,12 @@ namespace Engine.Tools
 
         private void CreateParticles(Engine.Color.Cell c, int x, int y, byte alpha)
         {
-            t_particles = new Engine.Effects.Particles.LivingPixelParticle[30];
+            t_particles = new Engine.Effects.Particles.Obsolete.LivingPixelParticle_O[30];
 
             for (int i = 0; i < t_particles.Length; i++)
             {
                 // particles are at pen location
-                Engine.Effects.Particles.LivingPixelParticle p = new Engine.Effects.Particles.LivingPixelParticle(c, x, y, t_particleLife, t_expansion);
+                Engine.Effects.Particles.Obsolete.LivingPixelParticle_O p = new Engine.Effects.Particles.Obsolete.LivingPixelParticle_O(c, x, y, t_particleLife, t_expansion);
                 t_particles[i] = p;
             }
         }
@@ -153,68 +118,18 @@ namespace Engine.Tools
             }
         }
 
-        private void ParticleFlow()
-        {
-            int height = t_particles.Length;
-
-            int divide = Engine.Calc.Math.Division_Threading(height);
-
-            Engine.Threading.ProcessThreading.ScannerRadial_Del_Process[] dels = new Engine.Threading.ProcessThreading.ScannerRadial_Del_Process[divide];
-            cookies = new IAsyncResult[divide];
-
-            int quarterHeight = height / divide;
-
-            int[] ys = new int[divide];
-            int[] heights = new int[divide];
-
-            for (int i = 0; i < divide; i++)
-            {
-                dels[i] = ParticleFlow_Threading;
-                ys[i] = (quarterHeight * i);
-                heights[i] = quarterHeight * (i + 1);
-            }
-
-            int workerThreads = 0;
-            int completionPortsThreads = 0;
-
-            System.Threading.ThreadPool.GetMinThreads(out workerThreads, out completionPortsThreads);
-            System.Threading.ThreadPool.SetMinThreads(divide, divide);
-
-            for (int i = 0; i < divide; i++)
-            {
-                cookies[i] = dels[i].BeginInvoke(ys[i], heights[i], null, null);
-            }
-
-            for (int i = 0; i < divide; i++)
-            {
-                cookies[i].AsyncWaitHandle.WaitOne();
-            }
-
-            for (int i = 0; i < divide; i++)
-            {
-                int result = dels[i].EndInvoke(cookies[i]);
-            }
-
-            for (int i = 0; i < divide; i++)
-            {
-                cookies[i].AsyncWaitHandle.Close();
-            }
-
-            System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortsThreads);
-        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="x"></param>
-        private int ParticleFlow_Threading(int yStart, int yEnd)
+        private int ParticleFlow()
         {
             double life = 0;
             do
             {
                 life = 0;
 
-                for (int y = yStart; y < yEnd; y++)
+                for (int y = 0; y < t_particles.Length; y++)
                 {
                     t_particles[y].Draw(t_imageSource);
                 }
@@ -226,7 +141,7 @@ namespace Engine.Tools
                     int rd = Engine.Calc.Math.Rand.Next(2);
                     rd = rd - 1; // to get positive and negative values to change the color
 
-                    for (int y = yStart; y < yEnd; y++)
+                    for (int y = 0; y < t_particles.Length; y++)
                     {
                         Engine.Color.Cell c = t_particles[y].Pixel;
                         int b = (int)c.Blue;
@@ -264,7 +179,7 @@ namespace Engine.Tools
                     }
                 }
 
-                for (int y = yStart; y < yEnd; y++)
+                for (int y = 0; y < t_particles.Length; y++)
                 {
                     if (t_particles[y].Life < 0)
                     {
@@ -294,6 +209,17 @@ namespace Engine.Tools
             } while (life > t_particleLife);
 
             return 0;
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Skipper")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(3)]
+        public int Skipper
+        {
+            get { return t_skipperValue; }
+            set { t_skipperValue = value; }
         }
     }
 }

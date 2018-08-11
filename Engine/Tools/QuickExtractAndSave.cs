@@ -48,7 +48,7 @@ namespace Engine.Tools
             t_visualProperties = new Engine.Effects.VisualProperties("Quick Extract and Save", typeof(QuickExtractAndSave));
         }
 
-        public override void Initialize(Viome w)
+        public override void Initialize(Engine.Workflow w)
         {
             base.Initialize(w);
             t_attributeCollection.Add(t_folderPath_PropertyName, new Engine.Attributes.StringAttribute());
@@ -86,7 +86,7 @@ namespace Engine.Tools
 
         }
 
-        public override IGraphicActivity Duplicate(Viome w)
+        public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
             QuickExtractAndSave qeas = new QuickExtractAndSave();
             qeas.Initialize(w);
@@ -145,11 +145,11 @@ namespace Engine.Tools
                 {
                     // if there are errors then remove the selection glass so the user is not mislead into using
                     // the tool while it doesn't actually work
-                    t_VIOM.SelectionGlassRequest(SelectionGlassRequestType.Delete);
+                    t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Delete);
                 }
                 else
                 {
-                    t_VIOM.SelectionGlassRequest(SelectionGlassRequestType.Create);
+                    t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Create);
                 }
             }
         }

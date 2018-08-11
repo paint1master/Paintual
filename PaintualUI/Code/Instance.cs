@@ -24,12 +24,6 @@ SOFTWARE.
 
 **********************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace PaintualUI.Code
 {
     /// <summary>
@@ -40,7 +34,7 @@ namespace PaintualUI.Code
         public static readonly Application Instance  = new Application();
 
         // MainWindow is responsible for setting values
-        internal PaintualUI.Code.VisualPropertyPageManager VisualPropertyPageHandler { get; set; }
+        internal PaintualUI.Code.VisualPropertyPageManager VisualPropertyPageManager { get; set; }
         internal PaintualUI.Code.ActiveContentHelper ActiveContentHelper { get; set; }
 
         private Application()

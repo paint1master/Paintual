@@ -13,7 +13,7 @@
         </WrapPanel>
         <StackPanel Name="ButtonsPanelContainer" HorizontalAlignment="Right" Margin="10,10,10,10" VerticalAlignment="Top" Width="120">
             <Button x:Name="BtnApply" Click="BtnApply_Click"  Width="100" Height="30" Content="Apply" Margin="10,5" />
-            <Button x:Name="BtnSave" Click="BtnSave_Click" Width="100" Height="30" Content="Save" Margin="10,5" />
+            <Button x:Name="BtnSave" Click="BtnSave_Click" Width="100" Height="30" Content="Save" Margin="10,5" Visibility="Hidden" />
         </StackPanel>
     </Grid>
 </UserControl>

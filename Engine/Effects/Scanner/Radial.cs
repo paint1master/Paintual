@@ -34,7 +34,7 @@ namespace Engine.Effects.Scanner
     public class Radial : EffectBase
     {
         private Engine.Surface.Canvas t_imagePerlin;
-        private Engine.Effects.Particles.LivingPixelParticle[] t_particles;
+        private Engine.Effects.Particles.Obsolete.LivingPixelParticle_O[] t_particles;
         private Accord.Math.Vector3[,] t_flowField;
         private int t_particleCount = 200;
 
@@ -47,10 +47,10 @@ namespace Engine.Effects.Scanner
 
         public Radial()
         {
-            t_visualProperties = new VisualProperties("Scanner Radial", typeof(Radial));
+            t_visualProperties = new VisualProperties(Name, typeof(Radial));
         }
 
-        public override IGraphicActivity Duplicate(Viome w)
+        public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
             Radial r = new Radial();
             r.Initialize(w);
@@ -63,7 +63,7 @@ namespace Engine.Effects.Scanner
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
             t_imagePerlin = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
 
-            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
@@ -72,7 +72,7 @@ namespace Engine.Effects.Scanner
             CreateFlowField();
 
             // call this as late as possible, just before actual effect processing
-            t_workflow.AllowInvalidate();
+            t_workflow.Viome.AllowInvalidate();
             Flow();
 
             base.ProcessCompleted();
@@ -134,12 +134,12 @@ namespace Engine.Effects.Scanner
             //Engine.Color.Cell color = new Engine.Color.Cell(200, 220, 230, alpha); beige
             Engine.Color.Cell color = new Engine.Color.Cell(220, 210, 200, alpha); // light blue
 
-            t_particles = new Particles.LivingPixelParticle[t_particleCount];
+            t_particles = new Particles.Obsolete.LivingPixelParticle_O[t_particleCount];
 
             for (int i = 0; i < t_particles.Length; i++)
             {
                 // particles are centered on screen
-                Particles.LivingPixelParticle p = new Particles.LivingPixelParticle(color, t_imageSource.Width / 2, t_imageSource.Height / 2, t_particleLife, t_expansion);
+                Particles.Obsolete.LivingPixelParticle_O p = new Particles.Obsolete.LivingPixelParticle_O(color, t_imageSource.Width / 2, t_imageSource.Height / 2, t_particleLife, t_expansion);
                 t_particles[i] = p;
             }
         }
@@ -260,10 +260,13 @@ namespace Engine.Effects.Scanner
             return 0;
         }
 
+        public override string Name { get => "Radial"; }
+
         [Engine.Attributes.Meta.DisplayName("Steps")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(50)]
         public int Steps
         {
             get { return steps; }
@@ -274,6 +277,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(8874)]
         public int Seed
         {
             get { return t_seed; }
@@ -284,6 +288,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(0.05d)]
         public double Frequency
         {
             get { return t_frequency; }
@@ -294,6 +299,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(3)]
         public int Octaves
         {
             get { return t_octaves; }
@@ -304,6 +310,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(400d)]
         public double Life
         {
             get { return t_particleLife; }
@@ -314,6 +321,7 @@ namespace Engine.Effects.Scanner
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(4)]
         public int Expansion
         {
             get { return t_expansion; }

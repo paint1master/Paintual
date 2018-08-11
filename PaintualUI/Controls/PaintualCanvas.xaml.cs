@@ -37,7 +37,7 @@ namespace PaintualUI.Controls
     /// </summary>
     public partial class PaintualCanvas : UserControl, IDisposable
     {
-        private Engine.Viome t_viome;
+        private Engine.Workflow t_workflow;
         private System.Windows.Threading.DispatcherTimer t_timer;
 
         public PaintualCanvas()
@@ -51,20 +51,20 @@ namespace PaintualUI.Controls
             t_timer.Start();
         }
 
-        public void SetWorkflow(Engine.Viome w)
+        public void SetWorkflow(Engine.Workflow w)
         {
-            t_viome = w;
-            t_viome.InvalidateRequested += T_viome_InvalidateRequested;
+            t_workflow = w;
+            t_workflow.Viome.InvalidateRequested += T_viome_InvalidateRequested;
         }
 
-        public Engine.Viome GetViome()
+        public Engine.Workflow GetWorkflow()
         {
-             return t_viome; 
+            return t_workflow;
         }
 
         private void T_viome_InvalidateRequested(object sender, Engine.WorkflowDrawingBoardEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format("InvalidateRequested in PaintualCanvas from {0}", sender.ToString()));
+            //System.Diagnostics.Debug.WriteLine(String.Format("InvalidateRequested in PaintualCanvas from {0}", sender.ToString()));
 
             if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.Invalidate)
             {
@@ -79,11 +79,11 @@ namespace PaintualUI.Controls
             }
             else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.HandleEndOfProcess)
             {
-                t_viome.CurrentEffect.ProcessEnded += CurrentEffect_ProcessEnded;
+                t_workflow.CurrentEffect.ProcessEnded += CurrentEffect_ProcessEnded;
             }
             else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess)
             {
-                t_viome.CurrentEffect.ProcessEnded -= CurrentEffect_ProcessEnded;
+                t_workflow.CurrentEffect.ProcessEnded -= CurrentEffect_ProcessEnded;
             }
         }
 
@@ -94,24 +94,18 @@ namespace PaintualUI.Controls
 
         private void DrawingBoardSizeHasChanged(int width, int height)
         {
-            t_viome.CoordinatesManager.DrawingBoardSizeChanged(width, height);
+            t_workflow.Viome.CoordinatesManager.DrawingBoardSizeChanged(width, height);
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (t_viome == null)
+            // TODO verify that this never happens
+            if (t_workflow == null)
             {
                 return;
             }
 
-            if (t_viome.CurrentEffect != null)
-            {
-                drawingContext.DrawImage(t_viome.GetBmpImageProcessed(), t_viome.CoordinatesManager.GetImageSizeAndPosition());
-                base.OnRender(drawingContext);
-                return;
-            }
-
-            drawingContext.DrawImage(t_viome.GetBmpSource(), t_viome.CoordinatesManager.GetImageSizeAndPosition());
+            drawingContext.DrawImage(t_workflow.GetImage(), t_workflow.Viome.CoordinatesManager.GetImageSizeAndPosition());
 
             base.OnRender(drawingContext);
         }
@@ -123,7 +117,7 @@ namespace PaintualUI.Controls
         /// <param name="e"></param>
         public void UpdateVisual(object sender, EventArgs e)
         {
-            if (t_viome.AllowCanvasRefresh)
+            if (t_workflow.Viome.AllowCanvasRefresh)
             {
                 this.InvalidateVisual();
             }
@@ -132,19 +126,19 @@ namespace PaintualUI.Controls
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseDown);
-            t_viome.FeedMouseAction(mp);
+            t_workflow.Viome.FeedMouseAction(mp);
         }
 
         private void Grid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseMove);
-            t_viome.FeedMouseAction(mp);
+            t_workflow.Viome.FeedMouseAction(mp);
         }
 
         private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseUp);
-            t_viome.FeedMouseAction(mp);
+            t_workflow.Viome.FeedMouseAction(mp);
         }
 
         protected override void OnPreviewKeyUp(KeyEventArgs e)
@@ -232,9 +226,9 @@ namespace PaintualUI.Controls
                             someDisposableObjectWithAnEventHandler.Dispose();
                             someDisposableObjectWithAnEventHandler = null;
                         }*/
-                        if (t_viome != null)
+                        if (t_workflow.Viome != null)
                         {
-                            t_viome.InvalidateRequested -= T_viome_InvalidateRequested;
+                            t_workflow.Viome.InvalidateRequested -= T_viome_InvalidateRequested;
                             // do not delete t_workflow because it doesn't belong to PaintualCanvas.
                         }
                         // If this is a WinForm/UI control, uncomment this code

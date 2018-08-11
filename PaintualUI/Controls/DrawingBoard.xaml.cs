@@ -48,7 +48,7 @@ namespace PaintualUI.Controls
     /// </summary>
     public partial class DrawingBoard : UserControl
     {
-        private Engine.Viome t_workflow;
+        private Engine.Workflow t_workflow;
         private PaintualUI.Controls.SelectionGlass t_selectionGlass;
 
         public DrawingBoard()
@@ -60,16 +60,16 @@ namespace PaintualUI.Controls
 
         private void Zoomer_ZoomFactorChanged(object sender, ZoomFactorChangedEventArgs e)
         {
-            if (t_workflow == null)
+            if (t_workflow == null || t_workflow.Viome == null)
             {
                 return;
             }
 
-            // this will trigger t_workflow.CoordinatesManager.ZoomFactorChanged
+            // this will trigger viome.CoordinatesManager.ZoomFactorChanged
             // event handled in DrawingBoard.CoordinatesManager_ZoomFactorChanged which updates the scrollbars
-            // and also handled by t_workflow and trigger RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate)
+            // and also handled by viome and trigger RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate)
             // PaintualCanvas will receive the request and update the visual
-            t_workflow.CoordinatesManager.ZoomFactor = e.ZoomFactor;
+            t_workflow.Viome.CoordinatesManager.ZoomFactor = e.ZoomFactor;
 
             if (t_selectionGlass != null)
             {
@@ -78,19 +78,19 @@ namespace PaintualUI.Controls
             }
         }
 
-        public void SetWorkflow(Engine.Viome w)
+        public void SetWorkflow(Engine.Workflow w)
         {
             t_workflow = w;
             this.DrawableSurface.SetWorkflow(w);
-            t_workflow.CoordinatesManager.ZoomFactorChanged += CoordinatesManager_ZoomFactorChanged;
-            t_workflow.CoordinatesManager.ImagePositionChanged += CoordinatesManager_ImagePositionChanged;
-            t_workflow.SelectionGlassRequested += T_workflow_SelectionGlassRequested; 
+            t_workflow.Viome.CoordinatesManager.ZoomFactorChanged += CoordinatesManager_ZoomFactorChanged;
+            t_workflow.Viome.CoordinatesManager.ImagePositionChanged += CoordinatesManager_ImagePositionChanged;
+            t_workflow.Viome.SelectionGlassRequested += T_viome_SelectionGlassRequested;
 
             // image size is known so calculate scrollbar slider size and pos
             CalculateScrollBars();
         }
 
-        private void T_workflow_SelectionGlassRequested(object sender, WorkflowSelectionGlassEventArgs e)
+        private void T_viome_SelectionGlassRequested(object sender, WorkflowSelectionGlassEventArgs e)
         {
             if (e.RequestType == SelectionGlassRequestType.Create)
             {
@@ -180,13 +180,13 @@ namespace PaintualUI.Controls
             // scrollbar slider position and movement calculations change depending on the virtual dimensions of
             // the image being displayed, ie: a zoomed image needs more scrolling for a user to be able to get
             // to all of its surface.
-            if (t_workflow.CoordinatesManager.FactoredSize.Width <= ViewPortWidth)
+            if (t_workflow.Viome.CoordinatesManager.FactoredSize.Width <= ViewPortWidth)
             {
                 this.scrollHor.IsEnabled = false;
 
-                if (t_workflow.CoordinatesManager.Origin.X != 0)
+                if (t_workflow.Viome.CoordinatesManager.Origin.X != 0)
                 {
-                    t_workflow.CoordinatesManager.RepositionImage(0, t_workflow.CoordinatesManager.Origin.Y);
+                    t_workflow.Viome.CoordinatesManager.RepositionImage(0, t_workflow.Viome.CoordinatesManager.Origin.Y);
                     this.scrollHor.Minimum = 0;
                     this.scrollHor.Maximum = ViewPortWidth;
                     this.scrollHor.Value = 0;
@@ -196,18 +196,18 @@ namespace PaintualUI.Controls
             {
                 this.scrollHor.IsEnabled = true;
                 this.scrollHor.Minimum = 0;
-                this.scrollHor.Maximum = (t_workflow.CoordinatesManager.FactoredSize.Width - ViewPortWidth);
-                this.scrollHor.Value = (t_workflow.CoordinatesManager.Origin.X * -1);
+                this.scrollHor.Maximum = (t_workflow.Viome.CoordinatesManager.FactoredSize.Width - ViewPortWidth);
+                this.scrollHor.Value = (t_workflow.Viome.CoordinatesManager.Origin.X * -1);
             }
 
 
-            if (t_workflow.CoordinatesManager.FactoredSize.Height <= ViewPortHeight)
+            if (t_workflow.Viome.CoordinatesManager.FactoredSize.Height <= ViewPortHeight)
             {
                 this.scrollVert.IsEnabled = false;
 
-                if (t_workflow.CoordinatesManager.Origin.Y != 0)
+                if (t_workflow.Viome.CoordinatesManager.Origin.Y != 0)
                 {
-                    t_workflow.CoordinatesManager.RepositionImage(t_workflow.CoordinatesManager.Origin.X, 0);
+                    t_workflow.Viome.CoordinatesManager.RepositionImage(t_workflow.Viome.CoordinatesManager.Origin.X, 0);
                     this.scrollVert.Minimum = 0;
                     this.scrollVert.Maximum = ViewPortHeight;
                     this.scrollVert.Value = 0;
@@ -217,20 +217,19 @@ namespace PaintualUI.Controls
             {
                 this.scrollVert.IsEnabled = true;
                 this.scrollVert.Minimum = 0;
-                this.scrollVert.Maximum = (t_workflow.CoordinatesManager.FactoredSize.Height - ViewPortHeight);
-                this.scrollVert.Value = (t_workflow.CoordinatesManager.Origin.Y * -1);
+                this.scrollVert.Maximum = (t_workflow.Viome.CoordinatesManager.FactoredSize.Height - ViewPortHeight);
+                this.scrollVert.Value = (t_workflow.Viome.CoordinatesManager.Origin.Y * -1);
             }
-
         }
 
-        public Engine.Viome GetViome()
+        public Engine.Workflow GetWorkflow()
         {
-            return this.DrawableSurface.GetViome(); 
+            return this.DrawableSurface.GetWorkflow();
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
-            t_workflow.CoordinatesManager.DrawingBoardSizeChanged((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
+            t_workflow.Viome.CoordinatesManager.DrawingBoardSizeChanged((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
             // update values of the scrollbars only. PaintualCanvas tells Workflow how to process position and size of image being displayed
             CalculateScrollBars();
             base.OnRenderSizeChanged(sizeInfo);
@@ -266,7 +265,7 @@ namespace PaintualUI.Controls
                 t_selectionGlass.Margin = glassMargin;
             }
 
-            t_workflow.CoordinatesManager.RepositionImage(t_workflow.CoordinatesManager.Origin.X, (e.NewValue * -1));
+            t_workflow.Viome.CoordinatesManager.RepositionImage(t_workflow.Viome.CoordinatesManager.Origin.X, (e.NewValue * -1));
         }
 
         private void scrollHor_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
@@ -282,7 +281,7 @@ namespace PaintualUI.Controls
                 t_selectionGlass.Margin = glassMargin;
             }
 
-            t_workflow.CoordinatesManager.RepositionImage((e.NewValue * -1), t_workflow.CoordinatesManager.Origin.Y);
+            t_workflow.Viome.CoordinatesManager.RepositionImage((e.NewValue * -1), t_workflow.Viome.CoordinatesManager.Origin.Y);
         }
 
         #region Events

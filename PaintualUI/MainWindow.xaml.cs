@@ -63,7 +63,7 @@ namespace PaintualUI
 
             // order of the following two lines is important, VisualPropertyPageHandler needs ref to ActiveContentHelper
             _app.ActiveContentHelper = new Code.ActiveContentHelper(WindowsManager);
-            _app.VisualPropertyPageHandler = new Code.VisualPropertyPageManager(WindowsManager);
+            _app.VisualPropertyPageManager = new Code.VisualPropertyPageManager(WindowsManager);
 
             // TODO : use this to know value on Surface and laptop
             //MessageBox.Show(Engine.Calc.Matrix.NumericsVectorCount().ToString());
@@ -76,7 +76,7 @@ namespace PaintualUI
 
         private void WindowsManager_ActiveDocumentChanged(object sender, Cuisine.Windows.ActiveDocumentChangedEventArgs e)
         {
-            // active document and workflow info have been already set in ActiveContentManager,
+            // active document, workflow and viome info have been already set in ActiveContentManager,
             // here we need to propagate the change to any loaded window that must be informed
 
             // for the VisualPropertyPage, it is through ActiveContentHelper : VisualPropertyPage.Refresh()
@@ -85,26 +85,6 @@ namespace PaintualUI
 
         private void New_MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            // keep this code for when C++ code will be linked again to the project
-            /*MeaningOfLife.Cpp.CLI.Logic.InitializeLibrary(@"D:\Docs\My Projects\PaintualW\x64\Debug\EngineC.dll");
-
-            int ii = 0;
-
-            using (var wrapper = new MeaningOfLife.Cpp.CLI.Logic())
-            {
-                ii = wrapper.Get();
-            }
-
-            string title = t_defaultDocTabTitle;
-
-            DocumentContent[] cnts = dockManager.Documents.ToArray();
-            int i = 1; //ii;
-            while (cnts.FirstOrDefault(c => c.Title == title) != null)
-            {
-                title = string.Format(t_defaultDocTabTitle + "{0}", i);
-                i++;
-            }*/
-
             NewDrawingBoard("");
         }
 
@@ -147,8 +127,6 @@ namespace PaintualUI
 
         private void Extraction_QuickExtractAndSave_Click(object sender, RoutedEventArgs e)
         {
-            _app.VisualPropertyPageHandler.Clear();
-
             PaintualUI.Controls.DrawingBoard db = _app.ActiveContentHelper.GetCurrentDrawingBoard();
 
             if (db == null)
@@ -157,53 +135,55 @@ namespace PaintualUI
                 return;
             }
 
-            Engine.Viome w = db.GetViome();
+            Engine.Workflow w = db.GetWorkflow();
 
             Engine.Tools.QuickExtractAndSave qeas = new Engine.Tools.QuickExtractAndSave();
 
             w.SetActivity(qeas);
 
-            _app.VisualPropertyPageHandler.Show();
-
-            _app.VisualPropertyPageHandler.Build();
+            _app.VisualPropertyPageManager.Show(w);
 
             // TODO : determine when double click should not be handled anymore and release handler
             db.SelectionDoubleClick += qeas.HandleDoubleClick;
         }
 
-        private void NewDrawingBoard(string fileName)
+        private void NewDockPane(PaintualUI.Controls.DrawingBoard db, string title)
         {
-            Engine.Surface.Canvas canvas = null;
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                canvas = new Engine.Surface.Canvas(1200, 1200, Engine.Color.Cell.ShadeOfGray(255));
-            }
-            else
-            {
-                canvas = new Engine.Surface.Canvas(fileName);
-            }
-
-            var db = new PaintualUI.Controls.DrawingBoard();
-
-            // canvas must be provided before WorkflowCollection raises change event
-            // because subscribed VisualPropertyPage will require canvas very early
-            Engine.Viome w = Engine.Application.Viomes.NewWorkflow(canvas);
-            int key = w.Key;
-            w.SetActivity(new Engine.Tools.ThinLineTool());
-            db.SetWorkflow(w);
-
             DockPane pane = new DockPane();
             pane.MinHeight = 100;
             pane.MinWidth = 100;
-            pane.Header = String.Format(t_defaultDocTabTitle + "{0}", key);
+            pane.Header = title;
             Grid g = new Grid();
             g.Background = Brushes.White;
             g.Children.Add(db);
             pane.Content = g;
 
             WindowsManager.AddDocument(pane);
+        }
+
+        private void NewDrawingBoard(string fileName)
+        {
+            Engine.Workflow w = null;
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                w = Engine.Application.Workflows.NewWorkflow();
+            }
+            else
+            {
+                w = Engine.Application.Workflows.NewWorkflow(fileName);
+            }
+
+            var db = new PaintualUI.Controls.DrawingBoard();
+
+            db.SetWorkflow(w);
+
+            NewDockPane(db, String.Format(t_defaultDocTabTitle + "{0}", w.Key));
+
             _app.ActiveContentHelper.SetCurrentDrawingBoard(db);
+
+            // a suggested default tool to work with the new DrawingBoard
+            SetActivity(new Engine.Tools.GrainyPen());
         }
 
         private void BrushImages_Click(object sender, RoutedEventArgs e)
@@ -225,6 +205,9 @@ namespace PaintualUI
 
         private void TestWindow_Click(object sender, RoutedEventArgs e)
         {
+            ControlTestWindow ctw = new ControlTestWindow();
+            ctw.Show();
+
             /*
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -247,6 +230,28 @@ namespace PaintualUI
                 ts.Milliseconds / 10);
             MessageBox.Show("RunTime " + elapsedTime);
             */
+
+            //*********************************************************************
+
+            // keep this code for when C++ code will be linked again to the project
+            /*MeaningOfLife.Cpp.CLI.Logic.InitializeLibrary(@"D:\Docs\My Projects\PaintualW\x64\Debug\EngineC.dll");
+
+            int ii = 0;
+
+            using (var wrapper = new MeaningOfLife.Cpp.CLI.Logic())
+            {
+                ii = wrapper.Get();
+            }
+
+            string title = t_defaultDocTabTitle;
+
+            DocumentContent[] cnts = dockManager.Documents.ToArray();
+            int i = 1; //ii;
+            while (cnts.FirstOrDefault(c => c.Title == title) != null)
+            {
+                title = string.Format(t_defaultDocTabTitle + "{0}", i);
+                i++;
+            }*/
         }
 
         // TODO : change path for release build
@@ -298,8 +303,6 @@ namespace PaintualUI
                 return;
             }
 
-            Engine.Viome w = db.GetViome();
-
             SaveFileDialog dialog = new SaveFileDialog()
             {
                 Filter = "PNG files(*.png)|*.png"
@@ -307,24 +310,27 @@ namespace PaintualUI
 
             if (dialog.ShowDialog() == true)
             {
+                Engine.Workflow w = db.GetWorkflow();
+                w.LastSavedFolder = dialog.FileName;
                 w.SaveImage(dialog.FileName, Engine.Surface.ImageFileFormats.PNG);
             }
         }
 
         private void SetActivity(Engine.Tools.IGraphicActivity activity)
         {
-            _app.VisualPropertyPageHandler.Clear();
+            Engine.Workflow w = GetWorkflowForCurrentDrawingBoard();
 
-            Engine.Viome w = GetViomeForCurrentDrawingBoard();
-
+            if (w == null)
+            {
+                return;
+            }
+            
             w.SetActivity(activity);
 
-            _app.VisualPropertyPageHandler.Show();
-
-            _app.VisualPropertyPageHandler.Build();
+            _app.VisualPropertyPageManager.Show(w);
         }
 
-        private Engine.Viome GetViomeForCurrentDrawingBoard()
+        private Engine.Workflow GetWorkflowForCurrentDrawingBoard()
         {
             PaintualUI.Controls.DrawingBoard db = _app.ActiveContentHelper.GetCurrentDrawingBoard();
 
@@ -334,9 +340,9 @@ namespace PaintualUI
                 return null;
             }
 
-            Engine.Viome v = db.GetViome();
+            Engine.Workflow w = db.GetWorkflow();
 
-            return v;
+            return w;
         }
 
         private void Exit_MenuItem_Click(object sender, RoutedEventArgs e)
@@ -355,14 +361,16 @@ namespace PaintualUI
             //MessageBox.Show("key");
         }
 
-        private void BtnDraw_Click(object sender, RoutedEventArgs e)
-        {
-            SetActivity(new Engine.Tools.ThinLineTool());
-        }
+
 
         private void BtnQuickSelect_Click(object sender, RoutedEventArgs e)
         {
             
+        }
+
+        private void GrainyTool_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Tools.GrainyPen());
         }
 
         private void ScanGlitch_Click(object sender, RoutedEventArgs e)
@@ -378,6 +386,11 @@ namespace PaintualUI
         private void ParticlePen_Click(object sender, RoutedEventArgs e)
         {
             SetActivity(new Engine.Tools.ParticlePen());
+        }
+
+        private void ForceParticles_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.ForceEffect());
         }
     }
 }

@@ -58,10 +58,11 @@ namespace Engine.Effects.Noise
         private double t_persistence;
 
         private const string paramName_module = "module";
+        private const string paramName_canvas = "canvas";
 
         public NoiseFactory()
         {
-            t_visualProperties = new VisualProperties("Noise Factory", typeof(NoiseFactory));
+            t_visualProperties = new VisualProperties(Name, typeof(NoiseFactory));
 
             // these are default values, may be overwritten by UI
             t_seed = 0;
@@ -71,7 +72,7 @@ namespace Engine.Effects.Noise
             t_persistence = 0.5;
         }
 
-        public override IGraphicActivity Duplicate(Viome w)
+        public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
             NoiseFactory nf = new NoiseFactory();
             nf.Initialize(w);
@@ -81,7 +82,7 @@ namespace Engine.Effects.Noise
 
         public override void Process()
         {
-            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
@@ -145,7 +146,7 @@ namespace Engine.Effects.Noise
             
             t_imageProcessed = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
 
-            t_workflow.AllowInvalidate();
+            t_workflow.Viome.AllowInvalidate();
 
             Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
 
@@ -186,8 +187,6 @@ namespace Engine.Effects.Noise
 
         public static Engine.Surface.Canvas CreatePerlinNoisePlane(Engine.Surface.Canvas source, double frequency, int seed, int octaves)
         {
-            Engine.Surface.Canvas perlinSurface = new Canvas(source.Width, source.Height);
-
             Engine.Effects.Noise.IModule module = new Engine.Effects.Noise.Perlin();
 
             ((Perlin)module).Frequency = frequency;
@@ -197,29 +196,54 @@ namespace Engine.Effects.Noise
             ((Perlin)module).Lacunarity = 2.0;
             ((Perlin)module).Persistence = 0.5;
 
+            Engine.Surface.Canvas perlinSurface = new Canvas(source.Width, source.Height);
+
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
+
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+            paramList.Add(paramName_module, typeof(Engine.Effects.Noise.IModule), module);
+            paramList.Add(paramName_canvas, typeof(Engine.Surface.Canvas), perlinSurface);
+
+            loop.Loop(source.Height, Threaded_CreatePerlinNoisePlane, paramList);
+            loop.Dispose();
+
+            return perlinSurface;
+        }
+
+        private static int Threaded_CreatePerlinNoisePlane(int start, int end, Engine.Threading.ParamList paramList)
+        {
+            Engine.Effects.Noise.IModule module = (Engine.Effects.Noise.IModule)paramList.Get(paramName_module).Value;
+            Engine.Surface.Canvas canvas = (Engine.Surface.Canvas)paramList.Get(paramName_canvas).Value;
+
             double value = 0;
 
-            for (int y = 0; y < perlinSurface.Height; y++)
+            // loop block : source and info at : https://libnoisedotnet.codeplex.com/downloads/get/720936
+            // and http://libnoise.sourceforge.net/tutorials/tutorial8.html
+
+            for (int y = start; y < end; y++)
             {
-                for (int x = 0; x < perlinSurface.Width - 1; x++)
+                for (int x = 0; x < canvas.Width - 1; x++)
                 {
-                    value = (module.GetValue(x, y, 0) + 1) / 2.0;
+                    value = (module.GetValue(x, y, 10) + 1) / 2.0;
 
                     if (value < 0) value = 0;
                     if (value > 1.0) value = 1.0;
                     byte intensity = (byte)(value * 255.0);
                     Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, perlinSurface, x, y);
+                    Engine.Surface.Ops.SetPixel(c, canvas, x, y);
                 }
             }
 
-            return perlinSurface;
+            return 0;
         }
+
+        public override string Name { get => "Noise Factory"; }
 
         [Engine.Attributes.Meta.DisplayName("Seed")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(245)]
         public int Seed
         {
             get { return t_seed; }
@@ -230,6 +254,8 @@ namespace Engine.Effects.Noise
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.Range(1, 30)]
+        [Engine.Attributes.Meta.DefaultValue(2)]
         public int Octaves
         {
             get { return t_octaves; }
@@ -240,6 +266,7 @@ namespace Engine.Effects.Noise
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(0.05d)]
         public double Frequency
         {
             get { return t_frequency; }

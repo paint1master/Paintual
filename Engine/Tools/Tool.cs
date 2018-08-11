@@ -35,7 +35,7 @@ namespace Engine.Tools
 {
     public abstract class Tool : IGraphicActivity
     {
-        protected Engine.Viome t_VIOM;
+        protected Engine.Workflow t_workflow;
 
         protected Engine.Surface.Canvas t_imageSource;
         protected Engine.Surface.Canvas t_imageProcessed;
@@ -54,14 +54,14 @@ namespace Engine.Tools
         /// </summary>
         protected Engine.Attributes.AttributeCollection t_collectedAttributeValues;
 
-        public virtual void Initialize(Engine.Viome w)
+        public virtual void Initialize(Engine.Workflow w)
         {
-            t_VIOM = w;
+            t_workflow = w;
             t_attributeCollection = new Attributes.AttributeCollection();
-            t_imageSource = t_VIOM.Canvas;
+            t_imageSource = t_workflow.Canvas;
 
             // clear the drawing surface of all work layers created by previous tools or effects
-            t_VIOM.SelectionGlassRequest(SelectionGlassRequestType.Delete);
+            t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Delete);
         }
 
         /// <summary>
@@ -83,17 +83,32 @@ namespace Engine.Tools
             return 0;
         }
 
+        public virtual void PreProcess()
+        {
+            if (t_workflow.Viome.MotionAttribute.PointCount == 0)
+            {
+                return;
+            }
+
+            List<MousePoint> points = t_workflow.Viome.MotionAttribute.LinearInterpolate();
+
+            foreach (MousePoint p in points)
+            {
+                BeforeDraw(p.X, p.Y);
+            }
+        }
+
         /// <summary>
         /// The drawing procedure
         /// </summary>
         public virtual void Process()
         {
-            if (t_VIOM.MotionAttribute.PointCount == 0)
+            if (t_workflow.Viome.MotionAttribute.PointCount == 0)
             {
                 return;
             }
 
-            List<MousePoint> points = t_VIOM.MotionAttribute.LinearInterpolate();
+            List<MousePoint> points = t_workflow.Viome.MotionAttribute.LinearInterpolate();
 
             foreach (MousePoint p in points)
             {
@@ -121,7 +136,7 @@ namespace Engine.Tools
             set { t_collectedAttributeValues = value; }            
         }
 
-        public abstract IGraphicActivity Duplicate(Viome w);
+        public abstract IGraphicActivity Duplicate(Engine.Workflow w);
 
         public virtual Engine.Effects.VisualProperties GetVisualProperties()
         {
@@ -167,5 +182,7 @@ namespace Engine.Tools
             get { return t_hasErrors; }
             set { t_hasErrors = value; }
         }
+
+        public virtual string Name { get => "Tool"; }
     }
 }
