@@ -29,25 +29,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Engine.Surface;
+
+using Engine.Effects.Particles;
 
 namespace Engine.Tools
 {
-    public class GrainyPen : Engine.Tools.Tool
+    public class AttractorPen : Engine.Tools.Tool
     {
-        private Engine.Effects.Particles.Obsolete.PixelParticle_O[] t_particles;
+        private MousePoint t_previousPoint;
+        private Engine.Effects.Particles.ForceParticle[] t_particles;
+        private Engine.Effects.Particles.Attractor t_attractor;
+
         private int t_count;
         private byte t_alpha;
-        private double t_scatter;
-        private int t_skipperValue;
+        private int t_scatter;
 
-        private Engine.Utilities.Iterativ.Skipper t_skipper;
+        private Utilities.Iterativ.Skipper t_skipper;
 
-        private MousePoint t_previousPoint;
-
-        public GrainyPen()
+        public AttractorPen()
         {
-            t_visualProperties = new Engine.Effects.VisualProperties(Name, typeof(GrainyPen));
+            t_visualProperties = new Engine.Effects.VisualProperties(Name, typeof(AttractorPen));
         }
 
         public override void Initialize(Engine.Workflow w)
@@ -58,10 +59,11 @@ namespace Engine.Tools
         public override void BeforeDraw(int x, int y)
         {
             // in Initialize, it's too early to get UI values (!!??!!)
-            t_skipper = new Utilities.Iterativ.Skipper(t_skipperValue);
+            t_skipper = new Utilities.Iterativ.Skipper(6);
             t_previousPoint = new MousePoint(x, y);
 
             CreateParticles(x, y);
+            t_attractor = new Effects.Particles.Attractor(new Accord.Math.Vector3(x, y, 0), 0.000006);
         }
 
         internal override void Draw(MousePoint p)
@@ -69,19 +71,24 @@ namespace Engine.Tools
             if (!t_skipper.Skip())
                 return;
 
+            // atractor must follow the pen between each call to draw
+            int[] delta = MousePoint.Delta(t_previousPoint, p);
+            Accord.Math.Vector3 d = new Accord.Math.Vector3(delta[0], delta[1], 0);
+            t_attractor.Move(d);
+
             int offset = t_imageSource.GetOffset(p.X, p.Y);
 
             if (offset == -1)
             { return; }
 
-            // particles must follow the pen between each call to draw
-            int[] delta = MousePoint.Delta(t_previousPoint, p);
-            Accord.Math.Vector3 d = new Accord.Math.Vector3(delta[0], delta[1], 0);
+            Engine.Color.Cell foreground = Engine.Colors.Black;
+            foreground.Alpha = t_alpha;
 
-            foreach (Engine.Effects.Particles.Obsolete.PixelParticle_O px in t_particles)
+            foreach (Engine.Effects.Particles.ForceParticle fp in t_particles)
             {
-                px.Move(d);
-                px.Draw(t_imageSource, t_alpha);
+                fp.Update(t_attractor);
+
+                fp.Draw(t_imageSource, foreground);                
             }
 
             t_previousPoint = p;
@@ -89,13 +96,17 @@ namespace Engine.Tools
 
         private void CreateParticles(int x, int y)
         {
-            t_particles = new Effects.Particles.Obsolete.PixelParticle_O[t_count];
+            t_particles = new Effects.Particles.ForceParticle[t_count];
+
+            double variance = Engine.Calc.Math.Rand.NextDouble() + 1;
 
             for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[i] = new Effects.Particles.Obsolete.PixelParticle_O(Engine.Colors.Black,
-                    x + Engine.Calc.Math.NextFloatRandomInRange((float)t_scatter),
-                    y + Engine.Calc.Math.NextFloatRandomInRange((float)t_scatter));
+                t_particles[i] = new Effects.Particles.ForceParticle(x + Engine.Calc.Math.NextIntRandomInRange(t_scatter),
+                    y + Engine.Calc.Math.NextIntRandomInRange(t_scatter),
+                    2f + (float)variance,
+                    2f + (float)variance,
+                    8f);
             }
         }
 
@@ -106,57 +117,46 @@ namespace Engine.Tools
 
         public override IGraphicActivity Duplicate(Engine.Workflow w)
         {
-            GrainyPen tlt = new GrainyPen();
-            tlt.Initialize(w);
+            AttractorPen ap = new AttractorPen();
+            ap.Initialize(w);
 
-            return tlt;
+            return ap;
         }
 
-        public override string Name { get => "Grainy Pen"; }
+        public override string Name { get => "Attractor Pen"; }
 
         [Engine.Attributes.Meta.DisplayName("Particle Count")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(30)]
+        [Engine.Attributes.Meta.DefaultValue(200)]
         public int Count
         {
             get { return t_count; }
             set { t_count = value; }
         }
 
-        [Engine.Attributes.Meta.DisplayName("Alpha")]
+        [Engine.Attributes.Meta.DisplayName("Spread")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.Range(0, 255)]
-        [Engine.Attributes.Meta.DefaultValue(30)]
-        public int Alpha
-        {
-            get { return t_alpha; }
-            set { t_alpha = (byte)value; }
-        }
-
-        [Engine.Attributes.Meta.DisplayName("Spread")]
-        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
-        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
-        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
-        [Engine.Attributes.Meta.DefaultValue(10d)] /* 10d d is required otherwise compiler sets as int and cast in UI will fail */
-        public double Scatter
+        [Engine.Attributes.Meta.DefaultValue(100)]
+        public int Scatter
         {
             get { return t_scatter; }
             set { t_scatter = value; }
         }
 
-        [Engine.Attributes.Meta.DisplayName("Skipper")]
+        [Engine.Attributes.Meta.DisplayName("Alpha")]
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(3)]
-        public int Skipper
+        [Engine.Attributes.Meta.DefaultValue(30)]
+        [Engine.Attributes.Meta.Range(0, 255)]
+        public int Alpha
         {
-            get { return t_skipperValue; }
-            set { t_skipperValue = value; }
+            get { return t_alpha; }
+            set { t_alpha = (byte)value; }
         }
     }
 }

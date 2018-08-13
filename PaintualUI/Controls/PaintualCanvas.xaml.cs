@@ -54,7 +54,14 @@ namespace PaintualUI.Controls
         public void SetWorkflow(Engine.Workflow w)
         {
             t_workflow = w;
+            t_workflow.Closing += T_workflow_Closing;
             t_workflow.Viome.InvalidateRequested += T_viome_InvalidateRequested;
+        }
+
+        private void T_workflow_Closing(object sender, EventArgs e)
+        {
+            // to prevent a call to UpdateVisual, which needs either the Workflow or the Viome, both about to be deleted.
+            t_timer.Stop();
         }
 
         public Engine.Workflow GetWorkflow()

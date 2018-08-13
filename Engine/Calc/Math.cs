@@ -61,6 +61,15 @@ namespace Engine.Calc
             return f;
         }
 
+        public static int NextIntRandomInRange(int range)
+        {
+            double d = Rand.NextDouble();
+
+            int i = (int)((d * range) - (range / 2));
+
+            return i;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -379,6 +388,55 @@ namespace Engine.Calc
             x = r * System.Math.Cos(DEG_TO_RAD * lon);
             y = System.Math.Sin(DEG_TO_RAD * lat);
             z = r * System.Math.Sin(DEG_TO_RAD * lon);
+        }
+
+        public static float Sigmoid(float f)
+        {
+            float result = (float)(1d / (1d + System.Math.Exp(f * -1)));
+
+            return result;
+        }
+
+        public static List<MousePoint> LinearInterpolate(MousePoint start, MousePoint end)
+        {
+            List<MousePoint> points = new List<MousePoint>();
+
+            int X1 = start.X;
+            int Y1 = start.Y;
+            int X2 = end.X;
+            int Y2 = end.Y;
+
+            int deltaX = System.Math.Abs(X2 - X1);
+            int deltaY = System.Math.Abs(Y2 - Y1);
+
+            int maxSteps = System.Math.Max(deltaX, deltaY);
+
+            if (maxSteps <= 1)
+            {
+                points.Add(start);
+                return points;
+            }
+
+            deltaX = X2 - X1;
+            deltaY = Y2 - Y1;
+
+            float increaseX = (float)deltaX / (float)maxSteps;
+            float increaseY = (float)deltaY / (float)maxSteps;
+
+            points.Add(new Engine.MousePoint(X1, Y1, Engine.MouseActionType.MouseMove, true));
+
+            for (int i = 0; i < maxSteps; i++)
+            {
+                int stepX = (int)((i * increaseX) + (float)X1);
+                int stepY = (int)((i * increaseY) + (float)Y1);
+
+                MousePoint p2 = new Engine.MousePoint(stepX, stepY, Engine.MouseActionType.MouseMove, false);
+                points.Add(p2);
+            }
+
+            points.Add(new Engine.MousePoint(X2, Y2, Engine.MouseActionType.MouseMove, true));
+
+            return points;
         }
     }
 }

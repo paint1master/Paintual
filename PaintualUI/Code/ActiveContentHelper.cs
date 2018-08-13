@@ -59,8 +59,14 @@ namespace PaintualUI.Code
             // SelectedContent is what is to become the previously selected item
             //System.Windows.Controls.Grid g = tabControl.SelectedContent as System.Windows.Controls.Grid;
 
+            if (tabControl.SelectedItem == null)
+            {
+                return;
+            }
+
             // SelectedItem is the one becoming active which gives the right DrawingBoard for our code
             Cuisine.Windows.DocumentContent dc = (Cuisine.Windows.DocumentContent)tabControl.SelectedItem;
+
             System.Windows.Controls.Grid g = (System.Windows.Controls.Grid)dc.Content;
 
             // can occur when new drawingBoard is created and is not set as a document in the DocumentContainer (one with tabs)
@@ -91,6 +97,12 @@ namespace PaintualUI.Code
                 // VisualPropertyPage has registered to this event
                 RaiseCurrentDrawingBoardChanged();
             }
+        }
+
+        public void DeleteDrawingBoard(PaintualUI.Controls.DrawingBoard db)
+        {
+            Engine.Workflow w = db.GetWorkflow();
+            Engine.Application.Workflows.EndWorkflow(w.Key);
         }
 
         /// <summary>

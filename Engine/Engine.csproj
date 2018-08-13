@@ -169,6 +169,7 @@
     <Compile Include="SwitchBoard\SwitchBoard.cs" />
     <Compile Include="Threading\BackgroundQueue.cs" />
     <Compile Include="Threading\ProcessThreading.cs" />
+    <Compile Include="Tools\AttractorPen.cs" />
     <Compile Include="Tools\IGraphicActivity.cs" />
     <Compile Include="Viome\MotionAttribute.cs" />
     <Compile Include="Tools\ParticlePen.cs" />

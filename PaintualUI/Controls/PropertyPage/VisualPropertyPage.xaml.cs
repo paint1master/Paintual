@@ -47,6 +47,12 @@ namespace PaintualUI.Controls.PropertyPage
         /// </summary>
         private Engine.Attributes.AttributeCollection t_properties;
 
+        /// <summary>
+        /// Flag set by the Build() method when all controls have been created to allow the tool, effect, or animation to start
+        /// immediately so the user does not need to specifically click Apply button when the VPP is loaded with default values.
+        /// </summary>
+        private bool t_canAutoApply = false;
+
         public VisualPropertyPage()
         {
             InitializeComponent();
@@ -60,6 +66,11 @@ namespace PaintualUI.Controls.PropertyPage
         private void VisualPropertyPage_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateControlVisuals();
+
+            if (t_canAutoApply)
+            {
+                AutoApply(true);
+            }
         }
 
         /// <summary>
@@ -101,6 +112,8 @@ namespace PaintualUI.Controls.PropertyPage
             {
                 BuildControl(key);
             }
+
+            t_canAutoApply = true;
         }
 
         /// <summary>
@@ -335,7 +348,7 @@ namespace PaintualUI.Controls.PropertyPage
         /// <param name="collectedValues">The collected VisualPropertyPage values saved in the tool or effect corresponding to the current drawing board</param>
         public void Fill(Engine.Workflow w)
         {
-            Engine.Effects.VisualProperties vp  = w.GraphicActivity.GetVisualProperties();
+            Engine.Effects.VisualProperties vp = w.GraphicActivity.GetVisualProperties();
 
             if (vp == null)
             {
@@ -458,18 +471,32 @@ namespace PaintualUI.Controls.PropertyPage
                 return;
             }
 
+            AutoApply(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="auto">Determines whether the method is calle dautomatically after the page has loaded or
+        /// called by a user clicking on the Apply button (in the former, prevents effects to be applied).</param>
+        private void AutoApply(bool auto)
+        {
             bool hasErrors = false;
 
-            if (t_workflow.CurrentEffect != null)
-            {
-                hasErrors = Apply();
-
-                if (!hasErrors)
+            // auto apply when page loaded should not launch effects.
+            if(!auto)
+            { 
+                if (t_workflow.CurrentEffect != null)
                 {
-                    t_workflow.CurrentEffect.Process();
-                }
+                    hasErrors = Apply();
 
-                return;
+                    if (!hasErrors)
+                    {
+                        t_workflow.CurrentEffect.Process();
+                    }
+
+                    return;
+                }
             }
 
             if (t_workflow.CurrentTool != null)
@@ -478,6 +505,8 @@ namespace PaintualUI.Controls.PropertyPage
 
                 return;
             }
+
+            t_canAutoApply = false;
         }
 
         /// <summary>

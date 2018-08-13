@@ -12,8 +12,6 @@ namespace Engine.Effects.Particles
         {
             Accord.Math.Vector3 distance = attractor.Position - p.Position;
 
-
-
             return distance;
         }
 
@@ -29,7 +27,7 @@ namespace Engine.Effects.Particles
 
             float force = G / distance;
 
-            force = Sigmoid(force);
+            force = Engine.Calc.Math.Sigmoid(force);
 
             relDistance.Normalize();
             Accord.Math.Vector3.Multiply(relDistance, force);
@@ -37,11 +35,39 @@ namespace Engine.Effects.Particles
             return relDistance;
         }
 
-        private static float Sigmoid(float f)
+        public static void Draw(this Engine.Effects.Particles.ForceParticle fp, Engine.Surface.Canvas c, Engine.Color.Cell color)
         {
-            float result = (float) (1d / (1d + Math.Exp(f * -1)));
+            // TODO a strange case where position is way out of bounds which causes LinearInterpolation to build a list that
+            // reaches "out of memory"
+            if (float.IsNaN(fp.Position.X) || float.IsNaN(fp.Position.Y))
+            {
+                return;
+            }
 
-            return result;
+            // draw a line between last position and current position
+            List<MousePoint> points = Engine.Calc.Math.LinearInterpolate(new MousePoint(fp.PreviousPoint.X, fp.PreviousPoint.Y),
+                new MousePoint((int)fp.Position.X, (int)fp.Position.Y));
+
+            foreach (MousePoint p in points)
+            {
+                int x = p.X;
+                int y = p.Y;
+
+                if (x < 0 || x > c.Width - 1)
+                {
+                    return;
+                }
+
+                if (y < 0 || y > c.Height - 1)
+                {
+                    return;
+                }
+
+                int offset = c.GetOffset(x, y);
+
+                Engine.Color.Cell bg = Engine.Surface.Ops.GetPixel(c, x, y);
+                Engine.Calc.Color.FastAlphaBlend(color, bg).WriteBytes(c.Array, offset);
+            }
         }
     }
 }

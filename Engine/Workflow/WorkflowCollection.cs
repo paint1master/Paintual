@@ -135,6 +135,9 @@ namespace Engine
             }
 
             Engine.Workflow w = t_workflows[key];
+            Engine.Application.Viomes.EndViome(w.Viome.Key);
+
+            w.RaiseClosing();
 
             t_workflows.Remove(key);
 

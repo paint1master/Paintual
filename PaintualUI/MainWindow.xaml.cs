@@ -50,6 +50,8 @@ namespace PaintualUI
 
         public MainWindow()
         {
+            this.WindowState = WindowState.Maximized;
+
             InitializeComponent();
 
             // the VisualPropertyPage will register and unregister this event itself
@@ -71,7 +73,22 @@ namespace PaintualUI
 
         private void WindowsManager_DocumentClosing(Cuisine.Windows.DocumentContent documentContent)
         {
-            ;
+            System.Windows.Controls.Grid g = (System.Windows.Controls.Grid)documentContent.Content;
+
+            // can occur when new drawingBoard is created and is not set as a document in the DocumentContainer (one with tabs)
+            if (g == null)
+            {
+                return;
+            }
+
+            if (g.Children[0] is PaintualUI.Controls.DrawingBoard == false)
+            {
+                return;
+            }
+
+            PaintualUI.Controls.DrawingBoard db = (PaintualUI.Controls.DrawingBoard)g.Children[0];
+
+            _app.ActiveContentHelper.DeleteDrawingBoard(db);
         }
 
         private void WindowsManager_ActiveDocumentChanged(object sender, Cuisine.Windows.ActiveDocumentChangedEventArgs e)
@@ -391,6 +408,11 @@ namespace PaintualUI
         private void ForceParticles_Click(object sender, RoutedEventArgs e)
         {
             SetActivity(new Engine.Effects.ForceEffect());
+        }
+
+        private void AttractorPen_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Tools.AttractorPen());
         }
     }
 }

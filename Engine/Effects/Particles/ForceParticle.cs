@@ -41,12 +41,8 @@ namespace Engine.Effects.Particles
     {
         protected Point t_previousPoint;
         protected Accord.Math.Vector3 t_velocity;
-        protected Accord.Math.Vector3 t_acceleration;
-
-        public ForceParticle()
-        {
-            t_acceleration = new Accord.Math.Vector3(0, 0, 0);
-        }
+        protected Accord.Math.Vector3 t_acceleration = new Accord.Math.Vector3(0, 0, 0);
+        protected float t_maxMagnitude = 0;
 
         public ForceParticle(Accord.Math.Vector3 position) : base(position)
         {
@@ -61,14 +57,39 @@ namespace Engine.Effects.Particles
 
         public ForceParticle(int x, int y, float velX, float velY)
         {
+            t_previousPoint = new Point(x, y);
             t_position = new Accord.Math.Vector3(x, y, 0);
             t_velocity = new Accord.Math.Vector3(velX, velY, 0);
+        }
+
+        public ForceParticle(int x, int y, float velX, float velY, float maxMagnitude) : this(x, y, velX, velY)
+        {
+            t_maxMagnitude = maxMagnitude;
         }
 
         public void Update()
         {
             t_previousPoint = new Point((int)Math.Round(t_position.X), (int)Math.Round(t_position.Y));
             t_velocity += t_acceleration;
+
+            if (t_maxMagnitude > 0)
+            {
+                float mag = (float)System.Math.Sqrt(t_velocity.X * t_velocity.X + t_velocity.Y * t_velocity.Y);
+                if (mag > t_maxMagnitude)
+                {
+                    float x = t_velocity.X * t_maxMagnitude / mag;
+                    float y = t_velocity.Y * t_maxMagnitude / mag;
+
+                    if (float.IsNaN(x) || float.IsNaN(y))
+                    {
+                        x = 0;
+                        y = 0;
+                    }
+
+                    t_velocity = new Accord.Math.Vector3(x, y, 0);
+                }
+            }
+
             t_position += t_velocity;
         }
 

@@ -128,8 +128,24 @@ namespace Engine
             }
         }
 
+        public string LastSavedFolder { get; set; }
+
+
 
         #endregion
+
+        public delegate void WorkflowClosingEventHandler(object sender, EventArgs e);
+
+        public event WorkflowClosingEventHandler Closing;
+
+        public void RaiseClosing()
+        {
+            if (Closing != null)
+            {
+                // the drawing board may be null in some cases
+                Closing(this, new EventArgs());
+            }
+        }
 
         #region Dispose
         // for details see D:\Docs\My Projects\bmp_creator\Dispose which leads to http://dave-black.blogspot.ca/2011/03/how-do-you-properly-implement.html
@@ -144,7 +160,6 @@ namespace Engine
         /// </value>
         /// <remarks>Default initialization for a bool is 'false'</remarks>
         private bool IsDisposed { get; set; }
-        public string LastSavedFolder { get; set; }
 
         /// <summary>
         /// Implementation of Dispose according to .NET Framework Design Guidelines.

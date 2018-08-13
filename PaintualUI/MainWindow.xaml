@@ -42,6 +42,7 @@
                 <MenuItem Header="Grainy Pen" Click="GrainyTool_Click" />
                 <MenuItem Header="Particle Pen" Click="ParticlePen_Click" />
                 <MenuItem Header="Force Particles" Click="ForceParticles_Click" />
+                <MenuItem Header="Attractor Pen" Click="AttractorPen_Click" />
             </MenuItem>
 
             <MenuItem Header="Effects" >
