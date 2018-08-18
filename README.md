@@ -8,6 +8,3 @@ Eventually Paintual should be able to take images from a personal catalog and as
 ## Important
 this is a test commit
 
-## Installation
-
-As of now (2018-01-07) the project does not offer an installable. Anyone interested in the project needs to download the files and compile/execute them in Visual Studio 2017 (Commnity Edition is free: <https://www.visualstudio.com/downloads/>
