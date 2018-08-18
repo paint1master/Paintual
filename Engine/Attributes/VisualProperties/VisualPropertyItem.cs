@@ -41,6 +41,7 @@ namespace Engine.Effects
         private int? rangeMaximumValue;
         private Engine.Attributes.Meta.DisplayControlTypes displayControlType = Engine.Attributes.Meta.DisplayControlTypes.None;
         private Engine.PropertyDataTypes dataType = Engine.PropertyDataTypes.Undefined;
+        private Type typeDeclaration;
         private Engine.Attributes.Meta.ValidatorTypes validatorType = Attributes.Meta.ValidatorTypes.Undefined;
         private Engine.Attributes.ValueList valueList;
         private object defaultValue;
@@ -89,6 +90,12 @@ namespace Engine.Effects
         {
             get { return dataType; }
             set { dataType = value; }
+        }
+
+        public Type TypeDeclaration
+        {
+            get { return typeDeclaration; }
+            set { typeDeclaration = value; }
         }
 
         public int Index

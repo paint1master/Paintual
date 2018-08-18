@@ -42,6 +42,8 @@ namespace Engine.Tools
         private int t_skipperValue;
 
         private Engine.Utilities.Iterativ.Skipper t_skipper;
+        private Engine.Color.ColorVariance t_colorVariance;
+        private bool t_useColorFromImage;
 
         private MousePoint t_previousPoint;
 
@@ -69,10 +71,26 @@ namespace Engine.Tools
             if (!t_skipper.Skip())
                 return;
 
-            int offset = t_imageSource.GetOffset(p.X, p.Y);
+            if (t_imageSource.IsOutOfBounds(p.X, p.Y))
+            {
+                return;
+            }
 
-            if (offset == -1)
-            { return; }
+            Engine.Color.Cell col;
+            t_colorVariance.Step();
+
+            if (t_useColorFromImage)
+            {
+                col = t_imageSource.GetPixel(p.X, p.Y, PixelRetrievalOptions.ReturnEdgePixel);
+                t_colorVariance.SetColor(col);
+                col = t_colorVariance.ColorVariation;
+                col.Alpha = t_alpha;
+            }
+            else
+            {
+                col = t_colorVariance.ColorVariation;
+                col.Alpha = t_alpha;
+            }
 
             // particles must follow the pen between each call to draw
             int[] delta = MousePoint.Delta(t_previousPoint, p);
@@ -81,7 +99,8 @@ namespace Engine.Tools
             foreach (Engine.Effects.Particles.Obsolete.PixelParticle_O px in t_particles)
             {
                 px.Move(d);
-                px.Draw(t_imageSource, t_alpha);
+
+                px.Draw(t_imageSource, col);                
             }
 
             t_previousPoint = p;
@@ -93,7 +112,23 @@ namespace Engine.Tools
 
             for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[i] = new Effects.Particles.Obsolete.PixelParticle_O(Engine.Colors.Black,
+                Engine.Color.Cell cVar;
+
+                if (t_useColorFromImage)
+                {
+                    cVar = t_imageSource.GetPixel(x, y, PixelRetrievalOptions.ReturnEdgePixel);
+                    cVar.Alpha = t_alpha;
+                }
+                else
+                {
+                    t_colorVariance.Step();
+
+                    // currently colorVariance is off
+                    cVar = new Color.Cell(t_colorVariance.Blue, t_colorVariance.Green, t_colorVariance.Red, t_colorVariance.Alpha);
+                    cVar.Alpha = t_alpha;
+                }
+
+                t_particles[i] = new Effects.Particles.Obsolete.PixelParticle_O(cVar,
                     x + Engine.Calc.Math.NextFloatRandomInRange((float)t_scatter),
                     y + Engine.Calc.Math.NextFloatRandomInRange((float)t_scatter));
             }
@@ -118,7 +153,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(30)]
+        [Engine.Attributes.Meta.DefaultValue(300)]
         public int Count
         {
             get { return t_count; }
@@ -130,7 +165,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
         [Engine.Attributes.Meta.Range(0, 255)]
-        [Engine.Attributes.Meta.DefaultValue(30)]
+        [Engine.Attributes.Meta.DefaultValue(15)]
         public int Alpha
         {
             get { return t_alpha; }
@@ -141,7 +176,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
-        [Engine.Attributes.Meta.DefaultValue(10d)] /* 10d d is required otherwise compiler sets as int and cast in UI will fail */
+        [Engine.Attributes.Meta.DefaultValue(100d)] /* 10d d is required otherwise compiler sets as int and cast in UI will fail */
         public double Scatter
         {
             get { return t_scatter; }
@@ -152,11 +187,29 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(3)]
+        [Engine.Attributes.Meta.DefaultValue(5)]
         public int Skipper
         {
             get { return t_skipperValue; }
             set { t_skipperValue = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Color Variance")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.ColorVariance)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Object, typeof(Engine.Color.ColorVariance))]
+        public Engine.Color.ColorVariance ColorVariance
+        {
+            get { return t_colorVariance; }
+            set { t_colorVariance = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Color From Image")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Checkbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Boolean, typeof(bool))]
+        public bool UseColorFromImage
+        {
+            get { return t_useColorFromImage; }
+            set { t_useColorFromImage = value; }
         }
     }
 }

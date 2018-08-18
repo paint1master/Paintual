@@ -100,7 +100,8 @@ namespace Engine.Effects.Particles
         /// <param name="attractor"></param>
         public void Update(Engine.Effects.Particles.Attractor attractor)
         {
-            t_acceleration = attractor.ForceInverseProportional_SqDistance(this);
+            //t_acceleration = attractor.ExpressiveForce(this);
+            t_acceleration = attractor.ModularForce(this);
             Update();
         }
 
@@ -115,7 +116,8 @@ namespace Engine.Effects.Particles
 
             for (int i = 0; i < attractors.Length; i++)
             {
-                sum += attractors[i].ForceInverseProportional_SqDistance(this);
+                sum += attractors[i].ModularForce(this);
+                //sum += attractors[i].ExpressiveForce(this);
             }
             t_acceleration = sum;
             Update();

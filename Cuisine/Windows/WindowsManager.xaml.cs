@@ -44,14 +44,14 @@ namespace Cuisine.Windows
 
         private void DocumentContainer_DocumentClosing(DocumentContent documentContent)
         {
-            RaiseDocumentClosing(documentContent);
+            OnDocumentClosing(documentContent);
         }
 
         #region ModifedCodeMB
 
         private void DocumentContainer_ActiveDocumentChanged(object sender, ActiveDocumentChangedEventArgs e)
         {
-            RaiseActiveDocumentChanged(e);
+            OnActiveDocumentChanged(e);
         }
 
         #endregion
@@ -865,20 +865,14 @@ namespace Cuisine.Windows
         public event ActiveDocumentChangedEventHandler ActiveDocumentChanged;
         public event DocumentClosingEventHandler DocumentClosing;
 
-        private void RaiseActiveDocumentChanged(ActiveDocumentChangedEventArgs e)
+        private void OnActiveDocumentChanged(ActiveDocumentChangedEventArgs e)
         {
-            if (ActiveDocumentChanged != null)
-            {
-                ActiveDocumentChanged(this, e);
-            }
+            ActiveDocumentChanged?.Invoke(this, e);
         }
 
-        private void RaiseDocumentClosing(DocumentContent documentContent)
+        private void OnDocumentClosing(DocumentContent documentContent)
         {
-            if (DocumentClosing != null)
-            {
-                DocumentClosing(documentContent);
-            }
+            DocumentClosing?.Invoke(documentContent);
         }
 
         #endregion

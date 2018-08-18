@@ -95,7 +95,7 @@ namespace PaintualUI.Code
                 Engine.Application.Workflows.SetAsActiveWorkflow(w.Key);
 
                 // VisualPropertyPage has registered to this event
-                RaiseCurrentDrawingBoardChanged();
+                OnCurrentDrawingBoardChanged();
             }
         }
 
@@ -116,13 +116,9 @@ namespace PaintualUI.Code
 
         public event CurrentDrawingBoardChangedEventHandler CurrentDrawingBoardChanged;
 
-        public void RaiseCurrentDrawingBoardChanged()
+        public void OnCurrentDrawingBoardChanged()
         {
-            if (CurrentDrawingBoardChanged != null)
-            {
-                // the drawing board may be null in some cases
-                CurrentDrawingBoardChanged(this, new CurrentDrawingBoardChangedEventArgs(t_currentDrawingBoard));
-            }
+            CurrentDrawingBoardChanged?.Invoke(this, new CurrentDrawingBoardChangedEventArgs(t_currentDrawingBoard));
         }
 
         public delegate void CurrentDrawingBoardChangedEventHandler(object sender, CurrentDrawingBoardChangedEventArgs e);

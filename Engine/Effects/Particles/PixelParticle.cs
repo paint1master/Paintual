@@ -59,9 +59,15 @@ namespace Engine.Effects.Particles.Obsolete
 
         public void Draw(Engine.Surface.Canvas c, byte alpha)
         {
-            Engine.Color.Cell source = Engine.Surface.Ops.GetPixel(c, (int)t_position.X, (int)t_position.Y);
+            Engine.Color.Cell source = c.GetPixel((int)t_position.X, (int)t_position.Y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
             t_cell.Alpha = alpha;
-            Engine.Surface.Ops.SetPixel(Engine.Calc.Color.FastAlphaBlend(t_cell, source), c, (int)t_position.X, (int)t_position.Y);
+            c.SetPixel(Engine.Calc.Color.FastAlphaBlend(t_cell, source), (int)t_position.X, (int)t_position.Y, Surface.PixelSetOptions.Ignore);
+        }
+
+        public void Draw(Engine.Surface.Canvas c, Engine.Color.Cell color)
+        {
+            Engine.Color.Cell source = c.Grid.GetPixel((int)t_position.X, (int)t_position.Y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
+            c.SetPixel(Engine.Calc.Color.FastAlphaBlend(color, source), (int)t_position.X, (int)t_position.Y, Surface.PixelSetOptions.Ignore);
         }
 
         public Engine.Color.Cell Pixel

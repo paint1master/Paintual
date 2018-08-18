@@ -42,7 +42,7 @@ namespace PaintualUI.Controls
             if (result != t_zoomFactor)
             {
                 t_zoomFactor = result;
-                RaiseZoomFactorChanged(CalculateZoomPercentageToFactor(result));
+                OnZoomFactorChanged(CalculateZoomPercentageToFactor(result));
             }
         }
 
@@ -72,7 +72,7 @@ namespace PaintualUI.Controls
             if (t_zoomFactor != newZoom)
             {
                 t_zoomFactor = newZoom;
-                RaiseZoomFactorChanged(CalculateZoomPercentageToFactor(t_zoomFactor));
+                OnZoomFactorChanged(CalculateZoomPercentageToFactor(t_zoomFactor));
             }
         }
 
@@ -93,12 +93,9 @@ namespace PaintualUI.Controls
 
         public event Engine.CoordinatesManager.ZoomFactorChangedEventHandler ZoomFactorChanged;
 
-        private void RaiseZoomFactorChanged(double zoomFactor)
+        private void OnZoomFactorChanged(double zoomFactor)
         {
-            if (ZoomFactorChanged != null)
-            {
-                ZoomFactorChanged(this, new Engine.ZoomFactorChangedEventArgs(zoomFactor));
-            }
+            ZoomFactorChanged?.Invoke(this, new Engine.ZoomFactorChangedEventArgs(zoomFactor));
         }
 
         #endregion

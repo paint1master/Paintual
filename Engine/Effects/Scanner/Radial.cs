@@ -78,46 +78,29 @@ namespace Engine.Effects.Scanner
             base.ProcessCompleted();
         }
 
-        private void CreatePerlinNoisePlane()
-        {
-            Engine.Effects.Noise.IModule module = new Engine.Effects.Noise.Perlin();
-
-            ((Perlin)module).Frequency = t_frequency;
-            ((Perlin)module).NoiseQuality = NoiseQuality.Standard;
-            ((Perlin)module).Seed = t_seed;
-            ((Perlin)module).OctaveCount = t_octaves;
-            ((Perlin)module).Lacunarity = 2.0;
-            ((Perlin)module).Persistence = 0.5;
-
-            double value = 0;
-
-            for (int y = 0; y < t_imageSource.Height; y++)
-            {
-                for (int x = 0; x < t_imageSource.Width - 1; x++)
-                {
-                    value = (module.GetValue(x, y, 0) + 1) / 2.0;
-
-                    if (value < 0) value = 0;
-                    if (value > 1.0) value = 1.0;
-                    byte intensity = (byte)(value * 255.0);
-                    Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, t_imagePerlin, x, y);
-                }
-            }
-        }
-
         private void CreateFlowField()
         {
             t_flowField = new Accord.Math.Vector3[t_imageSource.Width, t_imageSource.Height];
 
-            for (int y = 0; y < t_imageSource.Height; y++)
+
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
+
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+
+            loop.Loop(t_imageSource.Height, Threaded_CreateFlowField, paramList);
+            loop.Dispose();
+        }
+
+        private int Threaded_CreateFlowField(int start, int end, Engine.Threading.ParamList paramList)
+        {
+            for (int y = start; y < end; y++)
             {
                 for (int x = 0; x < t_imageSource.Width; x++)
                 {
                     // initialize vectors with basic to-the-right direction
                     t_flowField[x, y] = new Accord.Math.Vector3(1, 0, 0);
 
-                    Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
+                    Engine.Color.Cell c = t_imagePerlin.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
                     double lum = (double)Engine.Calc.Color.Luminance(c);
                     double angle = (lum * 360 / 255);
 
@@ -127,12 +110,15 @@ namespace Engine.Effects.Scanner
                     t_flowField[x, y].Y = (float)System.Math.Sin(rad);
                 }
             }
+
+            return 0;
         }
 
         private void CreateParticles(byte alpha)
         {
             //Engine.Color.Cell color = new Engine.Color.Cell(200, 220, 230, alpha); beige
-            Engine.Color.Cell color = new Engine.Color.Cell(220, 210, 200, alpha); // light blue
+            Engine.Color.Cell color = Engine.Application.UISelectedValues.SelectedColor;
+            color.Alpha = alpha;
 
             t_particles = new Particles.Obsolete.LivingPixelParticle_O[t_particleCount];
 
@@ -174,6 +160,10 @@ namespace Engine.Effects.Scanner
         /// </summary>
         private int ParticleFlow(int start, int end, Engine.Threading.ParamList lst)
         {
+            Engine.Color.ColorVariance cv = new Color.ColorVariance(t_particles[0].Pixel);
+            cv.SetFrequencies(500);
+            cv.SetRanges(30);
+
             double life = 0;
 
             do
@@ -182,56 +172,9 @@ namespace Engine.Effects.Scanner
 
                 for (int i = start; i < end; i++)
                 {
+                    t_particles[i].Pixel = cv.ColorVariation;
                     t_particles[i].Draw(t_imageProcessed);
 
-                }
-
-                // life is used to limit the number of times the colors are being updated
-                if ((int)life % 10 == 0)
-                {
-                    int rd = Engine.Calc.Math.Rand.Next(10);
-                    rd = rd - 5; // to get positive and negative values to change the color
-
-                    for (int j = start; j < end; j++)
-                    {
-                        Engine.Color.Cell c = t_particles[j].Pixel;
-                        int b = (int)c.Blue;
-                        b += rd;
-
-                        if (b < 0)
-                            b = 0;
-
-                        if (b > 255)
-                            b = 255;
-
-                        int g = (int)c.Green;
-                        g += rd;
-
-                        if (g < 0)
-                            g = 0;
-
-                        if (g > 255)
-                            g = 255;
-
-                        int r = (int)c.Red;
-                        r += rd;
-
-                        if (r < 0)
-                            r = 0;
-
-                        if (r > 255)
-                            r = 255;
-
-                        c.Blue = (byte)b;
-                        c.Green = (byte)g;
-                        c.Red = (byte)r;
-
-                        t_particles[j].Pixel = c;
-                    }
-                }
-
-                for (int i = start; i < end; i++)
-                {
                     if (t_particles[i].Life < 0)
                     {
                         continue;

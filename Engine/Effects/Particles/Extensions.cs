@@ -16,10 +16,10 @@ namespace Engine.Effects.Particles
         }
 
 
-        public static Accord.Math.Vector3 ForceInverseProportional_SqDistance(this Engine.Effects.Particles.Attractor attractor,
+        /*public static Accord.Math.Vector3 ExpressiveForce(this Engine.Effects.Particles.Attractor attractor,
             Engine.Effects.Particles.ForceParticle p)
         {
-            float G = 4f; //50.5f;
+            float G = 4f;
 
             Accord.Math.Vector3 relDistance = attractor.Distance(p);
 
@@ -33,12 +33,38 @@ namespace Engine.Effects.Particles
             Accord.Math.Vector3.Multiply(relDistance, force);
 
             return relDistance;
+        }*/
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="attractor"></param>
+        /// <param name="p"></param>
+        /// <param name="G">The "Gravitational constant" of the force (suggested value 1.3)</param>
+        /// <param name="expansion">Allows the force to be stronger or weaker on longer distances while remaining weak at very short distances.
+        /// suggested value 2.8</param>
+        /// <param name="direction">the direction of the force. positive makes the force attraction, negative makes the force repulsion. suggested value 0.5 or -0.5</param>
+        /// <returns></returns>
+        public static Accord.Math.Vector3 ModularForce(this Engine.Effects.Particles.Attractor attractor,
+            Engine.Effects.Particles.ForceParticle p)
+        {
+            Accord.Math.Vector3 relDistance = attractor.Distance(p);
+
+            double distance = System.Math.Sqrt(relDistance.X * relDistance.X + relDistance.Y * relDistance.Y);
+
+            //double force = (attractor.Intensity * attractor.Force * distance) -attractor.Expression / (attractor.Expression * System.Math.Exp(distance /attractor.Force));
+            double force = (attractor.Intensity * attractor.Force * distance) - 10d / System.Math.Pow(attractor.Expression, -1 * (distance / attractor.Force));
+
+            relDistance.Normalize();
+            Accord.Math.Vector3.Multiply(relDistance, (float)force);
+
+            return relDistance;
         }
 
         public static void Draw(this Engine.Effects.Particles.ForceParticle fp, Engine.Surface.Canvas c, Engine.Color.Cell color)
         {
             // TODO a strange case where position is way out of bounds which causes LinearInterpolation to build a list that
-            // reaches "out of memory"
+            // has so many items that it reaches "out of bounds (int)"
             if (float.IsNaN(fp.Position.X) || float.IsNaN(fp.Position.Y))
             {
                 return;
@@ -53,20 +79,14 @@ namespace Engine.Effects.Particles
                 int x = p.X;
                 int y = p.Y;
 
-                if (x < 0 || x > c.Width - 1)
+                if (c.IsOutOfBounds(x, y))
                 {
                     return;
                 }
 
-                if (y < 0 || y > c.Height - 1)
-                {
-                    return;
-                }
+                Engine.Color.Cell bg = c.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
 
-                int offset = c.GetOffset(x, y);
-
-                Engine.Color.Cell bg = Engine.Surface.Ops.GetPixel(c, x, y);
-                Engine.Calc.Color.FastAlphaBlend(color, bg).WriteBytes(c.Array, offset);
+                c.SetPixel(Engine.Calc.Color.FastAlphaBlend(color, bg), x, y, Surface.PixelSetOptions.Ignore);
             }
         }
     }

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="350">
     <Grid>
-        <Canvas Background="#FF505050">
+        <Canvas Background="#FF505050" ClipToBounds="True">
             <RadioButton Name="RadH" GroupName="RadColorMode" Content="H" HorizontalAlignment="Left" Margin="227,18,0,0" VerticalAlignment="Top"/>
             <RadioButton Name="RadS" GroupName="RadColorMode" Content="S" HorizontalAlignment="Left" Margin="227,44,0,0" VerticalAlignment="Top"/>
             <RadioButton Name="RadV" GroupName="RadColorMode" Content="V" HorizontalAlignment="Left" Margin="227,70,0,0" VerticalAlignment="Top"/>
@@ -23,7 +23,7 @@
             <TextBox Name="TxtB" HorizontalAlignment="Left" Height="20" Margin="260,140,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
             <local:ColorPlane x:Name="Plane" BorderBrush="Black" HorizontalAlignment="Left" Height="150" Margin="10,16,0,0" VerticalAlignment="Top" Width="150"/>
             <local:ColorFader x:Name="Fader" HorizontalAlignment="Left" Height="158" Margin="178,16,0,0" VerticalAlignment="Top" Width="24"/>
-            <Rectangle Fill="#FF505050" HorizontalAlignment="Left" Height="43" Margin="10,197,0,0" Stroke="White" VerticalAlignment="Top" Width="330"/>
+            <Rectangle Fill="#FF505050" HorizontalAlignment="Left" Height="43" Margin="10,197,0,0" Stroke="#FFA0A0A0" VerticalAlignment="Top" Width="330"/>
         </Canvas>
     </Grid>
 </UserControl>

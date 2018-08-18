@@ -60,8 +60,29 @@ namespace PaintualUI.Controls.PropertyPage
 
         #region TIPropertyControl implementation
 
+        public override void BuildControl(Engine.Effects.VisualPropertyItem pi)
+        {
+            Name = pi.ActualPropertyName;
+            PropertyName = pi.ActualPropertyName;
+            LabelText = pi.DisplayName;
+            DataType = pi.DataType;
+            DefaultValue = pi.DefaultValue;
+
+            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
+            {
+                switch (pi.ValidatorType)
+                {
+                    case Engine.Attributes.Meta.ValidatorTypes.Double:
+                        Validators.Add(new Engine.Validators.DoubleValidator());
+                        break;
+                    default:
+                        throw new Exception(String.Format("In TPropertyDoubleBox, the validator type '{0}' is not supported", pi.ValidatorType));
+                }
+            }
+        }
+
         /// <summary>
-        /// Builds the children controls.
+        /// Use this method to build controls dynamically (ie radio button list based on a property).
         /// </summary>
         public override void BuildVisual()
         {

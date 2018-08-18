@@ -51,7 +51,7 @@ namespace Engine
             t_workflows.Add(key, w);
 
             t_activeWorkflowKey = key;
-            RaiseWorkflowChanged();
+            OnWorkflowChanged();
             return w;
         }
 
@@ -68,7 +68,7 @@ namespace Engine
             t_workflows.Add(key, w);
 
             t_activeWorkflowKey = key;
-            RaiseWorkflowChanged();
+            OnWorkflowChanged();
             return w;
         }
 
@@ -85,7 +85,7 @@ namespace Engine
             t_workflows.Add(key, w);
 
             t_activeWorkflowKey = key;
-            RaiseWorkflowChanged();
+            OnWorkflowChanged();
             return w;
         }
 
@@ -118,7 +118,7 @@ namespace Engine
                 if (key != t_activeWorkflowKey)
                 {
                     t_activeWorkflowKey = key;
-                    RaiseWorkflowChanged();
+                    OnWorkflowChanged();
                 }
             }
             else
@@ -137,7 +137,7 @@ namespace Engine
             Engine.Workflow w = t_workflows[key];
             Engine.Application.Viomes.EndViome(w.Viome.Key);
 
-            w.RaiseClosing();
+            w.OnClosing();
 
             t_workflows.Remove(key);
 
@@ -162,7 +162,7 @@ namespace Engine
         public void DeactivateWorkflow()
         {
             t_activeWorkflowKey = -1;
-            RaiseWorkflowChanged();
+            OnWorkflowChanged();
         }
 
         #region Events
@@ -170,12 +170,9 @@ namespace Engine
         public delegate void WorkflowChangedEventHandler(object sender, WorkflowEventArgs e);
         public event WorkflowChangedEventHandler WorkflowChanged;
 
-        private void RaiseWorkflowChanged()
+        private void OnWorkflowChanged()
         {
-            if (WorkflowChanged != null)
-            {
-                WorkflowChanged(this, new WorkflowEventArgs(t_workflows[t_activeWorkflowKey]));
-            }
+            WorkflowChanged?.Invoke(this, new WorkflowEventArgs(t_workflows[t_activeWorkflowKey]));
         }
 
         #endregion

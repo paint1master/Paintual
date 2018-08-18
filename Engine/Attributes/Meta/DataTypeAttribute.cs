@@ -43,6 +43,7 @@ namespace Engine.Attributes.Meta
     public class DataTypeAttribute : System.Attribute
     {
         private Engine.PropertyDataTypes dataType;
+        private Type t_type;
         private Type typeDeclaration;
 
         public DataTypeAttribute(Engine.PropertyDataTypes dataType) {

@@ -81,32 +81,22 @@ namespace Engine.Effects
                 {
                     fp[j].Update(attrs);
 
-                    int offset = 0;
-
-                    Engine.Color.Cell c = new Color.Cell(40, 45, 90, 6);
+                    Engine.Color.Cell c = Engine.Application.UISelectedValues.SelectedColor;
                     // draw a line between last position and current position
                     List<MousePoint> points = LinearInterpolate(fp[j].PreviousPoint, new Point((int)Math.Round(fp[j].Position.X), (int)Math.Round(fp[j].Position.Y)));
 
                     foreach (MousePoint p in points)
                     {
-                        if (p.X < 0 || p.X > t_imageProcessed.Width - 1)
+                        if(t_imageProcessed.IsOutOfBounds(p.X, p.Y))
                         {
                             continue;
                         }
+                        Engine.Color.Cell img = t_imageProcessed.GetPixel(p.X, p.Y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
 
-                        if (p.Y < 0 || p.Y > t_imageProcessed.Height - 1)
-                        {
-                            continue;
-                        }
-
-                        offset = t_imageProcessed.GetOffset(p.X, p.Y);
-                        Engine.Color.Cell img = Engine.Surface.Ops.GetPixel(t_imageProcessed, p.X, p.Y);
-
-                        Engine.Calc.Color.FastAlphaBlend(c, img).WriteBytes(t_imageProcessed.Array, offset);                       
+                        t_imageProcessed.SetPixel(Engine.Calc.Color.FastAlphaBlend(c, img), p.X, p.Y, Surface.PixelSetOptions.Ignore);                       
                     }
                 }
             }
-
 
             base.ProcessCompleted();
         }

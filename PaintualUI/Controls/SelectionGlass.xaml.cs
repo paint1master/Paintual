@@ -76,7 +76,7 @@ namespace PaintualUI.Controls
 
         private void T_selection_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            RaiseSelectionDoubleClick(sender, e);
+            OnSelectionDoubleClick(sender, e);
         }
 
         private void Grid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -133,12 +133,9 @@ namespace PaintualUI.Controls
         /// </summary>
         /// <param name="sender">usually the SelectionRectangle that raised the double click event.</param>
         /// <param name="e"></param>
-        private void RaiseSelectionDoubleClick(object sender, MouseButtonEventArgs e)
+        private void OnSelectionDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (SelectionDoubleClick != null)
-            {
-                SelectionDoubleClick(sender, e);
-            }
+            SelectionDoubleClick?.Invoke(sender, e);
         }
 
         #endregion

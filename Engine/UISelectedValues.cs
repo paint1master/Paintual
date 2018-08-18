@@ -38,7 +38,7 @@ namespace Engine
     /// </summary>
     public class UISelectedValues
     {
-        //private Engine.Color.Cell t_selectedColor;
+        private Engine.Color.Cell t_selectedColor;
         //private Engine.Tools.Attributes.IAttribute m_selectedBrushImage;
         //private Type m_selectedTool;
 
@@ -87,7 +87,7 @@ namespace Engine
             }
         }*/
 
-        /*public Engine.Color.Cell SelectedColor
+        public Engine.Color.Cell SelectedColor
         {
             get
             {
@@ -95,22 +95,26 @@ namespace Engine
                 if (this.t_selectedColor == null)
                 {
                     this.t_selectedColor = Engine.Colors.Black;
-                    return this.t_selectedColor;
-                }
-
-                if (this.t_selectedColor.Red == 0 &&
-                    this.t_selectedColor.Green == 0 &&
-                    this.t_selectedColor.Blue == 0 &&
-                    this.t_selectedColor.Alpha == 0)
-                {
-                    this.t_selectedColor = Engine.Colors.Black;
                 }
 
                 return this.t_selectedColor;
             }
 
-            set { this.t_selectedColor = value; }
-        }*/
+            set
+            {
+                this.t_selectedColor = value;
+                OnColorSelected();
+            }
+        }
+
+        public event UISelectedValuesEventHandler ColorSelected;
+
+        public delegate void UISelectedValuesEventHandler(UISelectedValuesEventArgs e);
+
+        public void OnColorSelected()
+        {
+            ColorSelected?.Invoke(new UISelectedValuesEventArgs(t_selectedColor));
+        }
 
         /*public event UISelectedValuesEventHandler BrushImageSelected;
 
@@ -131,22 +135,19 @@ namespace Engine
         }*/
     }
 
-    /*public delegate void UISelectedValuesEventHandler(UISelectedValuesEventArgs e);
-
     public class UISelectedValuesEventArgs
     {
-
-        private Engine.Tools.Attributes.IAttribute m_brushImage;
         private Type m_selectedTool;
+
 
         public UISelectedValuesEventArgs()
         {
 
         }
 
-        public UISelectedValuesEventArgs(Engine.Tools.Attributes.IAttribute brushImage)
+        public UISelectedValuesEventArgs(Engine.Color.Cell c)
         {
-            this.m_brushImage = brushImage;
+            Color = c;
         }
 
         public UISelectedValuesEventArgs(Type selectedTool)
@@ -154,14 +155,11 @@ namespace Engine
             this.m_selectedTool = selectedTool;
         }
 
-        public Engine.Tools.Attributes.IAttribute BrushImage
-        {
-            get { return this.m_brushImage; }
-        }
+        public Engine.Color.Cell Color { get; private set; }
 
         public Type Tool
         {
             get { return this.m_selectedTool; }
         }
-    }*/
+    }
 }

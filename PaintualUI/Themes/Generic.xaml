@@ -1,7 +1,8 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:PaintualUI.Controls.PropertyPage">
+    xmlns:local="clr-namespace:PaintualUI.Controls.PropertyPage"
+    xmlns:ctrl="clr-namespace:PaintualUI.Controls.ColorPicker" >
 
     <Style TargetType="{x:Type local:TPropertyControl}">
         <Setter Property="Template">
@@ -50,8 +51,8 @@
                 <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                    <Grid Background="#FF505050">
-                        <Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050">
+                            <Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
                             <TextBox x:Name="C_TextBox" Width="80" Height="20" Canvas.Left="150" Canvas.Top="10"></TextBox>
                             <Label x:Name="C_Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                             <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
@@ -117,6 +118,78 @@
                                 <Label Name="C_Label" Content="Folder" Width="42" Height="24" Canvas.Left="10" Canvas.Top="11" />
                                 <Button Name="C_BtnFolder" Content=". . ." Width="30" Height="20" Canvas.Left="260" Canvas.Top="9" />
                             </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ctrl:TColorPickerStandard}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ctrl:TColorPickerStandard}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Canvas Background="#FF505050" ClipToBounds="True">
+                                <RadioButton Name="C_RadH" GroupName="RadColorMode" Content="H" HorizontalAlignment="Left" Margin="227,18,0,0" VerticalAlignment="Top"/>
+                                <RadioButton Name="C_RadS" GroupName="RadColorMode" Content="S" HorizontalAlignment="Left" Margin="227,44,0,0" VerticalAlignment="Top"/>
+                                <RadioButton Name="C_RadV" GroupName="RadColorMode" Content="V" HorizontalAlignment="Left" Margin="227,70,0,0" VerticalAlignment="Top"/>
+                                <TextBox Name="C_TxtH" HorizontalAlignment="Left" Height="21" Margin="260,16,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+                                <TextBox Name="C_TxtS" HorizontalAlignment="Left" Height="21" Margin="260,68,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+                                <TextBox Name="C_TxtV" HorizontalAlignment="Left" Height="21" Margin="260,42,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+
+                                <RadioButton Name="C_RadR" GroupName="RadColorMode" Content="R" HorizontalAlignment="Left" Margin="227,116,0,0" VerticalAlignment="Top"/>
+                                <RadioButton Name="C_RadG" GroupName="RadColorMode" Content="G" HorizontalAlignment="Left" Margin="227,142,0,0" VerticalAlignment="Top"/>
+                                <RadioButton Name="C_RadB" GroupName="RadColorMode" Content="B" HorizontalAlignment="Left" Margin="227,168,0,0" VerticalAlignment="Top"/>
+                                <TextBox Name="C_TxtR" HorizontalAlignment="Left" Height="20" Margin="260,114,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+                                <TextBox Name="C_TxtG" HorizontalAlignment="Left" Height="20" Margin="260,166,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+                                <TextBox Name="C_TxtB" HorizontalAlignment="Left" Height="20" Margin="260,140,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50"/>
+                                <ctrl:ColorPlane x:Name="C_Plane" BorderBrush="Black" HorizontalAlignment="Left" Height="150" Margin="10,16,0,0" VerticalAlignment="Top" Width="150"/>
+                                <ctrl:ColorFader x:Name="C_Fader" HorizontalAlignment="Left" Height="158" Margin="178,16,0,0" VerticalAlignment="Top" Width="24"/>
+                                <Rectangle x:Name="C_RectSample" Fill="#FF505050" HorizontalAlignment="Left" Height="43" Margin="10,197,0,0" Stroke="#FFA0A0A0" VerticalAlignment="Top" Width="300"/>
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type local:TPropertyColorVariance}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:TPropertyColorVariance}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="#FFA0A0A0"
+                            BorderThickness="2">
+                        <Grid Background="#FF505050">
+                            <Slider x:Name="C_SliderFrequency" HorizontalAlignment="Left" Margin="108,29,0,0" VerticalAlignment="Top" Width="182" Minimum="1" Maximum="1000"/>
+                            <Slider x:Name="C_SliderRange" HorizontalAlignment="Left" Margin="108,67,0,0" VerticalAlignment="Top" Width="182" Minimum="1" Maximum="255"/>
+                            <Label x:Name="C_LblFrequency" Content="Frequency" HorizontalAlignment="Left" Margin="18,29,0,0" VerticalAlignment="Top" Width="85"/>
+                            <Label x:Name="C_LblRange" Content="Range" HorizontalAlignment="Left" Margin="18,67,0,0" VerticalAlignment="Top" Width="85"/>
+                            <Label Content="Color Variance" HorizontalAlignment="Left" Height="25" Margin="18,4,0,0" VerticalAlignment="Top" Width="110"/>
+                            <Label x:Name="C_LblFrequencyValue" Content="0" HorizontalAlignment="Left" VerticalAlignment="top" Width="43" Height="22" Margin="168,8,0,0" FontSize="10"/>
+                            <Label x:Name="C_LblRangeValue" Content="0" HorizontalAlignment="Left" VerticalAlignment="top" Width="43" Height="22" Margin="168,47,0,0" FontSize="10"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type local:TPropertyCheckBox}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:TPropertyCheckBox}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="#FFA0A0A0"
+                            BorderThickness="2">
+                        <Grid Background="#FF505050" Width="300">
+                        <Label x:Name="C_Label" Content="Color From Image" HorizontalAlignment="Left" Margin="18,4,0,0" VerticalAlignment="Top" Width="85"/>
+                        <CheckBox x:Name="C_ChkFromImage" HorizontalAlignment="Left" VerticalAlignment="top" Width="20" Height="20" Margin="116,9,0,0" />
                         </Grid>
                     </Border>
                 </ControlTemplate>

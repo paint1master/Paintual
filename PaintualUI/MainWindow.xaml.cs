@@ -69,6 +69,9 @@ namespace PaintualUI
 
             // TODO : use this to know value on Surface and laptop
             //MessageBox.Show(Engine.Calc.Matrix.NumericsVectorCount().ToString());
+
+            // to hide bug that crashes app sometimes when first file open is one from file system.
+            NewDrawingBoard("");
         }
 
         private void WindowsManager_DocumentClosing(Cuisine.Windows.DocumentContent documentContent)
@@ -83,6 +86,7 @@ namespace PaintualUI
 
             if (g.Children[0] is PaintualUI.Controls.DrawingBoard == false)
             {
+                // TODO : may need to handle closing of VisualPropertyPage (docPane)
                 return;
             }
 
@@ -290,7 +294,7 @@ namespace PaintualUI
 
         private void ColorPickerStandard_Click(object sender, RoutedEventArgs e)
         {
-            PaintualUI.Controls.ColorPicker.ColorPickerStandard pickerStandard = new Controls.ColorPicker.ColorPickerStandard();
+            PaintualUI.Controls.ColorPicker.TColorPickerStandard pickerStandard = new Controls.ColorPicker.TColorPickerStandard();
 
             DockPane pane = new DockPane();
             pane.MinHeight = 100;
@@ -413,6 +417,46 @@ namespace PaintualUI
         private void AttractorPen_Click(object sender, RoutedEventArgs e)
         {
             SetActivity(new Engine.Tools.AttractorPen());
+        }
+
+        private void VarianceGradient_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.VarianceGradientEffect());
+        }
+
+        private void ButtonSerialization_Save(object sender, System.Windows.RoutedEventArgs e)
+        {
+            /*_stream.SetLength(0);
+            _stream.Seek(0, SeekOrigin.Begin);
+            new XmlWindowsManagerSerializer((xmlElement, dockPane) => xmlElement.SetAttribute("Data", dockPane.Tag.ToString()), arg => arg.DockPane.Tag.ToString()).Serialize(_stream, WindowsManager);
+            */
+        }
+
+        private System.IO.MemoryStream _stream = new System.IO.MemoryStream(); // for serialization
+
+        private void ButtonDeserialization_Load(object sender, System.Windows.RoutedEventArgs e)
+        {
+            /*_stream.Seek(0, SeekOrigin.Begin);
+
+            WindowsManager.Clear();
+
+            if (_stream.Length == 0)
+            {
+                return;
+            }
+
+            new XmlWindowsManagerDeserializer((dockpane, data) =>
+            {
+                dockpane.Header = "Solution Explorer";
+                dockpane.Tag = int.Parse(data);
+                Grid g = new Grid();
+                g.Background = Brushes.White;
+                TextBlock text = new TextBlock();
+                text.Text = "Some content - " + data;
+                g.Children.Add(text);
+                dockpane.Content = g;
+            }).Deserialize(_stream, WindowsManager);
+            */
         }
     }
 }

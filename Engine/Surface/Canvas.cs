@@ -37,6 +37,7 @@ namespace Engine.Surface
     public class Canvas
     {
         private ImageData t_imageData;
+        private ImageDataGrid t_grid;
 
         private int t_width;
         private int t_height;
@@ -49,11 +50,13 @@ namespace Engine.Surface
             t_stride = (t_width * Engine.BytesPerPixel.BGRA);
 
             t_imageData = new ImageData(width, height);
+            t_grid = new ImageDataGrid(ref t_imageData);
         }
 
         public Canvas(byte[] imageData, int width, int height) : this(width, height)
         {
             t_imageData = new ImageData(imageData, width, height);
+            t_grid = new ImageDataGrid(ref t_imageData);
         }
 
         public Canvas(int width, int height, Engine.Color.Cell c) : this(width, height)
@@ -71,6 +74,7 @@ namespace Engine.Surface
 
                 t_imageData = new ImageData(image.Width, image.Height);
                 t_imageData.Array = image.ToByteArray(MagickFormat.Bgra);
+                t_grid = new ImageDataGrid(ref t_imageData);
             }
         }
 
@@ -93,6 +97,21 @@ namespace Engine.Surface
             return result;
         }
 
+        public Engine.Color.Cell GetPixel(int x, int y, Engine.Surface.PixelRetrievalOptions option)
+        {
+            return Grid.GetPixel(x, y, option);
+        }
+
+        public void SetPixel(Engine.Color.Cell c, int x, int y, Engine.Surface.PixelSetOptions option)
+        {
+            Grid.SetPixel(c, x, y, option);
+        }
+
+        public bool IsOutOfBounds(int x, int y)
+        {
+            return Grid.IsOutOfBounds(x, y);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -101,6 +120,8 @@ namespace Engine.Surface
         {
             get { return t_imageData.Array; }
         }
+
+        public ImageDataGrid Grid { get => t_grid; }
 
         public int Width
         {

@@ -88,7 +88,7 @@ namespace Cuisine.Windows
 
         private void DocumentsTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            RaiseActiveDocumentChanged(e.Source as System.Windows.Controls.TabControl);
+            OnActiveDocumentChanged(e.Source as System.Windows.Controls.TabControl);
         }
 
         #endregion
@@ -274,7 +274,7 @@ namespace Cuisine.Windows
                 return;
             }
 
-            RaiseDocumentClosing(documentContent);
+            OnDocumentClosing(documentContent);
 
             Documents.Remove(documentContent);
 
@@ -724,20 +724,14 @@ namespace Cuisine.Windows
         public event ActiveDocumentChangedEventHandler ActiveDocumentChanged;
         public event DocumentClosingEventHandler DocumentClosing;
 
-        private void RaiseActiveDocumentChanged(TabControl tabControl)
+        private void OnActiveDocumentChanged(TabControl tabControl)
         {
-            if (ActiveDocumentChanged != null)
-            {
-                ActiveDocumentChanged(this, new ActiveDocumentChangedEventArgs(this, tabControl));
-            }
+            ActiveDocumentChanged?.Invoke(this, new ActiveDocumentChangedEventArgs(this, tabControl));
         }
 
-        private void RaiseDocumentClosing(DocumentContent documentContent)
+        private void OnDocumentClosing(DocumentContent documentContent)
         {
-            if (DocumentClosing != null)
-            {
-                DocumentClosing(documentContent);
-            }
+            DocumentClosing?.Invoke(documentContent);
         }
 
         #endregion

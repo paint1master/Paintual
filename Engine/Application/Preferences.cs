@@ -43,7 +43,7 @@ namespace Engine
     public class Preferences
     {
         private string appDataPath;
-        //private string t;
+
         private string appPrefFileName = @"\applicationPreferences.xml";
 
         private Engine.Xml.DocumentNode xdoc;
@@ -185,7 +185,7 @@ namespace Engine
 
         public event ApplicationPreferencesEventHandler ApplicationPreferencesValueRequested;
 
-        public void RaiseApplicationPreferencesValueRequested(ApplicationPreferencesRequest value)
+        public void OnApplicationPreferencesValueRequested(ApplicationPreferencesRequest value)
         {
             if (ApplicationPreferencesValueRequested != null)
                 ApplicationPreferencesValueRequested(new ApplicationPreferencesEventArgs(value));

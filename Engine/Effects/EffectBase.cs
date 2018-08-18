@@ -99,7 +99,7 @@ namespace Engine.Effects
             // leaving a little time to thread stuff to be cleaned before updating final image
             System.Threading.Thread.Sleep(100);
             t_workflow.Viome.DisallowInvalidate();
-            RaiseProcessEnded();
+            OnProcessEnded();
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Engine.Effects
 
         public event ProcessEndedEventHandler ProcessEnded;
 
-        private void RaiseProcessEnded()
+        private void OnProcessEnded()
         {
             if (ProcessEnded != null)
             {

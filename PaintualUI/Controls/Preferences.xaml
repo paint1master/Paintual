@@ -8,8 +8,9 @@
              x:Class="PaintualUI.Controls.Preferences" 
              mc:Ignorable="d" 
              d:DesignHeight="360" d:DesignWidth="500">
-    <Grid>
-        <Canvas Background="#FF505050" Margin="0,0,0,0">
+    <Border BorderBrush="#FFA0A0A0" BorderThickness="1">
+        <Grid>
+            <Canvas Background="#FF505050" Margin="0,0,0,0">
             <Label Content="Application Preferences" HorizontalAlignment="Left" VerticalAlignment="Top" Width="141" Canvas.Left="10" Canvas.Top="10">
                 <!-- translation index "1" -->
             </Label>
@@ -43,4 +44,5 @@
             <Button Content="Save" Canvas.Left="415" Canvas.Top="330" Width="75"/>
         </Canvas>
     </Grid>
+    </Border>
 </UserControl>

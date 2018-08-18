@@ -58,7 +58,7 @@ namespace Engine.Attributes.Meta
         OptionList,
         RadioButtons,
         FolderSelector,
-        FileSelector
-
+        FileSelector,
+        ColorVariance
     }
 }

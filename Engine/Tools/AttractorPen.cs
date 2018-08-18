@@ -39,10 +39,17 @@ namespace Engine.Tools
         private MousePoint t_previousPoint;
         private Engine.Effects.Particles.ForceParticle[] t_particles;
         private Engine.Effects.Particles.Attractor t_attractor;
+        private Engine.Color.ColorVariance t_colorVariance;
+
+        private double t_force;
+        private double t_intensity;
+        private double t_expression;
+        private double t_maxMagnitude;
 
         private int t_count;
         private byte t_alpha;
         private int t_scatter;
+        private bool t_useColorFromImage;
 
         private Utilities.Iterativ.Skipper t_skipper;
 
@@ -63,11 +70,16 @@ namespace Engine.Tools
             t_previousPoint = new MousePoint(x, y);
 
             CreateParticles(x, y);
-            t_attractor = new Effects.Particles.Attractor(new Accord.Math.Vector3(x, y, 0), 0.000006);
+            t_attractor = new Effects.Particles.Attractor(new Accord.Math.Vector3(x, y, 0), t_force, t_expression, t_intensity);
         }
 
         internal override void Draw(MousePoint p)
         {
+            if (t_particles.Length == 0)
+            {
+                return;
+            }
+
             if (!t_skipper.Skip())
                 return;
 
@@ -81,17 +93,42 @@ namespace Engine.Tools
             if (offset == -1)
             { return; }
 
-            Engine.Color.Cell foreground = Engine.Colors.Black;
-            foreground.Alpha = t_alpha;
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
 
-            foreach (Engine.Effects.Particles.ForceParticle fp in t_particles)
-            {
-                fp.Update(t_attractor);
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+            paramList.Add("x", typeof(int), p.X);
+            paramList.Add("y", typeof(int), p.Y);
 
-                fp.Draw(t_imageSource, foreground);                
-            }
+            loop.Loop(t_particles.Length, Threaded_Draw, paramList);
+            loop.Dispose();
 
             t_previousPoint = p;
+        }
+
+        private int Threaded_Draw(int start, int end, Engine.Threading.ParamList paramList)
+        {
+            t_colorVariance.Step();
+
+            int x = (int)paramList.Get("x").Value;
+            int y = (int)paramList.Get("y").Value;
+
+            for (int i = start; i < end; i++)
+            {
+                t_particles[i].Update(t_attractor);
+
+                if (t_useColorFromImage)
+                {
+                    Engine.Color.Cell px = t_imageSource.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
+                    px.Alpha = t_alpha;
+                    t_particles[i].Draw(t_imageSource, px);
+                }
+                else
+                {
+                    t_particles[i].Draw(t_imageSource, new Engine.Color.Cell(t_colorVariance.Blue, t_colorVariance.Green, t_colorVariance.Red, t_alpha));
+                }               
+            }
+
+            return 0;
         }
 
         private void CreateParticles(int x, int y)
@@ -104,9 +141,9 @@ namespace Engine.Tools
             {
                 t_particles[i] = new Effects.Particles.ForceParticle(x + Engine.Calc.Math.NextIntRandomInRange(t_scatter),
                     y + Engine.Calc.Math.NextIntRandomInRange(t_scatter),
-                    2f + (float)variance,
-                    2f + (float)variance,
-                    8f);
+                    1f + (float)variance,
+                    1f + (float)variance,
+                    (float)t_maxMagnitude);
             }
         }
 
@@ -129,7 +166,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(200)]
+        [Engine.Attributes.Meta.DefaultValue(500)]
         public int Count
         {
             get { return t_count; }
@@ -140,7 +177,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(100)]
+        [Engine.Attributes.Meta.DefaultValue(200)]
         public int Scatter
         {
             get { return t_scatter; }
@@ -151,12 +188,74 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(30)]
+        [Engine.Attributes.Meta.DefaultValue(200)]
         [Engine.Attributes.Meta.Range(0, 255)]
         public int Alpha
         {
             get { return t_alpha; }
             set { t_alpha = (byte)value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Color Variance")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.ColorVariance)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Object, typeof(Engine.Color.ColorVariance))]
+        public Engine.Color.ColorVariance ColorVariance
+        {
+            get { return t_colorVariance; }
+            set { t_colorVariance = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Color From Image")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Checkbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Boolean, typeof(bool))]
+        public bool UseColorFromImage
+        {
+            get { return t_useColorFromImage; }
+            set { t_useColorFromImage = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Force")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(1.2d)]
+        public double Force
+        {
+            get { return t_force; }
+            set { t_force = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Intensity")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(0.01d)]
+        public double Intensity
+        {
+            get { return t_intensity; }
+            set { t_intensity = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Expression")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(0.8d)]
+        public double Frequency
+        {
+            get { return t_expression; }
+            set { t_expression = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Particle Max Magnitude")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Double)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Double, "")]
+        [Engine.Attributes.Meta.DefaultValue(10d)]
+        public double MaxMagnitude
+        {
+            get { return t_maxMagnitude; }
+            set { t_maxMagnitude = value; }
         }
     }
 }

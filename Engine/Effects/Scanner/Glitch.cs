@@ -101,7 +101,8 @@ namespace Engine.Effects.Scanner
 
             for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[i] = new Engine.Effects.Particles.Obsolete.PixelParticle_O(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
+                //t_particles[i] = new Engine.Effects.Particles.Obsolete.PixelParticle_O(Engine.Surface.Ops.GetPixel(t_imageSource, 0, i), 0, i);
+                t_particles[i] = new Engine.Effects.Particles.Obsolete.PixelParticle_O(t_imageSource.Grid.GetPixel(0, i, Surface.PixelRetrievalOptions.ReturnEdgePixel), 0, i);
             }
         }
 
@@ -141,7 +142,7 @@ namespace Engine.Effects.Scanner
         {
             for (int i = 0; i < t_particles.Length; i++)
             {
-                t_particles[i].Pixel = Engine.Surface.Ops.GetPixel(t_imageSource, x, i);
+                t_particles[i].Pixel = t_imageSource.Grid.GetPixel(x, i, Surface.PixelRetrievalOptions.ReturnEdgePixel); // Engine.Surface.Ops.GetPixel(t_imageSource, x, i);
             }
         }
 
@@ -173,7 +174,7 @@ namespace Engine.Effects.Scanner
 
             for (int y = start; y < end; y++)
             {
-                Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
+                Engine.Color.Cell c = t_imagePerlin.Grid.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel); // Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
                 double lum = (double)Engine.Calc.Color.Luminance(c);
                 double angle = (lum * divSpread255) - divSpread2f; // reduce to range from 0 to 90 (degrees) then shift to get -45 to 45 (degrees)
 

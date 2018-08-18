@@ -178,7 +178,8 @@ namespace Engine.Effects.Noise
                     if (value > 1.0) value = 1.0;
                     byte intensity = (byte)(value * 255.0);
                     Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, t_imageProcessed, x, y);
+
+                    t_imageProcessed.SetPixel(c, x, y, PixelSetOptions.Ignore);
                 }
             }
 
@@ -230,7 +231,7 @@ namespace Engine.Effects.Noise
                     if (value > 1.0) value = 1.0;
                     byte intensity = (byte)(value * 255.0);
                     Engine.Color.Cell c = Engine.Color.Cell.ShadeOfGray(intensity);
-                    Engine.Surface.Ops.SetPixel(c, canvas, x, y);
+                    canvas.SetPixel(c, x, y, PixelSetOptions.Ignore);
                 }
             }
 

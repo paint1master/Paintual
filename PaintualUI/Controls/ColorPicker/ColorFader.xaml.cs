@@ -69,7 +69,7 @@ namespace PaintualUI.Controls.ColorPicker
             ConstraintMousePosition();
             Engine.Color.Cell c = GetColorFromPosition();
 
-            RaiseColorChanged(new ColorChangedEventArgs(c));
+            OnColorChanged(new ColorChangedEventArgs(c));
 
             base.OnMouseDown(e);
         }
@@ -85,7 +85,7 @@ namespace PaintualUI.Controls.ColorPicker
                 ConstraintMousePosition();
                 Engine.Color.Cell c = GetColorFromPosition();
 
-                RaiseColorChanged(new ColorChangedEventArgs(c));
+                OnColorChanged(new ColorChangedEventArgs(c));
             }
 
             base.OnMouseMove(e);
@@ -99,7 +99,7 @@ namespace PaintualUI.Controls.ColorPicker
             ConstraintMousePosition();
 
             Engine.Color.Cell c = GetColorFromPosition();
-            RaiseColorChanged(new ColorChangedEventArgs(c));
+            OnColorChanged(new ColorChangedEventArgs(c));
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -251,12 +251,9 @@ namespace PaintualUI.Controls.ColorPicker
 
         public event ColorChangedEventHandler ColorChanged;
 
-        public void RaiseColorChanged(PaintualUI.Controls.ColorPicker.ColorChangedEventArgs e)
+        public void OnColorChanged(PaintualUI.Controls.ColorPicker.ColorChangedEventArgs e)
         {
-            if (ColorChanged != null)
-            {
-                ColorChanged(this, e);
-            }
+            ColorChanged?.Invoke(this, e);
         }
     }
 }

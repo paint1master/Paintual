@@ -58,18 +58,31 @@ namespace PaintualUI.Code
         /// </summary>
         public void Show(Engine.Workflow w)
         {
-            /// must create a new instance because there is a bug about child control already existing
-            /// suspecting that it has to do with the VPP being contained in the DockPane
-            /// ideally VPP does not need to be recreated, just re-filled with proper set of controls
+            if (t_visualPropertyPage != null)
+            {          
+                t_docContent.Close -= Pane_Close;
+                Grid g = (Grid)t_docContent.Content;
+                g.Children.Remove(t_visualPropertyPage);
+                t_visualPropertyPage = null;
+                g = null;
+
+                t_visualPropertyPage = new PaintualUI.Controls.PropertyPage.VisualPropertyPage();
+                g = new Grid();
+                g.Background = Brushes.DarkGray;
+                g.Children.Add(t_visualPropertyPage);
+                t_docContent.Content = g;
+
+                t_docContent.Close += Pane_Close;
+
+                t_visualPropertyPage.Build(w);
+                return;
+            }
+
             t_visualPropertyPage  = new PaintualUI.Controls.PropertyPage.VisualPropertyPage();
 
             if (t_docContent == null)
             {
                 t_docContent = CreateContainer();
-            }
-            else
-            {
-                t_docContent.Content = t_visualPropertyPage;
             }
 
             t_visualPropertyPage.Build(w);
@@ -88,7 +101,9 @@ namespace PaintualUI.Code
 
         public void Refresh(object sender, PaintualUI.Code.CurrentDrawingBoardChangedEventArgs e)
         {
-            Show(e.DrawingBoard.GetWorkflow());
+            Engine.Workflow w = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetWorkflow();
+
+            Show(w);
         }
 
         private DockPane CreateContainer()

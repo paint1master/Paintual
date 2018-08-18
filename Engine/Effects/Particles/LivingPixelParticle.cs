@@ -44,9 +44,9 @@ namespace Engine.Effects.Particles.Obsolete
 
         public void Draw(Engine.Surface.Canvas c)
         {
-            Engine.Color.Cell source = Engine.Surface.Ops.GetPixel(c, (int)t_position.X, (int)t_position.Y);
+            Engine.Color.Cell source = c.GetPixel((int)t_position.X, (int)t_position.Y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
             Engine.Color.Cell dest = Engine.Calc.Color.FastAlphaBlend(t_cell, source);
-            Engine.Surface.Ops.SetPixel(dest, c, (int)t_position.X, (int)t_position.Y);
+            c.SetPixel(dest, (int)t_position.X, (int)t_position.Y, Surface.PixelSetOptions.Ignore);
         }
 
         public void Die()

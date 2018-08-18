@@ -130,21 +130,16 @@ namespace Engine
 
         public string LastSavedFolder { get; set; }
 
-
-
         #endregion
 
         public delegate void WorkflowClosingEventHandler(object sender, EventArgs e);
 
         public event WorkflowClosingEventHandler Closing;
 
-        public void RaiseClosing()
+        internal void OnClosing()
         {
-            if (Closing != null)
-            {
-                // the drawing board may be null in some cases
-                Closing(this, new EventArgs());
-            }
+            // the drawing board may be null in some cases
+            Closing?.Invoke(this, new EventArgs());
         }
 
         #region Dispose

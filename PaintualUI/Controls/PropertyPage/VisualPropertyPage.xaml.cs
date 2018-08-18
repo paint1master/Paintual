@@ -60,7 +60,7 @@ namespace PaintualUI.Controls.PropertyPage
             /// this is now required because we used call .UpdateVisual() on all templated controls
             /// when creating them but now we need to call that method only when the VisualPropertyPage is fully loaded
             /// because templated controls are fully instantiated later than user controls (!!??!!)
-            this.Loaded += VisualPropertyPage_Loaded;
+            this.Loaded += VisualPropertyPage_Loaded; 
         }
 
         private void VisualPropertyPage_Loaded(object sender, RoutedEventArgs e)
@@ -119,7 +119,7 @@ namespace PaintualUI.Controls.PropertyPage
         /// <summary>
         /// Removes all controls from the FlowPanelContainer
         /// </summary>
-        public void Clear()
+        private void Clear()
         {
             // explicitly removes children controls and set them to null
             while (FlowPanelContainer.Children.Count > 0)
@@ -162,12 +162,20 @@ namespace PaintualUI.Controls.PropertyPage
 
                     break;
 
+                case Engine.Attributes.Meta.DisplayControlTypes.ColorVariance:
+                    ctrl = BuildPropertyObject(pi);
+                    break;
+
                 case Engine.Attributes.Meta.DisplayControlTypes.RadioButtons:
                     ctrl = BuildPropertyRadioButtons(pi);
                     break;
 
                 case Engine.Attributes.Meta.DisplayControlTypes.FolderSelector:
                     ctrl = BuildPropertyFolderSelector(pi);
+                    break;
+
+                case Engine.Attributes.Meta.DisplayControlTypes.Checkbox:
+                    ctrl = BuildPropertyCheckBox(pi);
                     break;
 
                 default:
@@ -184,25 +192,9 @@ namespace PaintualUI.Controls.PropertyPage
         private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyFolderSelector(Engine.Effects.VisualPropertyItem pi)
         {
             PaintualUI.Controls.PropertyPage.TPropertyFolderSelector pfs = new PropertyPage.TPropertyFolderSelector();
-            pfs.Name = pi.ActualPropertyName;
-            pfs.PropertyName = pi.ActualPropertyName;
-            pfs.LabelText = pi.DisplayName;
-            pfs.DataType = pi.DataType;
-            //pfs.UpdateVisual(); now in Loaded event handler
+            pfs.BuildControl(pi);
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.StringAttribute());
-
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        pfs.Validators.Add(new Engine.Validators.StringValidator());
-                        break;
-                    default:
-                        throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
-                }
-            }
 
             return pfs;
         }
@@ -210,32 +202,9 @@ namespace PaintualUI.Controls.PropertyPage
         private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyIntBox(Engine.Effects.VisualPropertyItem pi)
         {
             PaintualUI.Controls.PropertyPage.TPropertyIntBox pib = new TPropertyIntBox();
-
-            pib.Name = pi.ActualPropertyName;
-            pib.PropertyName = pi.ActualPropertyName;
-            pib.LabelText = pi.DisplayName;
-            pib.DataType = pi.DataType;
-            pib.DefaultValue = pi.DefaultValue;
-            //pfs.UpdateVisual(); now in Loaded event handler
+            pib.BuildControl(pi);
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.IntAttribute());
-
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.Int:
-                        pib.Validators.Add(new Engine.Validators.IntValidator());
-
-                        if (pi.RangeMinimumValue != null && pi.RangeMaximumValue != null)
-                        {
-                            pib.Validators.Add(new Engine.Validators.RangeIntValidator(pi.RangeMinimumValue.Value, pi.RangeMaximumValue.Value));
-                        }
-                        break;
-                    default:
-                        throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported.", pi.ValidatorType));
-                }
-            }
 
             return pib;
         }
@@ -243,26 +212,9 @@ namespace PaintualUI.Controls.PropertyPage
         private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyDoubleBox(Engine.Effects.VisualPropertyItem pi)
         {
             PaintualUI.Controls.PropertyPage.TPropertyDoubleBox pdb = new TPropertyDoubleBox();
-            pdb.Name = pi.ActualPropertyName;
-            pdb.PropertyName = pi.ActualPropertyName;
-            pdb.LabelText = pi.DisplayName;
-            pdb.DataType = pi.DataType;
-            pdb.DefaultValue = pi.DefaultValue;
-            //pfs.UpdateVisual(); now in Loaded event handler
+            pdb.BuildControl(pi);
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.DoubleAttribute());
-
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.Double:
-                        pdb.Validators.Add(new Engine.Validators.DoubleValidator());
-                        break;
-                    default:
-                        throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
-                }
-            }
 
             return pdb;
         }
@@ -270,29 +222,10 @@ namespace PaintualUI.Controls.PropertyPage
         private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyRadioButtons(Engine.Effects.VisualPropertyItem pi)
         {
             PaintualUI.Controls.PropertyPage.TPropertyRadioButtons prb = new PropertyPage.TPropertyRadioButtons();
-            prb.Name = pi.ActualPropertyName;
-            prb.PropertyName = pi.ActualPropertyName;
-            prb.LabelText = pi.DisplayName;
-            prb.DataType = pi.DataType;
-            prb.ValueList = pi.ValueList;
-            prb.DefaultValue = pi.DefaultValue;
+            prb.BuildControl(pi);
 
             // in this case we only store the selected value for future usage
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.IntAttribute());
-
-            //pfs.UpdateVisual(); now in Loaded event handler
-
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.ValueList:
-                        prb.Validators.Add(new Engine.Validators.ValueListValidator(pi.ValueList));
-                        break;
-                    default:
-                        throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported.", pi.ValidatorType));
-                }
-            }
 
             return prb;
         }
@@ -300,29 +233,37 @@ namespace PaintualUI.Controls.PropertyPage
         private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyTextBox(Engine.Effects.VisualPropertyItem pi)
         {
             PaintualUI.Controls.PropertyPage.TPropertyTextBox ptb = new TPropertyTextBox();
-            ptb.Name = pi.ActualPropertyName;
-            ptb.PropertyName = pi.ActualPropertyName;
-            ptb.LabelText = pi.DisplayName;
-            ptb.DataType = pi.DataType;
-            //pfs.UpdateVisual(); now in Loaded event handler
+            ptb.BuildControl(pi);
 
             t_properties.Add(pi.ActualPropertyName, new Engine.Attributes.StringAttribute());
 
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
+            return ptb;
+        }
+
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyCheckBox(Engine.Effects.VisualPropertyItem pi)
+        {
+            PaintualUI.Controls.PropertyPage.TPropertyCheckBox ctrl = new TPropertyCheckBox();
+            ctrl.BuildControl(pi);
+
+            return ctrl;
+        }
+
+        private PaintualUI.Controls.PropertyPage.TPropertyControl BuildPropertyObject(Engine.Effects.VisualPropertyItem pi)
+        {
+            PaintualUI.Controls.PropertyPage.TPropertyControl ctrl;
+
+            switch (pi.TypeDeclaration.Name)
             {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        Engine.Validators.StringValidator strValid = new Engine.Validators.StringValidator(pi.RegularExpression);
-                        strValid.CannotBeEmpty = true;
-                        ptb.Validators.Add(strValid);
-                        break;
-                    default:
-                        throw new Exception(String.Format("In VisualPropertyPage, the validator type '{0}' is not supported", pi.ValidatorType));
-                }
+                case "ColorVariance":
+                    ctrl = new PaintualUI.Controls.PropertyPage.TPropertyColorVariance();
+                    ctrl.BuildControl(pi);
+                    break;
+                default:
+                    throw new Exception(String.Format("In VisualPropertyPage, the type declaration '{0}' is not supported.", pi.TypeDeclaration.Name));
+
             }
 
-            return ptb;
+            return ctrl;
         }
 
         private void UpdateControlVisuals()
@@ -535,7 +476,7 @@ namespace PaintualUI.Controls.PropertyPage
                 {
                     foreach (Engine.Validators.Validator v in ipc.Validators)
                     {
-                        v.InputValue = ipc.EnteredValue;
+                        v.InputValue = (string)ipc.EnteredValue;
                         bool result = v.Validate();
 
                         if (!result)

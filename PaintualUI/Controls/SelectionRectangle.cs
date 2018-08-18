@@ -271,11 +271,7 @@ namespace PaintualUI.Controls
         {
             get
             {
-                // TODO : may need to use SelectionTrueSize
-                System.Windows.Rect r = new Rect(new Point(t_selectionTrueSize.Left, t_selectionTrueSize.Top), new Size(t_selectionTrueSize.Width, t_selectionTrueSize.Height));
-                //System.Windows.Rect r = new Rect(new Point(SelectionLocationLeft, SelectionLocationTop), new Size(t_selection.Width, t_selection.Height));
-
-                return r;
+                return new Rect(new Point(t_selectionTrueSize.Left, t_selectionTrueSize.Top), new Size(t_selectionTrueSize.Width, t_selectionTrueSize.Height));
             }
         }
 
@@ -320,7 +316,7 @@ namespace PaintualUI.Controls
             // double ckick = for some tools, this means "save selection"
             if (e.ClickCount == 2)
             {
-                RaiseDoubleClick(e);
+                OnDoubleClick(e);
                 return;
             }
 
@@ -366,7 +362,7 @@ namespace PaintualUI.Controls
 
         public event MouseButtonEventHandler DoubleClick;
 
-        private void RaiseDoubleClick(MouseButtonEventArgs e)
+        private void OnDoubleClick(MouseButtonEventArgs e)
         {
             if (DoubleClick != null)
             {

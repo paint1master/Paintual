@@ -123,24 +123,9 @@ namespace Engine
                 }
             }
 
-            /*if (t_factoredSize.Width < t_drawingBoardSize.Width)
-            {
-                //if(t_originPoint.X < 0)
-
-                t_originPoint.X = 0;
-                change = true;
-            }
-
-            if (t_factoredSize.Height < t_drawingBoardSize.Height)
-            {
-                t_originPoint.Y = 0;
-                change = true;
-
-            }*/
-
             if (change)
             {
-                RaiseImagePositionChanged();
+                OnImagePositionChanged();
             }
         }
 
@@ -233,7 +218,7 @@ namespace Engine
 
             CalculateFactoredSize();
 
-            RaiseZoomFactorChanged();
+            OnZoomFactorChanged();
         }
 
         public void ZoomIn()
@@ -275,20 +260,14 @@ namespace Engine
         public event ImagePositionChangedEventHandler ImagePositionChanged;
         public delegate void ImagePositionChangedEventHandler(object sender, ImagePositionChangedEventArgs e);
 
-        private void RaiseZoomFactorChanged()
+        private void OnZoomFactorChanged()
         {
-            if (ZoomFactorChanged != null)
-            {
-                ZoomFactorChanged(this, new ZoomFactorChangedEventArgs(t_zoomFactor));
-            }
+            ZoomFactorChanged?.Invoke(this, new ZoomFactorChangedEventArgs(t_zoomFactor));
         }
 
-        private void RaiseImagePositionChanged()
+        private void OnImagePositionChanged()
         {
-            if (ImagePositionChanged != null)
-            {
-                ImagePositionChanged(this, new ImagePositionChangedEventArgs(t_originPoint));
-            }
+            ImagePositionChanged?.Invoke(this, new ImagePositionChangedEventArgs(t_originPoint));
         }
 
         #endregion

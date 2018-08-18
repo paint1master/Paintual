@@ -41,24 +41,23 @@ using System.Windows.Shapes;
 
 namespace PaintualUI.Controls.PropertyPage
 {
-    [TemplatePart(Name = "C_TextBox", Type = typeof(TextBox))]
+    [TemplatePart(Name = "C_ChkFromImage", Type = typeof(CheckBox))]
     [TemplatePart(Name = "C_Label", Type = typeof(Label))]
-    [TemplatePart(Name = "C_BtnFolder", Type = typeof(Button))]
-    [TemplatePart(Name = "C_InfoIcon", Type = typeof(PaintualUI.Controls.PropertyPage.InfoIcon))]
-    public class TPropertyFolderSelector : PaintualUI.Controls.PropertyPage.TPropertyTextBox
+    public class TPropertyCheckBox : PaintualUI.Controls.PropertyPage.TPropertyControl
     {
-        protected Button C_BtnFolder;
+        protected CheckBox C_ChkFromImage;
+        protected Label C_Label;
 
-        static TPropertyFolderSelector()
+        static TPropertyCheckBox()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TPropertyFolderSelector), new FrameworkPropertyMetadata(typeof(TPropertyFolderSelector)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(TPropertyCheckBox), new FrameworkPropertyMetadata(typeof(TPropertyCheckBox)));
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <remarks> required to get the validators list instantiated in TPropertyControl parent class</remarks>
-        public TPropertyFolderSelector() : base()
+        public TPropertyCheckBox() : base()
         {
 
         }
@@ -66,15 +65,11 @@ namespace PaintualUI.Controls.PropertyPage
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            C_TextBox = Template.FindName("C_TextBox", this) as TextBox;
+            C_ChkFromImage = Template.FindName("C_ChkFromImage", this) as CheckBox;
             C_Label = Template.FindName("C_Label", this) as Label;
-            C_BtnFolder = Template.FindName("C_BtnFolder", this) as Button;
-            C_InfoIcon = Template.FindName("C_InfoIcon", this) as PaintualUI.Controls.PropertyPage.InfoIcon;
-
-            // TODO : this should instead be CommandBinding thing, but what I tried so far didn't work. 
-            // OnAplyTemplate happens after OnInitialize, so event handling goes here
-            C_BtnFolder.Click += C_BtnFolder_Click;
         }
+
+        #region TIPropertyControl implementation
 
         public override void BuildControl(Engine.Effects.VisualPropertyItem pi)
         {
@@ -82,18 +77,6 @@ namespace PaintualUI.Controls.PropertyPage
             PropertyName = pi.ActualPropertyName;
             LabelText = pi.DisplayName;
             DataType = pi.DataType;
-
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        Validators.Add(new Engine.Validators.StringValidator());
-                        break;
-                    default:
-                        throw new Exception(String.Format("In TPropertyFolderSelector, the validator type '{0}' is not supported", pi.ValidatorType));
-                }
-            }
         }
 
         /// <summary>
@@ -110,27 +93,31 @@ namespace PaintualUI.Controls.PropertyPage
         /// </summary>
         public override void UpdateVisual()
         {
-            base.UpdateVisual();
+            C_Label.Content = LabelText;
 
+            if (DefaultValue != null)
+            {
+                C_ChkFromImage.IsChecked = (bool)DefaultValue;
+            }
         }
 
-        private void C_BtnFolder_Click(object sender, RoutedEventArgs e)
+        public override void SignalError(string message)
         {
-            PaintualUI.Controls.OpenDialogView openDialog = new PaintualUI.Controls.OpenDialogView();
-            PaintualUI.Controls.OpenDialogViewModel vm = (PaintualUI.Controls.OpenDialogViewModel)openDialog.DataContext;
-            vm.IsDirectoryChooser = true;
 
-            vm.StartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-
-            bool? result = vm.Show();
-            if (result == true)
-            {
-                C_TextBox.Text = vm.SelectedFilePath;
-            }
-            else
-            {
-                C_TextBox.Text = string.Empty;
-            }
         }
+
+        public override void ClearSignals()
+        {
+
+        }
+
+        public override object EnteredValue
+        {
+            get { return C_ChkFromImage.IsChecked; }
+        }
+        #endregion
+
+
+
     }
 }

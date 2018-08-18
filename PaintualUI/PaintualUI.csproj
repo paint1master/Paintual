@@ -98,7 +98,11 @@
     <Compile Include="Controls\ColorPicker\ColorFader.xaml.cs" />
     <Compile Include="Controls\ColorPicker\ColorPickerStandard.xaml.cs" />
     <Compile Include="Controls\ColorPicker\ColorPlane.xaml.cs" />
+    <Compile Include="Controls\ColorPicker\ColorPlaneSelectionGlass.xaml.cs">
+      <DependentUpon>ColorPlaneSelectionGlass.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ColorPicker\Events.cs" />
+    <Compile Include="Controls\ColorPicker\TColorPickerStandard.cs" />
     <Compile Include="Controls\DrawingBoard.xaml.cs" />
     <Compile Include="Controls\FolderSelector.xaml.cs">
       <DependentUpon>FolderSelector.xaml</DependentUpon>
@@ -124,6 +128,9 @@
     <Compile Include="Controls\MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\MockControl.xaml.cs">
+      <DependentUpon>MockControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PaintualCanvas.xaml.cs" />
     <Compile Include="Controls\PerformanceMonitor.xaml.cs">
       <DependentUpon>PerformanceMonitor.xaml</DependentUpon>
@@ -136,6 +143,8 @@
     <Compile Include="Controls\PropertyPage\RadioButton.xaml.cs">
       <DependentUpon>RadioButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PropertyPage\TPropertyCheckBox.cs" />
+    <Compile Include="Controls\PropertyPage\TPropertyColorVariance.cs" />
     <Compile Include="Controls\PropertyPage\TPropertyControl.cs" />
     <Compile Include="Controls\PropertyPage\TPropertyFolderSelector.cs" />
     <Compile Include="Controls\PropertyPage\TPropertyIntBox.cs" />
@@ -150,9 +159,6 @@
     <Compile Include="Controls\PropertyPage\TPropertyDoubleBox.cs" />
     <Compile Include="ControlTestWindow.xaml.cs">
       <DependentUpon>ControlTestWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="DockTest.xaml.cs">
-      <DependentUpon>DockTest.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\BrushImageList.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -174,6 +180,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\ColorPicker\ColorPlaneSelectionGlass.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\DrawingBoard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -191,6 +201,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\MessageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MockControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -223,10 +237,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ControlTestWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="DockTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

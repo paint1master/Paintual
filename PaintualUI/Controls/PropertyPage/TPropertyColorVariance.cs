@@ -41,25 +41,33 @@ using System.Windows.Shapes;
 
 namespace PaintualUI.Controls.PropertyPage
 {
-    [TemplatePart(Name="C_TextBox", Type = typeof(TextBox))]
-    [TemplatePart(Name = "C_Label", Type = typeof(Label))]
-    [TemplatePart(Name = "C_InfoIcon", Type = typeof(PaintualUI.Controls.PropertyPage.InfoIcon))]
-    public class TPropertyTextBox : PaintualUI.Controls.PropertyPage.TPropertyControl
+    [TemplatePart(Name = "C_SliderFrequency", Type = typeof(Slider))]
+    [TemplatePart(Name = "C_SliderRange", Type = typeof(Slider))]
+    [TemplatePart(Name = "C_LblFrequency", Type = typeof(Label))]
+    [TemplatePart(Name = "C_LblRange", Type = typeof(Label))]
+    [TemplatePart(Name = "C_LblFrequencyValue", Type = typeof(Label))]
+    [TemplatePart(Name = "C_LblRangeValue", Type = typeof(Label))]
+    public class TPropertyColorVariance : PaintualUI.Controls.PropertyPage.TPropertyControl
     {
-        protected TextBox C_TextBox;
-        protected Label C_Label;
-        protected PaintualUI.Controls.PropertyPage.InfoIcon C_InfoIcon;
+        protected Slider C_SliderFrequency;
+        protected Slider C_SliderRange;
+        protected Label C_LblFrequency;
+        protected Label C_LblRange;
+        protected Label C_LblFrequencyValue;
+        protected Label C_LblRangeValue;
 
-        static TPropertyTextBox()
+        static TPropertyColorVariance()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TPropertyTextBox), new FrameworkPropertyMetadata(typeof(TPropertyTextBox)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(TPropertyColorVariance), new FrameworkPropertyMetadata(typeof(TPropertyColorVariance)));
         }
+
+        private Engine.Color.ColorVariance t_colorVariance;
 
         /// <summary>
         /// 
         /// </summary>
         /// <remarks> required to get the validators list instantiated in TPropertyControl parent class</remarks>
-        public TPropertyTextBox() : base()
+        public TPropertyColorVariance() : base()
         {
 
         }
@@ -67,9 +75,47 @@ namespace PaintualUI.Controls.PropertyPage
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            C_TextBox = Template.FindName("C_TextBox", this) as TextBox;
-            C_Label = Template.FindName("C_Label", this) as Label;
-            C_InfoIcon = Template.FindName("C_InfoIcon", this) as PaintualUI.Controls.PropertyPage.InfoIcon;
+            C_SliderFrequency = Template.FindName("C_SliderFrequency", this) as Slider;
+            C_SliderRange = Template.FindName("C_SliderRange", this) as Slider;
+            C_LblFrequency = Template.FindName("C_LblFrequency", this) as Label;
+            C_LblRange = Template.FindName("C_LblRange", this) as Label;
+            C_LblFrequencyValue = Template.FindName("C_LblFrequencyValue", this) as Label;
+            C_LblRangeValue = Template.FindName("C_LblRangeValue", this) as Label;
+
+            Engine.Application.UISelectedValues.ColorSelected += UISelectedValues_ColorSelected;
+
+            C_SliderFrequency.ValueChanged += C_SliderFrequency_ValueChanged;
+            C_SliderRange.ValueChanged += C_SliderRange_ValueChanged;
+
+            C_LblRangeValue.Content = C_SliderRange.Value;
+            C_LblFrequencyValue.Content = C_SliderFrequency.Value;
+        }
+
+        private void C_SliderRange_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (t_colorVariance != null)
+            {
+                t_colorVariance.SetRanges((byte)e.NewValue);
+                C_LblRangeValue.Content = (byte)e.NewValue;
+            }
+        }
+
+        private void C_SliderFrequency_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (t_colorVariance != null)
+            {
+                // if double value is, for example, 0.56, casting to int gives 0 which is not allowed. Adding 1 solves the problem.
+                t_colorVariance.SetFrequencies((int)e.NewValue + 1);
+                C_LblFrequencyValue.Content = (int)e.NewValue;
+            }
+        }
+
+        private void UISelectedValues_ColorSelected(Engine.UISelectedValuesEventArgs e)
+        {
+            if (t_colorVariance != null)
+            {
+                t_colorVariance.SetColor(e.Color);
+            }
         }
 
         #region TIPropertyControl implementation
@@ -81,19 +127,7 @@ namespace PaintualUI.Controls.PropertyPage
             LabelText = pi.DisplayName;
             DataType = pi.DataType;
 
-            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
-            {
-                switch (pi.ValidatorType)
-                {
-                    case Engine.Attributes.Meta.ValidatorTypes.StringNotEmpty:
-                        Engine.Validators.StringValidator strValid = new Engine.Validators.StringValidator(pi.RegularExpression);
-                        strValid.CannotBeEmpty = true;
-                        Validators.Add(strValid);
-                        break;
-                    default:
-                        throw new Exception(String.Format("In TPropertyTextBox, the validator type '{0}' is not supported", pi.ValidatorType));
-                }
-            }
+            t_colorVariance = new Engine.Color.ColorVariance(Engine.Application.UISelectedValues.SelectedColor);
         }
 
         /// <summary>
@@ -110,32 +144,30 @@ namespace PaintualUI.Controls.PropertyPage
         /// </summary>
         public override void UpdateVisual()
         {
-            C_Label.Content = LabelText;
 
-            if (DefaultValue != null)
+
+            //C_Label.Content = LabelText;
+
+            /*if (DefaultValue != null)
             {
                 string defVal = (string)DefaultValue;
                 C_TextBox.Text = defVal;
-            }
+            }*/
         }
 
         public override void SignalError(string message)
         {
-            C_InfoIcon.Status = Status.Error;
-            C_InfoIcon.SetMessageWindow(PropertyName, message);
-            C_InfoIcon.Visibility = Visibility.Visible;
+
         }
 
         public override void ClearSignals()
         {
-            C_InfoIcon.Status = Status.Normal;
-            C_InfoIcon.SetMessageWindow("", "");
-            C_InfoIcon.Visibility = Visibility.Hidden;
+
         }
 
         public override object EnteredValue
         {
-            get { return C_TextBox.Text; }
+            get { return t_colorVariance; }
         }
         #endregion
     }

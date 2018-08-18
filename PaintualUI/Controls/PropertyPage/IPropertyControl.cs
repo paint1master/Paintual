@@ -38,6 +38,8 @@ namespace PaintualUI.Controls.PropertyPage
 
         void SignalError(string message);
 
+        void BuildControl(Engine.Effects.VisualPropertyItem pi);
+
         /// <summary>
         /// Builds the children controls.
         /// </summary>
@@ -48,6 +50,6 @@ namespace PaintualUI.Controls.PropertyPage
         /// </summary>
         void UpdateVisual();
 
-        string EnteredValue { get; }
+        object EnteredValue { get; }
     }
 }

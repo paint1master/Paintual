@@ -44,8 +44,13 @@ namespace PaintualUI.Controls.PropertyPage
             t_validators = new List<Engine.Validators.Validator>();
         }
 
+        public virtual void BuildControl(Engine.Effects.VisualPropertyItem pi)
+        {
+
+        }
+
         /// <summary>
-        /// Builds the children controls.
+        /// Use this method to build controls dynamically (ie radio button list based on a property).
         /// </summary>
         public virtual void BuildVisual()
         {
@@ -70,7 +75,7 @@ namespace PaintualUI.Controls.PropertyPage
             ;
         }
 
-        public virtual string EnteredValue { get; }
+        public virtual object EnteredValue { get; }
 
         public string LabelText { get; set; }
 

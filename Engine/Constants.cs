@@ -45,6 +45,9 @@ namespace Engine
 
     public static class ColorOpacity
     {
+        /// <summary>
+        /// An alpha channel value equals to 255;
+        /// </summary>
         public static readonly byte Opaque = 255;
         public static readonly byte Transparent = 0;
         public static readonly byte MidRange = 128;
@@ -66,6 +69,7 @@ namespace Engine
         Int,
         Double,
         Text,
-        Enum
+        Enum,
+        Boolean
     }
 }

@@ -7,7 +7,6 @@
              xmlns:Controls="clr-namespace:PaintualUI.Controls" x:Class="PaintualUI.Controls.ColorPicker.ColorPlane"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="150">
-    <Grid>
-
+    <Grid x:Name="ContainerGrid">
     </Grid>
 </UserControl>

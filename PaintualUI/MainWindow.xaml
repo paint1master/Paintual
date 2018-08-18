@@ -75,6 +75,7 @@
                 <!--</MenuItem>-->
                 <MenuItem Header="Scan Glitch" Click="ScanGlitch_Click"/>
                 <MenuItem Header="Radial" Click="ScanRadial_Click"/>
+                <MenuItem Header="Variance Gradient" Click="VarianceGradient_Click" />
                 <!--</MenuItem> -->
                 <MenuItem Header="Extraction">
                     <!-- translation index "23" -->
@@ -111,10 +112,10 @@
             </MenuItem>
         </Menu>
         <ToolBar x:Name="AppToolBar" Margin="0,20,0,0" VerticalAlignment="Top" Height="30" Background="#FF505050" >
-            <Button x:Name="BtnDraw" Click="GrainyTool_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="White">
+            <Button x:Name="BtnDraw" Click="GrainyTool_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="#FFA0A0A0 ">
                 <Image Source="Resources/Draw.png" />
             </Button>
-            <Button x:Name="BtnQuickSelect" Click="BtnQuickSelect_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="White"/>
+            <Button x:Name="BtnQuickSelect" Click="BtnQuickSelect_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="#FFA0A0A0"/>
         </ToolBar>
 
         <Windows:WindowsManager x:Name="WindowsManager" Margin="0,50,0,28" />

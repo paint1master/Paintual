@@ -124,6 +124,7 @@ namespace Engine.Surface
             return pix;
         }
 
+        /*
         /// <summary>
         /// 
         /// </summary>
@@ -147,9 +148,9 @@ namespace Engine.Surface
             Engine.Color.Cell pix = new Color.Cell(c.Array, offset);
             error = false;
             return pix;
-        }
+        }*/
 
-        public static void SetPixel(Engine.Color.Cell c, Engine.Surface.Canvas canvas, int x, int y)
+        /*public static void SetPixel(Engine.Color.Cell c, Engine.Surface.Canvas canvas, int x, int y)
         {
             // TODO: make bounds checks more performant and less repetitive
             if (x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height)
@@ -159,7 +160,7 @@ namespace Engine.Surface
 
             int offset = canvas.GetOffset(x, y);
             c.WriteBytes(canvas.Array, offset);
-        }
+        }*/
 
         public static void SetPixel(Engine.Color.Cell c, byte alpha, Engine.Surface.Canvas canvas, int x, int y)
         {

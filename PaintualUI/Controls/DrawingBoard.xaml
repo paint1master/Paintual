@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:PaintualUI.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    
     <Grid Name="ContainerGrid" Background="transparent" ClipToBounds="True">
         <!-- ClipToBounds=true prevents the image from overlapping over the design border-->
         <Canvas Background="#FF505050"></Canvas>

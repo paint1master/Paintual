@@ -103,6 +103,7 @@ namespace Engine.Effects
                         break;
                     case "Engine.Attributes.Meta.DataTypeAttribute":
                         vpi.DataType = ((Engine.Attributes.Meta.DataTypeAttribute)a).DataType;
+                        vpi.TypeDeclaration = ((Engine.Attributes.Meta.DataTypeAttribute)a).TypeDeclaration;
                         propertySet = true;
                         break;
                     case "Engine.Attributes.Meta.ValidatorAttribute":

@@ -23,7 +23,7 @@ namespace Engine.Tools
         private int t_octaves = 4;
         private double t_particleLife = 200;
         private int t_expansion = 2;
-        private byte t_alpha = 100;
+        private byte t_alpha = 50;
 
         public ParticlePen()
         {
@@ -50,7 +50,7 @@ namespace Engine.Tools
             if (!t_skipper.Skip())
                 return;
 
-            Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imageSource, p.X, p.Y);
+            Engine.Color.Cell c = Engine.Application.UISelectedValues.SelectedColor; //Engine.Surface.Ops.GetPixel(t_imageSource, p.X, p.Y);
             CreateParticles(c, p.X, p.Y, t_alpha);
 
             Flow(p.X, p.Y);
@@ -73,14 +73,25 @@ namespace Engine.Tools
         {
             t_flowField = new Accord.Math.Vector3[t_imageSource.Width, t_imageSource.Height];
 
-            for (int y = 0; y < t_imageSource.Height; y++)
+
+            Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
+
+            Engine.Threading.ParamList paramList = new Threading.ParamList();
+
+            loop.Loop(t_imageSource.Height, Threaded_CreateFlowField, paramList);
+            loop.Dispose();
+        }
+
+        private int Threaded_CreateFlowField(int start, int end, Engine.Threading.ParamList paramList)
+        {
+            for (int y = start; y < end; y++)
             {
                 for (int x = 0; x < t_imageSource.Width; x++)
                 {
                     // initialize vectors with basic to-the-right direction
                     t_flowField[x, y] = new Accord.Math.Vector3(1, 0, 0);
 
-                    Engine.Color.Cell c = Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
+                    Engine.Color.Cell c = t_imagePerlin.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
                     double lum = (double)Engine.Calc.Color.Luminance(c);
                     double angle = (lum * 360 / 255);
 
@@ -90,10 +101,14 @@ namespace Engine.Tools
                     t_flowField[x, y].Y = (float)System.Math.Sin(rad);
                 }
             }
+
+            return 0;
         }
 
         private void CreateParticles(Engine.Color.Cell c, int x, int y, byte alpha)
         {
+            c.Alpha = alpha;
+
             t_particles = new Engine.Effects.Particles.Obsolete.LivingPixelParticle_O[30];
 
             for (int i = 0; i < t_particles.Length; i++)
@@ -112,7 +127,7 @@ namespace Engine.Tools
             {
                 // particles need to be reset to left of image at each pass
                 // otherwise they go off and only one layer of alpha particles are saved in image
-                CreateParticles(Engine.Surface.Ops.GetPixel(t_imageSource, x, y), x, y, t_alpha);
+                CreateParticles(Engine.Application.UISelectedValues.SelectedColor, x, y, t_alpha);
 
                 ParticleFlow();
             }
@@ -124,63 +139,22 @@ namespace Engine.Tools
         /// <param name="x"></param>
         private int ParticleFlow()
         {
+            Engine.Color.ColorVariance cv = new Color.ColorVariance(t_particles[0].Pixel);
+            cv.SetFrequencies(500);
+            cv.SetRanges(30);
+
             double life = 0;
             do
             {
+                cv.Step();
+
                 life = 0;
 
                 for (int y = 0; y < t_particles.Length; y++)
                 {
+                    t_particles[y].Pixel = cv.ColorVariation;
                     t_particles[y].Draw(t_imageSource);
-                }
 
-                // life is used to limit the number of times the colors are being updated
-                int mod = (int)life;
-                if (mod % 10 == 0)
-                {
-                    int rd = Engine.Calc.Math.Rand.Next(2);
-                    rd = rd - 1; // to get positive and negative values to change the color
-
-                    for (int y = 0; y < t_particles.Length; y++)
-                    {
-                        Engine.Color.Cell c = t_particles[y].Pixel;
-                        int b = (int)c.Blue;
-                        b += rd;
-
-                        if (b < 0)
-                            b = 0;
-
-                        if (b > 255)
-                            b = 255;
-
-                        int g = (int)c.Green;
-                        g += rd;
-
-                        if (g < 0)
-                            g = 0;
-
-                        if (g > 255)
-                            g = 255;
-
-                        int r = (int)c.Red;
-                        r += rd;
-
-                        if (r < 0)
-                            r = 0;
-
-                        if (r > 255)
-                            r = 255;
-
-                        c.Blue = (byte)b;
-                        c.Green = (byte)g;
-                        c.Red = (byte)r;
-
-                        t_particles[y].Pixel = c;
-                    }
-                }
-
-                for (int y = 0; y < t_particles.Length; y++)
-                {
                     if (t_particles[y].Life < 0)
                     {
                         continue;
@@ -215,7 +189,7 @@ namespace Engine.Tools
         [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
-        [Engine.Attributes.Meta.DefaultValue(3)]
+        [Engine.Attributes.Meta.DefaultValue(15)]
         public int Skipper
         {
             get { return t_skipperValue; }

@@ -58,7 +58,7 @@ namespace Engine
 
             t_activeViomeKey = key;
             v.ChangeImage(w.Canvas, true);
-            RaiseViomeChanged();
+            OnViomeChanged();
             return v;
         }
 
@@ -91,7 +91,7 @@ namespace Engine
                 if (key != t_activeViomeKey)
                 {
                     t_activeViomeKey = key;
-                    RaiseViomeChanged();
+                    OnViomeChanged();
                 }
             }
             else
@@ -132,7 +132,7 @@ namespace Engine
         public void DeactivateViome()
         {
             t_activeViomeKey = -1;
-            RaiseViomeChanged();
+            OnViomeChanged();
         }
 
         #region Events
@@ -140,12 +140,9 @@ namespace Engine
         public delegate void ViomeChangedEventHandler(object sender, ViomeEventArgs e);
         public event ViomeChangedEventHandler ViomeChanged;
 
-        private void RaiseViomeChanged()
+        private void OnViomeChanged()
         {
-            if (ViomeChanged != null)
-            {
-                ViomeChanged(this, new ViomeEventArgs( t_viomes[t_activeViomeKey]));
-            }
+            ViomeChanged?.Invoke(this, new ViomeEventArgs( t_viomes[t_activeViomeKey]));
         }
 
         #endregion

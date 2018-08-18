@@ -9,7 +9,6 @@
                 <ResourceDictionary Source="/Cuisine;component/Themes/Themes.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            
             <Style TargetType="Menu">
                 <Setter Property="Background" Value="#FF505050"></Setter>
             </Style>

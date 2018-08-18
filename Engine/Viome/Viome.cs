@@ -72,12 +72,12 @@ namespace Engine
 
         private void T_coordinatesManager_ImagePositionChanged(object sender, ImagePositionChangedEventArgs e)
         {
-            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
         }
 
         private void T_coordinatesManager_ZoomFactorChanged(object sender, ZoomFactorChangedEventArgs e)
         {
-            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Engine
 
             if (forceRefresh)
             {
-                RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
+                OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Engine
             {
                 case SelectionGlassRequestType.Create:
                 case SelectionGlassRequestType.Delete:
-                    RaiseSelectionGlassRequested(type);
+                    OnSelectionGlassRequested(type);
                     break;
 
                 default:
@@ -111,7 +111,7 @@ namespace Engine
 
         public void ChangeActivity(Engine.Tools.IGraphicActivity activity)
         {
-            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
 
             if (t_workflow.GraphicActivity is Engine.Effects.EffectBase)
             {
@@ -130,17 +130,17 @@ namespace Engine
 
             if (t_workflow.GraphicActivity.HasVisualProperties)
             {
-                RaisePropertyPageActionRequested(WorkflowPropertyPageRequestType.ContentUpdate);
+                OnPropertyPageActionRequested(WorkflowPropertyPageRequestType.ContentUpdate);
             }
             else
             {
-                RaisePropertyPageActionRequested(WorkflowPropertyPageRequestType.ClosePage);
+                OnPropertyPageActionRequested(WorkflowPropertyPageRequestType.ClosePage);
             }
         }
 
         internal void SetUIAwarenessOfEnfOfProcess()
         {
-            RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.HandleEndOfProcess);
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.HandleEndOfProcess);
         }
 
         public void FeedMouseAction(Engine.MousePoint e)
@@ -159,13 +159,13 @@ namespace Engine
 
         internal void AllowInvalidate()
         {
-            System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to TRUE"));
+            //System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to TRUE"));
             t_allowInvalidate = true;
         }
 
         internal void DisallowInvalidate()
         {
-            System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to FALSE"));
+            //System.Diagnostics.Debug.WriteLine(String.Format("In VIOME.AllowInvalidate() has been called and is set to FALSE"));
             t_allowInvalidate = false;
         }
 
@@ -214,56 +214,39 @@ namespace Engine
         // the following not used at this time
         public event WorkflowPropertyPageEventHandler PropertyPageContentUpdateRequested;
 
-        internal void RaiseDrawingBoardActionRequested(WorkflowDrawingBoardRequestType requestType)
+        internal void OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType requestType)
         {
             if (requestType == WorkflowDrawingBoardRequestType.Invalidate)
             {
-                if (InvalidateRequested != null)
-                {
-                    InvalidateRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
-                }
-
+                InvalidateRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
                 return;
             }
 
             if (requestType == WorkflowDrawingBoardRequestType.ViewPortSize)
             {
-                if (DrawingBoardSizeRequested != null)
-                {
-                    DrawingBoardSizeRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
-                }
+                DrawingBoardSizeRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
 
                 return;
             }
 
             if (requestType == WorkflowDrawingBoardRequestType.HandleEndOfProcess)
             {
-                if (InvalidateRequested != null)
-                {
-                    InvalidateRequested(this, new WorkflowDrawingBoardEventArgs(requestType));
-                }
-            }
-        }
-
-        private void RaisePropertyPageActionRequested(WorkflowPropertyPageRequestType requestType)
-        {
-            if (requestType == WorkflowPropertyPageRequestType.ContentUpdate)
-            {
-                if (PropertyPageContentUpdateRequested != null)
-                {
-                    PropertyPageContentUpdateRequested(this, new WorkflowPropertyPageEventArgs(requestType));
-                }
-
+                InvalidateRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
                 return;
             }
         }
 
-        private void RaiseSelectionGlassRequested(SelectionGlassRequestType requestType)
+        private void OnPropertyPageActionRequested(WorkflowPropertyPageRequestType requestType)
         {
-            if (SelectionGlassRequested != null)
+            if (requestType == WorkflowPropertyPageRequestType.ContentUpdate)
             {
-                SelectionGlassRequested(this, new WorkflowSelectionGlassEventArgs(requestType));
+                PropertyPageContentUpdateRequested?.Invoke(this, new WorkflowPropertyPageEventArgs(requestType));
             }
+        }
+
+        private void OnSelectionGlassRequested(SelectionGlassRequestType requestType)
+        {
+            SelectionGlassRequested?.Invoke(this, new WorkflowSelectionGlassEventArgs(requestType));
         }
 
         #endregion

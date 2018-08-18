@@ -73,9 +73,31 @@ namespace PaintualUI.Controls.PropertyPage
             BuildVisual();
         }
 
+        public override void BuildControl(Engine.Effects.VisualPropertyItem pi)
+        {
+            Name = pi.ActualPropertyName;
+            PropertyName = pi.ActualPropertyName;
+            LabelText = pi.DisplayName;
+            DataType = pi.DataType;
+            ValueList = pi.ValueList;
+            DefaultValue = pi.DefaultValue;
+
+            if (pi.ValidatorType != Engine.Attributes.Meta.ValidatorTypes.Undefined)
+            {
+                switch (pi.ValidatorType)
+                {
+                    case Engine.Attributes.Meta.ValidatorTypes.ValueList:
+                        Validators.Add(new Engine.Validators.ValueListValidator(pi.ValueList));
+                        break;
+                    default:
+                        throw new Exception(String.Format("In TPropertyRadioButton, the validator type '{0}' is not supported.", pi.ValidatorType));
+                }
+            }
+        }
+
         #region ITPropertyControl implementation
         /// <summary>
-        /// Builds the children controls.
+        /// Use this method to build controls dynamically (ie radio button list based on a property).
         /// </summary>
         public override void BuildVisual()
         {
@@ -123,7 +145,7 @@ namespace PaintualUI.Controls.PropertyPage
         }
 
 
-        public override string EnteredValue
+        public override object EnteredValue
         {
             get
             {

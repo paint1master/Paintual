@@ -46,14 +46,36 @@ namespace PaintualUI.Controls.ColorPicker
     /// </summary>
     public partial class ColorPlane : UserControl
     {
-        private Dictionary<int, BitmapSource> t_bitmaps;
-        private BitmapSource t_currentPlaneImage;
+        private Dictionary<int, Engine.Surface.Canvas> t_bitmaps;
+        private Engine.Surface.Canvas t_currentPlaneImage;
+        private ColorPlaneSelectionGlass t_selectionGlass;
 
         public ColorPlane()
         {
             InitializeComponent();
 
-            t_bitmaps = new Dictionary<int, BitmapSource>();
+            t_bitmaps = new Dictionary<int, Engine.Surface.Canvas>();
+
+
+            this.Loaded += ColorPlane_Loaded;
+        }
+
+        private void ColorPlane_Loaded(object sender, RoutedEventArgs e)
+        {
+            // can't be set in Initialize !!??!!
+            t_selectionGlass = new ColorPlaneSelectionGlass(t_currentPlaneImage);
+            t_selectionGlass.Width = this.Width;
+            t_selectionGlass.Height = this.Height;
+
+            t_selectionGlass.Margin = new Thickness(0);
+            t_selectionGlass.HorizontalAlignment = HorizontalAlignment.Left;
+            t_selectionGlass.VerticalAlignment = VerticalAlignment.Top;
+            
+
+            this.ContainerGrid.Children.Add(t_selectionGlass);
+            Canvas.SetZIndex(t_selectionGlass, 2);
+
+            t_selectionGlass.ColorChanged += T_selectionGlass_ColorChanged;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -63,14 +85,14 @@ namespace PaintualUI.Controls.ColorPicker
                 SetPlaneImage(new Engine.Color.Cell(0, 0, 255, 255));
             }
 
-            drawingContext.DrawImage(t_currentPlaneImage, new Rect(0, 0, this.Width, this.Height));
+            drawingContext.DrawImage(ConvertPlaneImage(t_currentPlaneImage), new Rect(0, 0, this.Width, this.Height));
 
             base.OnRender(drawingContext);
         }
 
-        private BitmapSource ConvertPlaneImage(Engine.Surface.ColorPickerPlane cpp)
+        private BitmapSource ConvertPlaneImage(Engine.Surface.Canvas canvas)
         {
-            BitmapSource bmpSource = BitmapSource.Create(cpp.Width, cpp.Height, 96, 96, PixelFormats.Bgra32, null, cpp.Canvas.Array, cpp.Canvas.Stride);
+            BitmapSource bmpSource = BitmapSource.Create(canvas.Width, canvas.Height, 96, 96, PixelFormats.Bgra32, null, canvas.Array, canvas.Stride);
 
             return bmpSource;
         }
@@ -80,7 +102,7 @@ namespace PaintualUI.Controls.ColorPicker
             Engine.Surface.ColorPickerPlane cpp = new Engine.Surface.ColorPickerPlane((int)this.Width, (int)this.Height);
             cpp.SetColors(new Engine.Color.Cell(255, 255, 255, 255), c, new Engine.Color.Cell(0, 0, 0, 255), new Engine.Color.Cell(0, 0, 0, 255));
 
-            t_currentPlaneImage = ConvertPlaneImage(cpp);
+            t_currentPlaneImage = cpp.Canvas;
         }
 
         private void SetPlaneImage(Engine.Color.Cell c)
@@ -96,7 +118,15 @@ namespace PaintualUI.Controls.ColorPicker
         public void UpdatePlaneImage(Engine.Color.Cell c)
         {
             SetPlaneImage(c);
+            t_selectionGlass.UpdateColorPlane(t_currentPlaneImage);
             this.InvalidateVisual();
+        }
+
+        public event ColorChangedEventHandler ColorChanged;
+
+        private void T_selectionGlass_ColorChanged(object sender, ColorChangedEventArgs e)
+        {
+            ColorChanged?.Invoke(this, e);
         }
     }
 }

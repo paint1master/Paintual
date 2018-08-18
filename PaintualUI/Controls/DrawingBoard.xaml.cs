@@ -149,7 +149,7 @@ namespace PaintualUI.Controls
         {
             // sender is SelectionRectangle;
 
-            RaiseSelectionDoubleClick(sender, e);
+            OnSelectionDoubleClick(sender, e);
         }
 
         private void CoordinatesManager_ImagePositionChanged(object sender, ImagePositionChangedEventArgs e)
@@ -288,7 +288,7 @@ namespace PaintualUI.Controls
 
         public event Engine.Utilities.Selection.SelectionEventHandler SelectionDoubleClick;
 
-        private void RaiseSelectionDoubleClick(object sender, MouseButtonEventArgs e)
+        private void OnSelectionDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (SelectionDoubleClick != null)
             {
