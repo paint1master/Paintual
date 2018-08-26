@@ -5,6 +5,9 @@ OS junk files
 # zip files
 *.zip
 
+#Project test folders
+Engine_Test/
+
 #Visual Studio files
 *.[Oo]bj
 *.user

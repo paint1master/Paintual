@@ -31,11 +31,11 @@ using Engine.Effects.Noise;
 
 namespace Engine.Effects.Scanner
 {
-    public class Glitch : EffectBase
+    public class Glitch : Effect
     {
         private Engine.Surface.Canvas t_imagePerlin;
         private Engine.Effects.Particles.Obsolete.PixelParticle_O[] t_particles;
-        private Accord.Math.Vector3[,] t_flowField;
+        private Engine.Calc.Vector[,] t_flowField;
 
         private const string paramName_X = "x";
         private const string paramName_divSpread255 = "divSpread255";
@@ -72,7 +72,7 @@ namespace Engine.Effects.Scanner
 
         private void ThreadedProcess()
         {
-            t_imagePerlin = Engine.Effects.Noise.NoiseFactory.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
+            t_imagePerlin = Engine.Effects.Code.Noise.NoiseFactory_Static.CreatePerlinNoisePlane(t_imageSource, t_frequency, t_seed, t_octaves);
             CreateFlowField();
 
             t_workflow.Viome.AllowInvalidate();
@@ -83,14 +83,14 @@ namespace Engine.Effects.Scanner
 
         private void CreateFlowField()
         {
-            t_flowField = new Accord.Math.Vector3[t_imageSource.Width, t_imageSource.Height];
+            t_flowField = new Engine.Calc.Vector[t_imageSource.Width, t_imageSource.Height];
 
             for (int y = 0; y < t_imageSource.Height; y++)
             {
                 for (int x = 0; x < t_imageSource.Width; x++)
                 {
                     // initialize vectors with basic to-the-right direction
-                    t_flowField[x, y] = new Accord.Math.Vector3(1, 0, 0);
+                    t_flowField[x, y] = new Engine.Calc.Vector(1, 0);
                 }
             }
         }
@@ -174,7 +174,7 @@ namespace Engine.Effects.Scanner
 
             for (int y = start; y < end; y++)
             {
-                Engine.Color.Cell c = t_imagePerlin.Grid.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel); // Engine.Surface.Ops.GetPixel(t_imagePerlin, x, y);
+                Engine.Color.Cell c = t_imagePerlin.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
                 double lum = (double)Engine.Calc.Color.Luminance(c);
                 double angle = (lum * divSpread255) - divSpread2f; // reduce to range from 0 to 90 (degrees) then shift to get -45 to 45 (degrees)
 

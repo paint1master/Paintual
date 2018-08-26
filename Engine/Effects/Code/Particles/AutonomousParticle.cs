@@ -30,63 +30,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Accord.Math;
-
-namespace Engine.Effects.Particles
+namespace Engine.Effects.Code.Particles
 {
-    public class BaseParticle
+    public class AutonomousParticle : Engine.Effects.Particles.BaseParticle
     {
-        protected Accord.Math.Vector3 t_position;
+        private Engine.Calc.Vector t_direction;
 
-        public BaseParticle()
+        public AutonomousParticle()
         {
-
+            t_direction = new Calc.Vector(0, 0);
         }
 
-        public BaseParticle(Accord.Math.Vector3 position)
+        public AutonomousParticle(Engine.Calc.Vector position) : base(position)
         {
-            t_position = position;
+            //t_position.Normalize(Calc.CalculationStyles.Accord);
+            t_direction = new Calc.Vector(0, 0);
         }
 
-        public virtual void Move(Accord.Math.Vector3 direction)
+        public void Move()
         {
-            t_position += direction;
+            t_position += t_direction;
         }
 
-        public Accord.Math.Vector3 Position
-        {
-            get { return t_position; }
-        }
-    }
-}
-
-namespace Engine.Effects.Particles.Obsolete
-{
-    [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
-    public class BaseParticle_O
-    {
-        protected Accord.Math.Vector3 t_position;
-        protected Accord.Math.Vector3 t_velocity;
-
-
-        public BaseParticle_O()
-        {
-
-        }
-
-        public void Update()
-        {
-            t_position += t_velocity;
-        }
-
-        public virtual void Move(Accord.Math.Vector3 direction)
-        {
-            t_position += direction;
-        }
-
-        public Accord.Math.Vector3 Position
-        {
-            get { return t_position; }
-        }
+        public Engine.Calc.Vector Velocity { get => t_direction; set => t_direction = new Engine.Calc.Vector(value.X, value.Y); }
     }
 }

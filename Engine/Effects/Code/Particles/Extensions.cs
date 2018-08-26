@@ -8,20 +8,20 @@ namespace Engine.Effects.Particles
 {
     public static class Extensions
     {
-        public static Accord.Math.Vector3 Distance(this Engine.Effects.Particles.Attractor attractor, Engine.Effects.Particles.BaseParticle p)
+        public static Engine.Calc.Vector Distance(this Engine.Effects.Particles.Attractor attractor, Engine.Effects.Particles.BaseParticle p)
         {
-            Accord.Math.Vector3 distance = attractor.Position - p.Position;
+            Engine.Calc.Vector distance = attractor.Position - p.Position;
 
             return distance;
         }
 
 
-        /*public static Accord.Math.Vector3 ExpressiveForce(this Engine.Effects.Particles.Attractor attractor,
+        /*public static Engine.Calc.Vector ExpressiveForce(this Engine.Effects.Particles.Attractor attractor,
             Engine.Effects.Particles.ForceParticle p)
         {
             float G = 4f;
 
-            Accord.Math.Vector3 relDistance = attractor.Distance(p);
+            Engine.Calc.Vector relDistance = attractor.Distance(p);
 
             float distance = relDistance.Norm; // Norm seems the magnitude in Processing
 
@@ -30,7 +30,7 @@ namespace Engine.Effects.Particles
             force = Engine.Calc.Math.Sigmoid(force);
 
             relDistance.Normalize();
-            Accord.Math.Vector3.Multiply(relDistance, force);
+            Engine.Calc.Vector.Multiply(relDistance, force);
 
             return relDistance;
         }*/
@@ -45,18 +45,18 @@ namespace Engine.Effects.Particles
         /// suggested value 2.8</param>
         /// <param name="direction">the direction of the force. positive makes the force attraction, negative makes the force repulsion. suggested value 0.5 or -0.5</param>
         /// <returns></returns>
-        public static Accord.Math.Vector3 ModularForce(this Engine.Effects.Particles.Attractor attractor,
+        public static Engine.Calc.Vector ModularForce(this Engine.Effects.Particles.Attractor attractor,
             Engine.Effects.Particles.ForceParticle p)
         {
-            Accord.Math.Vector3 relDistance = attractor.Distance(p);
+            Engine.Calc.Vector relDistance = attractor.Distance(p);
 
             double distance = System.Math.Sqrt(relDistance.X * relDistance.X + relDistance.Y * relDistance.Y);
 
-            //double force = (attractor.Intensity * attractor.Force * distance) -attractor.Expression / (attractor.Expression * System.Math.Exp(distance /attractor.Force));
             double force = (attractor.Intensity * attractor.Force * distance) - 10d / System.Math.Pow(attractor.Expression, -1 * (distance / attractor.Force));
 
             relDistance.Normalize();
-            Accord.Math.Vector3.Multiply(relDistance, (float)force);
+
+            relDistance *= force;
 
             return relDistance;
         }
@@ -65,7 +65,8 @@ namespace Engine.Effects.Particles
         {
             // TODO a strange case where position is way out of bounds which causes LinearInterpolation to build a list that
             // has so many items that it reaches "out of bounds (int)"
-            if (float.IsNaN(fp.Position.X) || float.IsNaN(fp.Position.Y))
+            // this problem may have disappeared since I changed to Engine.Calc.Vector
+            if (double.IsNaN(fp.Position.X) || double.IsNaN(fp.Position.Y))
             {
                 return;
             }

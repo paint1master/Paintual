@@ -35,14 +35,11 @@ namespace Engine.Calc
     public class Color
     {
         /// <summary>
-        /// used to help determine if a color is dark or light
-        /// code taken here https://stackoverflow.com/questions/25426819/finding-out-if-a-hex-color-is-dark-or-light
+        /// Calculates the luminance value of a given color.
         /// </summary>
-        /// <param name="red"></param>
-        /// <param name=""></param>
-        /// <param name=""></param>
-        /// <param name="blue"></param>
+        /// <param name="c">The color from which the luminance value is calculated.</param>
         /// <returns>possible values range from 0 to 255</returns>
+        /// <remarks>code taken here https://stackoverflow.com/questions/25426819/finding-out-if-a-hex-color-is-dark-or-light</remarks>
         public static float Luminance(Engine.Color.Cell c)
         {
             float y = (0.2126f * c.Red) + (0.7152f * c.Green) + (0.0722f * c.Blue);
@@ -170,6 +167,19 @@ namespace Engine.Calc
             byte iRed = (byte)((fg.Alpha * (fg.Red - bg.Red)) / 256 + bg.Red);
 
             return new Engine.Color.Cell(iBlue, iGreen, iRed, Engine.ColorOpacity.Opaque);
+        }
+
+        /// <summary>
+        /// Returns the computed value of b along the cosine curve
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        /// <remarks>method needs tests</remarks>
+        public static byte ByteCosineContrast(byte b)
+        {
+            double result = (1 - System.Math.Cos(b * System.Math.PI / 255)) * (255 / 2);
+
+            return (byte)result;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Engine.Effects
 
             t_properties = t_activityType.GetProperties();
 
-            // properties (marked with attributes) are stuff to be displayed in the UI
+            // properties (marked with attributes) are to be displayed in the UI
             foreach (System.Reflection.PropertyInfo pi in t_properties)
             {
                 GetAttributes(pi);

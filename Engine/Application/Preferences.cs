@@ -187,8 +187,7 @@ namespace Engine
 
         public void OnApplicationPreferencesValueRequested(ApplicationPreferencesRequest value)
         {
-            if (ApplicationPreferencesValueRequested != null)
-                ApplicationPreferencesValueRequested(new ApplicationPreferencesEventArgs(value));
+            ApplicationPreferencesValueRequested?.Invoke(new ApplicationPreferencesEventArgs(value));
         }
     }
 

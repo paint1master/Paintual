@@ -207,7 +207,7 @@ namespace PaintualUI
             SetActivity(new Engine.Tools.GrainyPen());
         }
 
-        private void BrushImages_Click(object sender, RoutedEventArgs e)
+        /*private void BrushImages_Click(object sender, RoutedEventArgs e)
         {
             PaintualUI.Controls.BrushImageList bil = new Controls.BrushImageList();
 
@@ -222,7 +222,7 @@ namespace PaintualUI
             Dock direction = Dock.Right;
 
             WindowsManager.AddPinnedWindow(pane, direction);
-        }
+        }*/
 
         private void TestWindow_Click(object sender, RoutedEventArgs e)
         {
@@ -409,11 +409,6 @@ namespace PaintualUI
             SetActivity(new Engine.Tools.ParticlePen());
         }
 
-        private void ForceParticles_Click(object sender, RoutedEventArgs e)
-        {
-            SetActivity(new Engine.Effects.ForceEffect());
-        }
-
         private void AttractorPen_Click(object sender, RoutedEventArgs e)
         {
             SetActivity(new Engine.Tools.AttractorPen());
@@ -457,6 +452,16 @@ namespace PaintualUI
                 dockpane.Content = g;
             }).Deserialize(_stream, WindowsManager);
             */
+        }
+
+        private void Flow_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.Flow_2());
+        }
+
+        private void Blur_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivity(new Engine.Effects.BlurEffect());
         }
     }
 }

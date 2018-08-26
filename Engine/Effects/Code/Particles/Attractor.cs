@@ -13,12 +13,12 @@ namespace Engine.Effects.Particles
             this.Force = 0;
         }
 
-        public Attractor(Accord.Math.Vector3 position) : base(position)
+        public Attractor(Engine.Calc.Vector position) : base(position)
         {
 
         }
 
-        public Attractor(Accord.Math.Vector3 position, double G) : base(position)
+        public Attractor(Engine.Calc.Vector position, double G) : base(position)
         {
             Force = G;
         }
@@ -32,7 +32,7 @@ namespace Engine.Effects.Particles
         /// <param name="expression">A parameter that influences the intensity curve of the calculated gravity force. Cannot be less
         /// than 0. Sugested value 1.3d. The higher the value, the less intense the gravity curve is.</param>
         /// <param name="intensity">A positive value means attraction, a negative value means repulsion.</param>
-        public Attractor(Accord.Math.Vector3 position, double G, double expression, double intensity) : base(position)
+        public Attractor(Engine.Calc.Vector position, double G, double expression, double intensity) : base(position)
         {
             Force = G > 0 ? G : 0.1d;
             Expression = expression > 0 ? expression : 0.1d;

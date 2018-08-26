@@ -40,16 +40,16 @@ namespace Engine.Effects.Particles
     public class ForceParticle : BaseParticle
     {
         protected Point t_previousPoint;
-        protected Accord.Math.Vector3 t_velocity;
-        protected Accord.Math.Vector3 t_acceleration = new Accord.Math.Vector3(0, 0, 0);
+        protected Engine.Calc.Vector t_velocity;
+        protected Engine.Calc.Vector t_acceleration = new Engine.Calc.Vector(0, 0);
         protected float t_maxMagnitude = 0;
 
-        public ForceParticle(Accord.Math.Vector3 position) : base(position)
+        public ForceParticle(Engine.Calc.Vector position) : base(position)
         {
             t_previousPoint = new Point((int)position.X, (int)position.Y);
         }
 
-        public ForceParticle(Accord.Math.Vector3 position, Accord.Math.Vector3 velocity) : base(position)
+        public ForceParticle(Engine.Calc.Vector position, Engine.Calc.Vector velocity) : base(position)
         {
             t_previousPoint = new Point((int)position.X, (int)position.Y);
             t_velocity = velocity;
@@ -58,8 +58,8 @@ namespace Engine.Effects.Particles
         public ForceParticle(int x, int y, float velX, float velY)
         {
             t_previousPoint = new Point(x, y);
-            t_position = new Accord.Math.Vector3(x, y, 0);
-            t_velocity = new Accord.Math.Vector3(velX, velY, 0);
+            t_position = new Engine.Calc.Vector(x, y);
+            t_velocity = new Engine.Calc.Vector(velX, velY);
         }
 
         public ForceParticle(int x, int y, float velX, float velY, float maxMagnitude) : this(x, y, velX, velY)
@@ -77,16 +77,16 @@ namespace Engine.Effects.Particles
                 float mag = (float)System.Math.Sqrt(t_velocity.X * t_velocity.X + t_velocity.Y * t_velocity.Y);
                 if (mag > t_maxMagnitude)
                 {
-                    float x = t_velocity.X * t_maxMagnitude / mag;
-                    float y = t_velocity.Y * t_maxMagnitude / mag;
+                    double x = t_velocity.X * t_maxMagnitude / mag;
+                    double y = t_velocity.Y * t_maxMagnitude / mag;
 
-                    if (float.IsNaN(x) || float.IsNaN(y))
+                    if (double.IsNaN(x) || double.IsNaN(y))
                     {
                         x = 0;
                         y = 0;
                     }
 
-                    t_velocity = new Accord.Math.Vector3(x, y, 0);
+                    t_velocity = new Engine.Calc.Vector(x, y);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace Engine.Effects.Particles
         /// <param name="attractors"></param>
         public void Update(Engine.Effects.Particles.Attractor[] attractors)
         {
-            Accord.Math.Vector3 sum = new Vector3(0, 0, 0);
+            Engine.Calc.Vector sum = new Engine.Calc.Vector(0, 0);
 
             for (int i = 0; i < attractors.Length; i++)
             {
@@ -123,18 +123,18 @@ namespace Engine.Effects.Particles
             Update();
         }
 
-        public override void Move(Accord.Math.Vector3 direction)
+        public override void Move(Engine.Calc.Vector direction)
         {
             throw new InvalidOperationException("In ForceParticle.Move(), use any overload of the Update() method instead.");
         }
 
-        public Accord.Math.Vector3 Velocity
+        public Engine.Calc.Vector Velocity
         {
             get => t_velocity;
             set => t_velocity = value;
         }
 
-        public Accord.Math.Vector3 Acceleration
+        public Engine.Calc.Vector Acceleration
         {
             get => t_acceleration;
             set => t_acceleration = value;
@@ -152,9 +152,9 @@ namespace Engine.Effects.Particles.Obsolete
     [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
     public class ForceParticle_O
     {
-        protected Accord.Math.Vector3 t_position;
-        protected Accord.Math.Vector3 t_velocity;
-        //protected Accord.Math.Vector3 t_acceleration;
+        protected Engine.Calc.Vector t_position;
+        protected Engine.Calc.Vector t_velocity;
+        //protected Engine.Calc.Vector t_acceleration;
 
 
         public ForceParticle_O()
@@ -169,17 +169,17 @@ namespace Engine.Effects.Particles.Obsolete
             //t_acceleration = t_acceleration * 0;
         }
 
-        /*public void ApplyForce(Accord.Math.Vector3 force)
+        /*public void ApplyForce(Engine.Calc.Vector force)
         {
             t_acceleration += force;
         }*/
 
-        public virtual void Move(Accord.Math.Vector3 direction)
+        public virtual void Move(Engine.Calc.Vector direction)
         {
             t_position += direction;
         }
 
-        public Accord.Math.Vector3 Position
+        public Engine.Calc.Vector Position
         {
             get { return t_position; }
         }

@@ -37,7 +37,7 @@ namespace Engine.Effects
     /// <summary>
     /// The base class for all effects
     /// </summary>
-    public class EffectBase : Engine.Tools.IGraphicActivity
+    public class Effect : Engine.Tools.IGraphicActivity
     {
         protected Engine.Surface.Canvas t_imageSource;
         protected Engine.Surface.Canvas t_imageProcessed;
@@ -53,9 +53,9 @@ namespace Engine.Effects
 
         protected Engine.Workflow t_workflow;
 
-        public EffectBase()
+        public Effect()
         {
-            t_visualProperties = new VisualProperties("Effect Base", typeof(EffectBase));
+            t_visualProperties = new VisualProperties("Effect", typeof(Effect));
         }
 
         public void Initialize(Workflow w)
@@ -88,11 +88,13 @@ namespace Engine.Effects
 
         }
 
-        // to be called by UI because Effect is being processed in separate thread
+        // we are in the worker thread
         public virtual void ProcessCompleted()
         {
             t_isImageProcessed = true;
 
+            // setting image will cause a crash sometimes because a window refresh can't be called from here
+            // the problem is within Coord Manager
             t_workflow.SetImage(t_imageProcessed, false);
 
 
@@ -109,7 +111,7 @@ namespace Engine.Effects
         /// <returns></returns>
         public virtual Engine.Tools.IGraphicActivity Duplicate(Engine.Workflow w)
         {
-            EffectBase eb = new EffectBase();
+            Effect eb = new Effect();
             eb.Initialize(w);
 
             return eb;

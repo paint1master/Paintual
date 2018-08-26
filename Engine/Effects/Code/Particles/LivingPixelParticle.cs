@@ -11,7 +11,7 @@ namespace Engine.Effects.Particles.Obsolete
     public class LivingPixelParticle_O : PixelParticle_O
     {
         double t_life = 0;
-        private Accord.Math.Vector3 t_direction;
+        private Engine.Calc.Vector t_direction;
 
         public LivingPixelParticle_O() : base()
         {
@@ -38,7 +38,7 @@ namespace Engine.Effects.Particles.Obsolete
             float dirX = (float)(Engine.Calc.Math.Rand.NextDouble() - 0.5d);
             float dirY = (float)(Engine.Calc.Math.Rand.NextDouble() - 0.5d);
 
-            t_direction = new Accord.Math.Vector3(expansion * dirX, expansion * dirY, 0);
+            t_direction = new Engine.Calc.Vector(expansion * dirX, expansion * dirY);
         }
 
 
@@ -54,7 +54,7 @@ namespace Engine.Effects.Particles.Obsolete
             t_life = 0;
         }
 
-        public override void Move(Vector3 direction)
+        public override void Move(Engine.Calc.Vector direction)
         {
             if(t_life <= 0)
             {
@@ -62,15 +62,15 @@ namespace Engine.Effects.Particles.Obsolete
                 return;
             }
 
-            float previousX = t_position.X;
-            float previousY = t_position.Y;
+            double previousX = t_position.X;
+            double previousY = t_position.Y;
 
-            Accord.Math.Vector3 tempDir = direction + t_direction;
+            Engine.Calc.Vector tempDir = direction + t_direction;
 
             t_position += tempDir;
 
-            float deltaX = System.Math.Abs(t_position.X - previousX);
-            float deltaY = System.Math.Abs(t_position.Y - previousY);
+            double deltaX = System.Math.Abs(t_position.X - previousX);
+            double deltaY = System.Math.Abs(t_position.Y - previousY);
 
             double distance = System.Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 

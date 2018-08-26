@@ -69,5 +69,15 @@ namespace Engine.Utilities
             //aFile object will be destroyed when this method completes
             return newString;
         }
+
+        public static void WriteFile(string fileName, string content)
+        {
+
+            // Write each directory name to a file.
+            using (StreamWriter sw = new StreamWriter(fileName))
+            {
+                sw.WriteLine(content);
+            }
+        }
     }
 }

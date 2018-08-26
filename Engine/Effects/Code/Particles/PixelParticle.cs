@@ -49,12 +49,12 @@ namespace Engine.Effects.Particles.Obsolete
 
         public PixelParticle_O(Engine.Color.Cell c, int x, int y) : this(c)
         {
-            t_position = new Accord.Math.Vector3((float)x, (float)y, 0);
+            t_position = new Engine.Calc.Vector((float)x, (float)y);
         }
 
         public PixelParticle_O(Engine.Color.Cell c, float x, float y) : this(c)
         {
-            t_position = new Accord.Math.Vector3(x, y, 0);
+            t_position = new Engine.Calc.Vector(x, y);
         }
 
         public void Draw(Engine.Surface.Canvas c, byte alpha)

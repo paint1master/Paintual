@@ -30,12 +30,63 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Engine.Effects.Particles.Auto
+using Accord.Math;
+
+namespace Engine.Effects.Particles
 {
-    /// <summary>
-    /// Represents a single autonomous particle : it can move on a canvas according to a set of rules and states.
-    /// </summary>
-    public class AutoParticle
+    public class BaseParticle
     {
+        protected Engine.Calc.Vector t_position;
+
+        public BaseParticle()
+        {
+
+        }
+
+        public BaseParticle(Engine.Calc.Vector position)
+        {
+            t_position = new Engine.Calc.Vector(position.X, position.Y);
+        }
+
+        public virtual void Move(Engine.Calc.Vector direction)
+        {
+            t_position += direction;
+        }
+
+        public Engine.Calc.Vector Position
+        {
+            get { return t_position; }
+        }
+    }
+}
+
+namespace Engine.Effects.Particles.Obsolete
+{
+    [Obsolete("Kept for compatibility with Glitch, Radial effects and ThinLineTool and ParticlePen tools.")]
+    public class BaseParticle_O
+    {
+        protected Engine.Calc.Vector t_position;
+        protected Engine.Calc.Vector t_velocity;
+
+
+        public BaseParticle_O()
+        {
+
+        }
+
+        public void Update()
+        {
+            t_position += t_velocity;
+        }
+
+        public virtual void Move(Engine.Calc.Vector direction)
+        {
+            t_position += direction;
+        }
+
+        public Engine.Calc.Vector Position
+        {
+            get { return t_position; }
+        }
     }
 }

@@ -30,9 +30,9 @@
             </MenuItem>
             <MenuItem Header="View" >
                 <!-- translation index "8" -->
-                <MenuItem Header="Brush Images" Click="BrushImages_Click" >
-                    <!-- translation index "9" -->
-                </MenuItem>
+                <!--<MenuItem Header="Brush Images" Click="BrushImages_Click" />-->
+                <!-- translation index "9" -->
+
                 <MenuItem Header="Color Picker (standard)" Click="ColorPickerStandard_Click" >
                     <!-- translation index "10" -->
                 </MenuItem>
@@ -41,7 +41,6 @@
             <MenuItem Header="Drawing">
                 <MenuItem Header="Grainy Pen" Click="GrainyTool_Click" />
                 <MenuItem Header="Particle Pen" Click="ParticlePen_Click" />
-                <MenuItem Header="Force Particles" Click="ForceParticles_Click" />
                 <MenuItem Header="Attractor Pen" Click="AttractorPen_Click" />
             </MenuItem>
 
@@ -73,9 +72,11 @@
                 <!--<MenuItem Header="Cellular Automata" >-->
                 <!-- translation index "22" -->
                 <!--</MenuItem>-->
+                <MenuItem Header="Blur" Click="Blur_Click" />
                 <MenuItem Header="Scan Glitch" Click="ScanGlitch_Click"/>
                 <MenuItem Header="Radial" Click="ScanRadial_Click"/>
                 <MenuItem Header="Variance Gradient" Click="VarianceGradient_Click" />
+                <MenuItem Header="Flow" Click="Flow_Click" />
                 <!--</MenuItem> -->
                 <MenuItem Header="Extraction">
                     <!-- translation index "23" -->
@@ -107,9 +108,9 @@
                     <!-- translation index "25" -->
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Help" >
-                <!-- translation index "32" -->
-            </MenuItem>
+            <!--<MenuItem Header="Help" />-->
+            <!-- translation index "32" -->
+
         </Menu>
         <ToolBar x:Name="AppToolBar" Margin="0,20,0,0" VerticalAlignment="Top" Height="30" Background="#FF505050" >
             <Button x:Name="BtnDraw" Click="GrainyTool_Click" Width="25" Height="25" Background="#FF505050" BorderThickness="1" BorderBrush="#FFA0A0A0 ">

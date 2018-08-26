@@ -70,7 +70,7 @@ namespace Engine.Tools
             t_previousPoint = new MousePoint(x, y);
 
             CreateParticles(x, y);
-            t_attractor = new Effects.Particles.Attractor(new Accord.Math.Vector3(x, y, 0), t_force, t_expression, t_intensity);
+            t_attractor = new Effects.Particles.Attractor(new Engine.Calc.Vector(x, y), t_force, t_expression, t_intensity);
         }
 
         internal override void Draw(MousePoint p)
@@ -85,13 +85,13 @@ namespace Engine.Tools
 
             // atractor must follow the pen between each call to draw
             int[] delta = MousePoint.Delta(t_previousPoint, p);
-            Accord.Math.Vector3 d = new Accord.Math.Vector3(delta[0], delta[1], 0);
+            Engine.Calc.Vector d = new Engine.Calc.Vector(delta[0], delta[1]);
             t_attractor.Move(d);
 
-            int offset = t_imageSource.GetOffset(p.X, p.Y);
-
-            if (offset == -1)
-            { return; }
+            if (t_imageSource.IsOutOfBounds(p.X, p.Y))
+            {
+                return;
+            }
 
             Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
 
@@ -116,16 +116,19 @@ namespace Engine.Tools
             {
                 t_particles[i].Update(t_attractor);
 
+                Engine.Color.Cell px;
+
                 if (t_useColorFromImage)
                 {
-                    Engine.Color.Cell px = t_imageSource.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
-                    px.Alpha = t_alpha;
-                    t_particles[i].Draw(t_imageSource, px);
+                    px = t_imageSource.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnEdgePixel);
                 }
                 else
                 {
-                    t_particles[i].Draw(t_imageSource, new Engine.Color.Cell(t_colorVariance.Blue, t_colorVariance.Green, t_colorVariance.Red, t_alpha));
-                }               
+                    px = t_colorVariance.ColorVariation;
+                }
+
+                px.Alpha = t_alpha;
+                t_particles[i].Draw(t_imageSource, px);
             }
 
             return 0;

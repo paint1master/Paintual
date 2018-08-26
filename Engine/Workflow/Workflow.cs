@@ -102,13 +102,13 @@ namespace Engine
 
         public Engine.Tools.IGraphicActivity GraphicActivity { get; private set; }
 
-        public Engine.Effects.EffectBase CurrentEffect
+        public Engine.Effects.Effect CurrentEffect
         {
             get
             {
-                if (GraphicActivity is Engine.Effects.EffectBase)
+                if (GraphicActivity is Engine.Effects.Effect)
                 {
-                    return (Engine.Effects.EffectBase)GraphicActivity;
+                    return (Engine.Effects.Effect)GraphicActivity;
                 }
 
                 return null;

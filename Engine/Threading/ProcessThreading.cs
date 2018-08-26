@@ -46,24 +46,20 @@ namespace Engine.Threading
             int workerThreads = 0;
             int completionPortsThreads = 0;
 
-            int divide = Engine.Calc.Math.Division_Threading(length);
-
+            // workerThreads or completionPortsThreads are supposed to return the same value as the number of cores in computer.
             System.Threading.ThreadPool.GetMinThreads(out workerThreads, out completionPortsThreads);
-            System.Threading.ThreadPool.SetMinThreads(divide, divide);
+
+            // with max number of cores available, don't divide the work too much
+            int divide = Engine.Calc.Math.Threading_Division(length, System.Math.Min(workerThreads, completionPortsThreads));
+            int[] starts = Engine.Calc.Math.Threading_GetStarts(length, divide);
+            int[] lengths = Engine.Calc.Math.Threading_GetLengths(length, divide);
 
             dels = new Engine.Threading.ProcessThreading.DelegatedMethod[divide];
             cookies = new IAsyncResult[divide];
 
-            int quarterHeight = length / divide;
-
-            int[] starts = new int[divide];
-            int[] lengths = new int[divide];
-
             for (int i = 0; i < divide; i++)
             {
                 dels[i] = method;
-                starts[i] = (quarterHeight * i);
-                lengths[i] = quarterHeight * (i + 1);
             }
 
             for (int i = 0; i < divide; i++)
@@ -86,7 +82,7 @@ namespace Engine.Threading
                 cookies[i].AsyncWaitHandle.Close();
             }
 
-            System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortsThreads);
+            //System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortsThreads);
         }
 
         #region Dispose

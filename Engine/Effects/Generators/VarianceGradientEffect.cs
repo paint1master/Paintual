@@ -34,8 +34,11 @@ using Engine.Tools;
 
 namespace Engine.Effects
 {
-    public class VarianceGradientEffect : EffectBase
+    public class VarianceGradientEffect : Effect
     {
+        private Engine.Color.ColorVariance t_colorVariance;
+        private int t_percent = 75;
+
         public VarianceGradientEffect()
         {
             t_visualProperties = new VisualProperties(Name, typeof(VarianceGradientEffect));
@@ -59,23 +62,20 @@ namespace Engine.Effects
         {
             t_workflow.Viome.AllowInvalidate();
 
-            Engine.Color.Cell c = new Engine.Color.Cell(210, 185, 65, Engine.ColorOpacity.Opaque);
-
-            Engine.Color.ColorVariance cv = new Color.ColorVariance(c);
-            cv.SetFrequencies(1000, 200, 800, 1);
-            cv.SetRanges(10, 6, 20, 0);
+            Engine.Color.Cell c = Engine.Application.UISelectedValues.SelectedColor;
+            t_colorVariance.SetColor(c);
 
             for (int x = 0; x < t_imageProcessed.Width; x++)
             {
-                cv.Step();
+                t_colorVariance.Step();
 
                 for (int y = 0; y < t_imageProcessed.Height; y++)
                 {
                     int offset = t_imageProcessed.GetOffset(x, y);
 
-                    if (y < t_imageProcessed.Height / 2)
+                    if (y < t_imageProcessed.Height * t_percent / 100)
                     {
-                        Engine.Color.Cell variance = new Color.Cell(cv.Blue, cv.Green, cv.Red, cv.Alpha);
+                        Engine.Color.Cell variance = t_colorVariance.ColorVariation;
                         variance.WriteBytes(t_imageProcessed.Array, offset);
                     }
                     else
@@ -89,5 +89,26 @@ namespace Engine.Effects
         }
 
         public override string Name { get => "Variance Gradient Effect"; }
+
+        [Engine.Attributes.Meta.DisplayName("Color Variance")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.ColorVariance)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Object, typeof(Engine.Color.ColorVariance))]
+        public Engine.Color.ColorVariance ColorVariance
+        {
+            get { return t_colorVariance; }
+            set { t_colorVariance = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Percent")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Textbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
+        [Engine.Attributes.Meta.Validator(Engine.Attributes.Meta.ValidatorTypes.Int, "")]
+        [Engine.Attributes.Meta.DefaultValue(75)]
+        [Engine.Attributes.Meta.Range(0, 100)]
+        public int Percent
+        {
+            get { return t_percent; }
+            set { t_percent = value; }
+        }
     }
 }

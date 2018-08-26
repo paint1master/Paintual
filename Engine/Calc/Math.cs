@@ -56,8 +56,6 @@ namespace Engine.Calc
 
             float f = (float)((d * range) - (range / 2));
 
-            //System.Diagnostics.Debug.WriteLine(String.Format("random : {0}", f));
-
             return f;
         }
 
@@ -113,7 +111,6 @@ namespace Engine.Calc
             if (value < 0 || value > 100)
             {
                 return false;
-               // throw new ArgumentOutOfRangeException(string.Format("In Engine.Calc IsPercentageValue(), the value '{0}' is not usable as a percentage.", value));
             }
 
             return true;
@@ -213,25 +210,59 @@ namespace Engine.Calc
         /// <summary>
         /// Divides a value so that it doesn't create too many threads with too little work to do
         /// </summary>
-        /// <returns></returns>
-        public static int Division_Threading(int height)
+        /// <param name="height"></param>
+        /// <param name="maxdivisor">the maximum divisor, usually the number of cores in a computer. This value is provided by "System.Threading.ThreadPool.GetMinThreads".</param>
+        /// <returns>Returns a divisor that tends to optimize the number of tasks per available thread.</returns>
+        public static int Threading_Division(int height, int maxdivisor)
         {
-            int divide = 1;
+            int factor = 1;
 
-            if (height > 8 && height <= 16)
+            while (maxdivisor > 0)
             {
-                divide = 2;
-            }
-            else if (height > 16 && height <= 32)
-            {
-                divide = 4;
-            }
-            else if (height > 32)
-            {
-                divide = 16;
+                if (height / maxdivisor >= factor)
+                {
+                    maxdivisor /= 2;
+                    factor *= 2;
+                    continue;
+                }
+
+                return factor;
             }
 
-            return divide;
+            return factor / 2;
+        }
+
+        public static int[] Threading_GetStarts(int length, int divide)
+        {
+            int[] starts = new int[divide];
+            int quarterHeight = length / divide;
+
+            for (int i = 0; i < divide; i++)
+            {
+                starts[i] = (quarterHeight * i);
+            }
+
+            return starts;
+        }
+
+        public static int[] Threading_GetLengths(int length, int divide)
+        {
+            int[] lengths = new int[divide];
+            int quarterHeight = length / divide;
+
+            for (int i = 0; i < divide; i++)
+            {
+                if (i == divide - 1)
+                {
+                    lengths[i] = length;
+                }
+                else
+                { 
+                    lengths[i] = quarterHeight * (i + 1);
+                }
+            }
+
+            return lengths;
         }
 
         public static int Double_0_1_ToDegree(double d)
@@ -302,14 +333,24 @@ namespace Engine.Calc
             return (a > b ? a : b);
         }
 
-        /// <summary>
-        /// Swaps the values contained by the two given variables.
-        /// </summary>
-        public static void SwapValues(ref double a, ref double b)
+        public static void Swap(ref double a, ref double b)
         {
-            double c = a;
+            double temp = a;
             a = b;
-            b = c;
+            b = temp;
+        }
+
+        public static void Swap(ref double[] a, ref double[] b)
+        {
+            if (a.Length != b.Length)
+            {
+                throw new ArgumentException("arrays of different lengths.");
+            }
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                Swap(ref a[i], ref b[i]);
+            }
         }
 
         /// <summary>
@@ -376,7 +417,7 @@ namespace Engine.Calc
         /// <summary>
         /// Returns PI/180.0, used for converting degrees to radians.
         /// </summary>
-        public static readonly double DEG_TO_RAD = PI / 180.0;
+        public static readonly double DEG_TO_RAD = 0.01745329251994329576923690768489; // PI / 180.0;
 
         /// <summary>
         /// Provides the X, Y, and Z coordinates on the surface of a sphere 
@@ -395,6 +436,21 @@ namespace Engine.Calc
             float result = (float)(1d / (1d + System.Math.Exp(f * -1)));
 
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value">the value to map</param>
+        /// <param name="istart">lower bound of the value's current range</param>
+        /// <param name="istop">upper bound of the value's current range</param>
+        /// <param name="ostart">lower bound of the value's target range</param>
+        /// <param name="ostop">upper bound of the value's target range</param>
+        /// <returns></returns>
+        /// <remarks>taken from Processing.org v3 source code</remarks>
+        public static double Map(double @value, double istart, double istop, double ostart, double ostop)
+        {
+            return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
         }
 
         public static List<MousePoint> LinearInterpolate(MousePoint start, MousePoint end)

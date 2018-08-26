@@ -113,7 +113,7 @@ namespace Engine
         {
             OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
 
-            if (t_workflow.GraphicActivity is Engine.Effects.EffectBase)
+            if (t_workflow.GraphicActivity is Engine.Effects.Effect)
             {
                 // for effects, must disable mouse input in workflow because
                 // they are working on different thread and cause failure in EffectBase.Process()

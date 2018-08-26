@@ -45,30 +45,16 @@ namespace Engine
         public static readonly Engine.UISelectedValues UISelectedValues = new UISelectedValues();
 
         //private static Engine.Tools.Attributes.AttributeCollection m_attributeCollection = new Tools.Attributes.AttributeCollection();
-        //public static Engine.Debug.DebugInfoCollector ApplicationDebugInfoCollector;
         //public static Engine.ProgressInfo ProgressInformation;
 
         //private static bool uiCanReceiveRequests = false;
-        //private static Engine.Reactual.Analyze.Stats.StatisticsCollector statsCollector;
-        //private static Dictionary<string, Engine.Data.PropertyBagItem> s_propertyBag;
 
         // since its value may change during app life, it cannot be "public + readonly"
         private Engine.Utilities.Language.LanguageIdentifiers currentLanguage = Utilities.Language.LanguageIdentifiers.ENG;
 
         private Application()
         {
-            //Engine.Application.ApplicationDebugInfoCollector = new Engine.Debug.DebugInfoCollector();
-            //Engine.Application.ApplicationDebugInfoCollector.Debugging = true;
 
-            //ApplicationDebugInfoCollector.Add("application initializing");
-
-            //ApplicationDebugInfoCollector.Add("Application preferences initialized.");
-
-            //ProgressInformation = new ProgressInfo();
-            //statsCollector = new Reactual.Analyze.Stats.StatisticsCollector();
-            //statsCollector.Collecting = true;
-
-            //s_propertyBag = new Dictionary<string, Data.PropertyBagItem>();
         }
 
         /// <summary>

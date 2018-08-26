@@ -32,7 +32,7 @@ using Engine.Tools;
 
 namespace Engine.Effects
 {
-    public class ForceEffect : EffectBase
+    public class ForceEffect : Effect
     {
         public ForceEffect()
         {
@@ -58,8 +58,8 @@ namespace Engine.Effects
         {
             t_workflow.Viome.AllowInvalidate();
 
-            Engine.Effects.Particles.Attractor attr1 = new Particles.Attractor(new Accord.Math.Vector3(400, 600, 0));
-            Engine.Effects.Particles.Attractor attr2 = new Particles.Attractor(new Accord.Math.Vector3(800, 600, 0));
+            Engine.Effects.Particles.Attractor attr1 = new Particles.Attractor(new Engine.Calc.Vector(400, 600));
+            Engine.Effects.Particles.Attractor attr2 = new Particles.Attractor(new Engine.Calc.Vector(800, 600));
 
             Engine.Effects.Particles.Attractor[] attrs = new Particles.Attractor[2];
             attrs[0] = attr1;

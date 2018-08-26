@@ -94,7 +94,7 @@ namespace Engine.Tools
 
             // particles must follow the pen between each call to draw
             int[] delta = MousePoint.Delta(t_previousPoint, p);
-            Accord.Math.Vector3 d = new Accord.Math.Vector3(delta[0], delta[1], 0);
+            Engine.Calc.Vector d = new Engine.Calc.Vector(delta[0], delta[1]);
 
             foreach (Engine.Effects.Particles.Obsolete.PixelParticle_O px in t_particles)
             {

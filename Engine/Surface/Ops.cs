@@ -102,78 +102,6 @@ namespace Engine.Surface
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        /// <remarks>If X and Y are outside the boundaries of the image, it returns a black opaque pixel</remarks>
-        public static Engine.Color.Cell GetPixel(Engine.Surface.Canvas c, int x, int y)
-        {
-            int offset = c.GetOffset(x, y);
-
-            if (offset == -1)
-            {
-                // out of range
-                return new Engine.Color.Cell(0, 0, 0, Engine.ColorOpacity.Opaque);
-            }
-
-            Engine.Color.Cell pix = new Color.Cell(c.Array, offset);
-            return pix;
-        }
-
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="error">An out boolean parameter that tells if the calculated offset was out of range.</param>
-        /// <returns></returns>
-        /// <remarks>If X and Y are outside the boundaries of the image, it returns a black opaque pixel</remarks>
-        public static Engine.Color.Cell GetPixel(Engine.Surface.Canvas c, int x, int y, out bool error)
-        {
-            int offset = c.GetOffset(x, y);
-
-            if (offset == -1)
-            {
-                // out of range
-                error = true;
-                return new Engine.Color.Cell(0, 0, 0, Engine.ColorOpacity.Opaque);
-            }
-
-            Engine.Color.Cell pix = new Color.Cell(c.Array, offset);
-            error = false;
-            return pix;
-        }*/
-
-        /*public static void SetPixel(Engine.Color.Cell c, Engine.Surface.Canvas canvas, int x, int y)
-        {
-            // TODO: make bounds checks more performant and less repetitive
-            if (x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height)
-            {
-                return;
-            }
-
-            int offset = canvas.GetOffset(x, y);
-            c.WriteBytes(canvas.Array, offset);
-        }*/
-
-        public static void SetPixel(Engine.Color.Cell c, byte alpha, Engine.Surface.Canvas canvas, int x, int y)
-        {
-            // TODO: make bounds checks more performant and less repetitive
-            if (x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height)
-            {
-                return;
-            }
-
-            int offset = canvas.GetOffset(x, y);
-            c.WriteBytesWithAlpha(canvas.Array, alpha, offset);
-        }
-
         public static Engine.Surface.Canvas ToCanvas(int[,] cellGrid, int width, int height)
         {
             // TODO : needs optimization
@@ -183,6 +111,22 @@ namespace Engine.Surface
             Engine.Surface.Canvas bi = new Canvas(bytes, width, height);
 
             return bi;
+        }
+
+        public static Engine.Surface.Canvas ToCanvas(Bitmap b)
+        {
+            byte[] imageData;
+
+            using (MagickImage image = new MagickImage(b))
+            {
+                imageData = image.ToByteArray(MagickFormat.Bgra);
+                /*imageData = new int[bytes.Length / sizeof(int)];
+                Buffer.BlockCopy(bytes, 0, imageData, 0, bytes.Length);*/
+            }
+
+            Engine.Surface.Canvas canvas = new Engine.Surface.Canvas(imageData, b.Width, b.Height);
+
+            return canvas;
         }
 
         public static int[] ToArgbIntArray(int[,] cellGrid, int width, int height)
@@ -261,6 +205,20 @@ namespace Engine.Surface
             }
 
             return bmp;
+        }
+
+        public static Engine.Surface.Canvas Blur(Engine.Surface.Canvas c, double radius, double sigma)
+        {
+            Bitmap bmp = Engine.Surface.Ops.ToBitmap(c);
+
+            using (ImageMagick.MagickImage image = new ImageMagick.MagickImage(bmp))
+            {
+                image.Blur(radius, sigma);
+
+                bmp = image.ToBitmap();
+            }
+
+            return Engine.Surface.Ops.ToCanvas(bmp);
         }
 
         public static Engine.Surface.Canvas CopyFromImage(Engine.Surface.Canvas source, Engine.Rectangle region)
@@ -359,6 +317,18 @@ namespace Engine.Surface
                     offsetNewImage += Engine.BytesPerPixel.BGRA;
                 }
             }
+        }
+
+        public static int GetGridOffset(int x, int y, int width, int height)
+        {
+            int result = (width * y) + (x);
+
+            if (result > (width * height) - 1 || result < 0)
+            {
+                return -1;
+            }
+
+            return result;
         }
     }
 }
