@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 
 using Engine.Tools;
 using Engine.Effects.Code.Particles;
+using System.Runtime.InteropServices;
 
 namespace Engine.Effects
 {
@@ -43,6 +44,7 @@ namespace Engine.Effects
         private byte t_alpha = 100;
 
         private bool t_invertLuminance = false;
+        private bool t_glassBlock = false;
 
         private PressureGrid t_pressureGrid;
         private Engine.Effects.Code.Particles.AutonomousParticle[] t_particles;
@@ -63,18 +65,14 @@ namespace Engine.Effects
 
         public override void Process()
         {
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
 
-            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
         {
-            t_pressureGrid = new PressureGrid(t_imageSource, t_cellSize, t_cellSize, t_invertLuminance);
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
-            t_particles = t_pressureGrid.GetParticles();
-
-            Loop();
 
             for (int i = 0; i < t_steps; i++)
             {
@@ -83,7 +81,7 @@ namespace Engine.Effects
                 Loop();
             }
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         private void Loop()
@@ -130,7 +128,6 @@ namespace Engine.Effects
             return 0;
         }
 
-        // TODO : threading this seems to create horizontal directions that are not as fluid as when it is not threaded
         private int Threaded_Loop_Cell_Part_1(int start, int end, Threading.ParamList paramList)
         {
             AutonomousParticle p = (AutonomousParticle)paramList.Get("particle").Value;
@@ -138,6 +135,11 @@ namespace Engine.Effects
             int counter = (int)paramList.Get("counter").Value;
 
             int offset = 0;
+
+            if (!t_glassBlock)
+            {
+                offset = Engine.Surface.Ops.GetGridOffset(0, start, t_cellSize, t_cellSize);
+            } 
 
             for (int y = start; y < end; y++)
             {
@@ -159,6 +161,11 @@ namespace Engine.Effects
             int counter = (int)paramList.Get("counter").Value;
 
             int offset = 0;
+
+            if (!t_glassBlock)
+            {
+                offset = Engine.Surface.Ops.GetGridOffset(0, start, t_cellSize, t_cellSize);
+            } 
 
             for (int y = start; y < end; y++)
             {
@@ -188,7 +195,7 @@ namespace Engine.Effects
         [Engine.Attributes.Meta.DataType(PropertyDataTypes.Int)]
         [Engine.Attributes.Meta.Validator(Attributes.Meta.ValidatorTypes.Int, "")]
         [Engine.Attributes.Meta.Range(0, 100)]
-        [Engine.Attributes.Meta.DefaultValue(5)]
+        [Engine.Attributes.Meta.DefaultValue(2)]
         public int Steps { get => t_steps; set => t_steps = value; }
 
         [Engine.Attributes.Meta.DisplayName("Flow Length")]
@@ -218,6 +225,15 @@ namespace Engine.Effects
         {
             get { return t_invertLuminance; }
             set { t_invertLuminance = value; }
+        }
+
+        [Engine.Attributes.Meta.DisplayName("Glass Block (large cell sizes)")]
+        [Engine.Attributes.Meta.DisplayControlType(Engine.Attributes.Meta.DisplayControlTypes.Checkbox)]
+        [Engine.Attributes.Meta.DataType(PropertyDataTypes.Boolean, typeof(bool))]
+        public bool GlassBlock
+        {
+            get { return t_glassBlock; }
+            set { t_glassBlock = value; }
         }
     }
 }

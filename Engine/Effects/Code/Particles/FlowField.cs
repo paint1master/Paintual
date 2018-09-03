@@ -27,6 +27,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,13 +63,38 @@ namespace Engine.Effects.Particles
                 t_field.Add(new List<Engine.Calc.Vector>());
             }
 
+            double[] lums = new double[t_imageSource.Height * t_imageSource.Width];
+
+            int[] reds = new int[t_imageSource.Height * t_imageSource.Width];
+            int[] greens = new int[t_imageSource.Height * t_imageSource.Width];
+            int[] blues = new int[t_imageSource.Height * t_imageSource.Width];
+
+            int offset = 0;
+
             for (int y = 0; y < t_imageSource.Height; y++)
             {
                 for (int x = 0; x < t_imageSource.Width; x++)
                 {
                     Engine.Color.Cell c = t_imageSource.GetPixel(x, y, Surface.PixelRetrievalOptions.ReturnNeutralGray);
+                    c.InArray(ref blues, ref greens, ref reds, offset);
+                    offset++;
+                }
+            }
 
-                    double lum = Engine.Calc.Color.Luminance(c);
+            Engine.EngineCppLibrary.Luminance s_luminance = (Engine.EngineCppLibrary.Luminance)Marshal.GetDelegateForFunctionPointer(
+                                                    Engine.EngineCppLibrary.Pointer_luminance,
+                                                    typeof(Engine.EngineCppLibrary.Luminance));
+
+            s_luminance(t_imageSource.Height * t_imageSource.Width, blues, greens, reds, lums);
+
+            offset = 0;
+
+            for (int y = 0; y < t_imageSource.Height; y++)
+            {
+                for (int x = 0; x < t_imageSource.Width; x++)
+                {
+
+                    double lum = lums[offset];
 
                     /*
                      * surrounding cell config
@@ -80,36 +106,36 @@ namespace Engine.Effects.Particles
                      *     
                      */
 
-                    double[] lums = new double[8];
+                    double[] localLums = new double[8];
 
-                    lums[0] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x - 1, y - 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[1] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x, y - 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[2] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x + 1, y - 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[3] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x + 1, y, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[4] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x + 1, y + 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[5] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x, y + 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[6] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x - 1, y + 1, Surface.PixelRetrievalOptions.ReturnNeutralGray));
-                    lums[7] = Engine.Calc.Color.Luminance(t_imageSource.GetPixel(x - 1, y, Surface.PixelRetrievalOptions.ReturnNeutralGray));
+                    localLums[0] = GetLum(lums, x - 1, y - 1);
+                    localLums[1] = GetLum(lums, x, y - 1);
+                    localLums[2] = GetLum(lums, x + 1, y - 1);
+                    localLums[3] = GetLum(lums, x + 1, y);
+                    localLums[4] = GetLum(lums, x + 1, y + 1);
+                    localLums[5] = GetLum(lums, x, y + 1);
+                    localLums[6] = GetLum(lums, x - 1, y + 1);
+                    localLums[7] = GetLum(lums, x - 1, y);
 
                     if (t_invertLuminance)
                     {
                         lum = 255 - lum;
 
-                        lums[0] = 255 - lums[0];
-                        lums[1] = 255 - lums[1];
-                        lums[2] = 255 - lums[2];
-                        lums[3] = 255 - lums[3];
-                        lums[4] = 255 - lums[4];
-                        lums[5] = 255 - lums[5];
-                        lums[6] = 255 - lums[6];
-                        lums[7] = 255 - lums[7];
+                        localLums[0] = 255 - localLums[0];
+                        localLums[1] = 255 - localLums[1];
+                        localLums[2] = 255 - localLums[2];
+                        localLums[3] = 255 - localLums[3];
+                        localLums[4] = 255 - localLums[4];
+                        localLums[5] = 255 - localLums[5];
+                        localLums[6] = 255 - localLums[6];
+                        localLums[7] = 255 - localLums[7];
                     }
 
                     double[] lumDiffs = new double[8];
 
                     for (int i = 0; i < lumDiffs.Length; i++)
                     {
-                        lumDiffs[i] = lum - lums[i];
+                        lumDiffs[i] = lum - localLums[i];
                     }
 
                     Engine.Calc.Vector[] vs = new Calc.Vector[lumDiffs.Length];
@@ -127,15 +153,29 @@ namespace Engine.Effects.Particles
 
                     for (int i = 0; i < vs.Length; i++)
                     {
-                        vs[i].SetMagnitude(lums[i]);
+                        vs[i].SetMagnitude(lumDiffs[i]);
                         v_this += vs[i];
                     }
 
                     //v_this.Normalize(Calc.CalculationStyles.Accord);
 
                     t_field[x].Add(v_this);
+
+                    offset++;
                 }
             }
+        }
+
+        private double GetLum(double[] lums, int x, int y)
+        {
+            int result = Engine.Surface.Ops.GetGridOffset(x, y, t_imageSource.Width, t_imageSource.Height);
+
+            if (result == -1)
+            {
+                return 127;
+            }
+
+            return lums[result];
         }
 
         public Engine.Calc.Vector GetVector(int x, int y)

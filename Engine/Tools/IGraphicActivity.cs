@@ -34,6 +34,10 @@ namespace Engine.Tools
 
         void Process();
 
+        // for tools, PostProcess is called by the MouseAndKeyboardManager upon MouseUp
+        // for effects, PostProcess is called by each effect when Process is completed
+        void PostProcess();
+
         IGraphicActivity Duplicate(Engine.Workflow w);
 
         Engine.Attributes.AttributeCollection CollectedPropertyValues { get; set; }

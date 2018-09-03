@@ -32,54 +32,23 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public class WorkflowCollection
+    public sealed class WorkflowCollection
     {
-        private Dictionary<int, Engine.Workflow> t_workflows;
+        private static Dictionary<int, Engine.Workflow> t_workflows;
+
+        private static int s_key = 0;
 
         // if Workflow key is set to -1, then no Workflow is active
-        private int t_activeWorkflowKey;
+        private static int t_activeWorkflowKey;
 
-        internal WorkflowCollection()
+        static WorkflowCollection()
         {
             t_workflows = new Dictionary<int, Engine.Workflow>();
         }
 
-        public Engine.Workflow NewWorkflow()
+        public static Engine.Workflow NewWorkflow()
         {
             int key = WorkflowCollection.CreateWorkflowKey();
-            Engine.Workflow w = new Workflow(key);
-            t_workflows.Add(key, w);
-
-            t_activeWorkflowKey = key;
-            OnWorkflowChanged();
-            return w;
-        }
-
-        public Engine.Workflow NewWorkflow(string fileName)
-        {
-            int key = WorkflowCollection.CreateWorkflowKey();
-
-            if (t_workflows.ContainsKey(key))
-            {
-                throw new ArgumentException(String.Format("A Workflow with the specified key ({0}) already exists in the Application.", key));
-            }
-
-            Engine.Workflow w = new Workflow(key, fileName);
-            t_workflows.Add(key, w);
-
-            t_activeWorkflowKey = key;
-            OnWorkflowChanged();
-            return w;
-        }
-
-        public Engine.Workflow NewWorkflow(Engine.Surface.Canvas c)
-        {
-            int key = WorkflowCollection.CreateWorkflowKey();
-
-            if (t_workflows.ContainsKey(key))
-            {
-                throw new ArgumentException(String.Format("A Workflow with the specified key ({0}) already exists in the Application.", key));
-            }
 
             Engine.Workflow w = new Workflow(key);
             t_workflows.Add(key, w);
@@ -89,7 +58,14 @@ namespace Engine
             return w;
         }
 
-        public Engine.Workflow GetWorkflow(int key)
+        private static int CreateWorkflowKey()
+        {
+            s_key++;
+
+            return s_key;
+        }
+
+        public static Engine.Workflow GetWorkflow(int key)
         {
             if (key == -1)
             {
@@ -106,7 +82,7 @@ namespace Engine
             return w;
         }
 
-        public void SetAsActiveWorkflow(int key)
+        public static void SetAsActiveWorkflow(int key)
         {
             if (key == -1)
             {
@@ -127,7 +103,7 @@ namespace Engine
             }
         }
 
-        public void EndWorkflow(int key)
+        public static void EndWorkflow(int key)
         {
             if (key == -1)
             {
@@ -135,7 +111,6 @@ namespace Engine
             }
 
             Engine.Workflow w = t_workflows[key];
-            Engine.Application.Viomes.EndViome(w.Viome.Key);
 
             w.OnClosing();
 
@@ -144,7 +119,7 @@ namespace Engine
             w.Dispose();
         }
 
-        public Engine.Workflow GetActiveWorkflow()
+        public static Engine.Workflow GetActiveWorkflow()
         {
             if (t_workflows.ContainsKey(t_activeWorkflowKey))
             {
@@ -156,37 +131,18 @@ namespace Engine
             }
         }
 
-        /// <summary>
-        /// Removes Workflow activity focus (no Workflow is set as active).  
-        /// </summary>
-        public void DeactivateWorkflow()
-        {
-            t_activeWorkflowKey = -1;
-            OnWorkflowChanged();
-        }
-
         #region Events
 
-        public delegate void WorkflowChangedEventHandler(object sender, WorkflowEventArgs e);
-        public event WorkflowChangedEventHandler WorkflowChanged;
+        public static event WorkflowChangedEventHandler WorkflowChanged;
 
-        private void OnWorkflowChanged()
+        private static void OnWorkflowChanged()
         {
-            WorkflowChanged?.Invoke(this, new WorkflowEventArgs(t_workflows[t_activeWorkflowKey]));
-        }
-
-        #endregion
-
-        #region Static
-        private static int s_key = 0;
-        public static int CreateWorkflowKey()
-        {
-            s_key++;
-
-            return s_key;
+            WorkflowCollection.WorkflowChanged?.Invoke(new WorkflowEventArgs(t_workflows[t_activeWorkflowKey]));
         }
         #endregion
     }
+
+    public delegate void WorkflowChangedEventHandler(WorkflowEventArgs e);
 
     public class WorkflowEventArgs : EventArgs
     {

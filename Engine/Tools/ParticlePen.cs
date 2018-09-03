@@ -39,7 +39,7 @@ namespace Engine.Tools
             CreateFlowField();
         }
 
-        public override void BeforeDraw(int x, int y)
+        public override void BeforeDraw(MousePoint p)
         {
             // in Initialize, it's too early to get UI values (!!??!!)
             t_skipper = new Utilities.Iterativ.Skipper(t_skipperValue);
@@ -56,9 +56,9 @@ namespace Engine.Tools
             Flow(p.X, p.Y);
         }
 
-        public override int AfterDraw(Point p)
+        public override void AfterDraw(MousePoint p)
         {
-            throw new NotImplementedException();
+            ;
         }
 
         public override IGraphicActivity Duplicate(Engine.Workflow w)

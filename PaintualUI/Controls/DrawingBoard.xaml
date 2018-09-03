@@ -11,8 +11,8 @@
         <!-- ClipToBounds=true prevents the image from overlapping over the design border-->
         <Canvas Background="#FF505050"></Canvas>
             
-            <ScrollBar Name="scrollVert" HorizontalAlignment="Right" Width="16" Margin="0,0,0,48" Panel.ZIndex="2" Scroll="scrollVert_Scroll"/>
-            <ScrollBar Name="scrollHor" Orientation="Horizontal" VerticalAlignment="Bottom" Width="Auto" Height="16" Margin="0,0,16,32"  Panel.ZIndex="3" Scroll="scrollHor_Scroll"/>
+            <ScrollBar Name="ScrollVert" HorizontalAlignment="Right" Width="16" Margin="0,0,0,48" Panel.ZIndex="2" Scroll="ScrollVert_Scroll"/>
+            <ScrollBar Name="ScrollHor" Orientation="Horizontal" VerticalAlignment="Bottom" Width="Auto" Height="16" Margin="0,0,16,32"  Panel.ZIndex="3" Scroll="ScrollHor_Scroll"/>
             <Rectangle Name="bottomRightCorner" Fill="#FF505050" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="16" Width="16" Margin="0,0,0,32"  Panel.ZIndex="4"/>
             <local:PaintualCanvas x:Name="DrawableSurface" Background="transparent" Margin="0,0,17,49" Panel.ZIndex="1" ClipToBounds="True" />
         <local:ImageZoom x:Name="Zoomer" VerticalAlignment="Bottom" Height="32" />

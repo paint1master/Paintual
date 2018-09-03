@@ -63,14 +63,14 @@ namespace Engine.Tools
             base.Initialize(w);
         }
 
-        public override void BeforeDraw(int x, int y)
+        public override void BeforeDraw(MousePoint p)
         {
             // in Initialize, it's too early to get UI values (!!??!!)
             t_skipper = new Utilities.Iterativ.Skipper(6);
-            t_previousPoint = new MousePoint(x, y);
+            t_previousPoint = new MousePoint(p.X, p.Y);
 
-            CreateParticles(x, y);
-            t_attractor = new Effects.Particles.Attractor(new Engine.Calc.Vector(x, y), t_force, t_expression, t_intensity);
+            CreateParticles(p.X, p.Y);
+            t_attractor = new Effects.Particles.Attractor(new Engine.Calc.Vector(p.X, p.Y), t_force, t_expression, t_intensity);
         }
 
         internal override void Draw(MousePoint p)
@@ -150,9 +150,9 @@ namespace Engine.Tools
             }
         }
 
-        public override int AfterDraw(Point p)
+        public override void AfterDraw(MousePoint p)
         {
-            throw new NotImplementedException();
+            ;
         }
 
         public override IGraphicActivity Duplicate(Engine.Workflow w)

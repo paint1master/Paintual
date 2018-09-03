@@ -25,81 +25,83 @@ SOFTWARE.
 **********************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Surface
 {
-    public enum PixelRetrievalOptions
+    public struct MaskValue
     {
-        ReturnDefaultBlack,
-        ReturnNeutralGray,
-        ReturnWhite,
-        ReturnEdgePixel,
-        RaiseError
+        public static readonly byte BlackReveal = 0;
+        public static readonly byte Gray = 128;
+        public static readonly byte WhiteHide = 255;
     }
 
-    public enum PixelSetOptions
+
+    public class Mask
     {
-        Ignore,
-        RaiseError        
-    }
+        private int t_width;
+        private int t_height;
 
-    public class ImageDataGrid
-    {
-        private ImageData t_imageData;
+        private byte[][] t_grid;
 
-        private int[][]t_grid;
-
-        public ImageDataGrid(ref ImageData idata)
+        public Mask(int width, int height)
         {
-            t_imageData = idata;
+            t_width = width;
+            t_height = height;
 
-            MapOffsets();
+            InitializeArrays();
         }
 
-        private void MapOffsets()
+        public Mask(int width, int height, byte maskValue) : this(width, height)
         {
-            t_grid = new int[Width][];
+            InitializeArrays(maskValue);
+        }
+
+        private void InitializeArrays()
+        {
+            t_grid = new byte[Width][];
 
             for (int i = 0; i < t_grid.Length; i++)
             {
-                t_grid[i] = new int[Height];
+                t_grid[i] = new byte[Height];
             }
+        }
 
-            int offset = 0;
+        private void InitializeArrays(byte maskValue)
+        {
+            t_grid = new byte[Width][];
 
-            for (int y = 0; y < Height; y++)
+            for (int i = 0; i < t_grid.Length; i++)
             {
-                for (int x = 0; x < Width; x++)
-                {
-                    t_grid[x][y] = offset;
+                t_grid[i] = new byte[Height];
 
-                    offset += Engine.BytesPerPixel.BGRA;
+                for (int j = 0; j < t_grid[i].Length; j++)
+                {
+                    t_grid[i][j] = maskValue;
                 }
             }
         }
 
-        public Engine.Color.Cell GetPixel(int x, int y, PixelRetrievalOptions option)
+        public byte GetPixel(int x, int y, PixelRetrievalOptions option)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height)
             {
-                return new Engine.Color.Cell(t_imageData.Array, t_grid[x][y]);
+                return t_grid[x][y];
             }
 
             switch (option)
             {
                 case PixelRetrievalOptions.RaiseError:
 
-                    throw new ArgumentOutOfRangeException(String.Format("In ImageDataGrid.GetPixel(), requested pixel {0}:{1} is outside image bounds.", x, y));
+                    throw new ArgumentOutOfRangeException(String.Format("In Mask.GetPixel(), requested pixel {0}:{1} is outside image bounds.", x, y));
 
                 case PixelRetrievalOptions.ReturnDefaultBlack:
-                    return Engine.Colors.Black;
+                    return 0;
 
                 case PixelRetrievalOptions.ReturnNeutralGray:
-                    return Engine.Colors.Gray;
+                    return 128;
+
+                case PixelRetrievalOptions.ReturnWhite:
+                    return 255;
 
                 case PixelRetrievalOptions.ReturnEdgePixel:
                     int tempX = 0, tempY = 0;
@@ -109,19 +111,19 @@ namespace Engine.Surface
                     if (y < 0) { tempY = 0; }
                     if (y >= Height) { tempY = Height - 1; }
 
-                    return new Engine.Color.Cell(t_imageData.Array, t_grid[tempX][tempY]);
+                    return t_grid[tempX][tempY];
 
                 default:
 
-                    throw new ArgumentOutOfRangeException(String.Format("In ImageDataGrid.GetPixel(), PixelRetrievalOption {0} is not supported.", option.ToString()));
+                    throw new ArgumentOutOfRangeException(String.Format("In Mask.GetPixel(), PixelRetrievalOption {0} is not supported.", option.ToString()));
             }
         }
 
-        public void SetPixel(Engine.Color.Cell c, int x, int y, PixelSetOptions option)
+        public void SetPixel(byte c, int x, int y, PixelSetOptions option)
         {
             if (x >= 0 && x < Width && y >= 0 && y < Height)
             {
-                c.WriteBytes(t_imageData.Array, t_grid[x][y]);
+                t_grid[x][y] = c;
                 return;
             }
 
@@ -131,11 +133,11 @@ namespace Engine.Surface
                     return;
 
                 case PixelSetOptions.RaiseError:
-                    throw new ArgumentOutOfRangeException(String.Format("In ImageDataGrid.SetPixel(), requested pixel {0}{1} is outside image bounds.", x, y));
+                    throw new ArgumentOutOfRangeException(String.Format("In Mask.SetPixel(), requested pixel {0}{1} is outside image bounds.", x, y));
 
                 default:
 
-                    throw new ArgumentOutOfRangeException(String.Format("In ImageDataGrid.SetPixel(), PixelSetOption {0} is not supported.", option.ToString()));
+                    throw new ArgumentOutOfRangeException(String.Format("In Mask.SetPixel(), PixelSetOption {0} is not supported.", option.ToString()));
             }
         }
 
@@ -149,7 +151,8 @@ namespace Engine.Surface
             return true;
         }
 
-        public int Width { get => t_imageData.Width; }
-        public int Height { get => t_imageData.Height; }
+        public int Width { get => t_width; }
+        public int Height { get => t_height; }
     }
 }
+

@@ -57,11 +57,11 @@ namespace Engine.Effects
         {
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
 
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
 
             t_imageProcessed = Engine.Surface.Ops.Blur(t_imageSource, t_radius, t_sigma);
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         public override string Name { get => "Blur"; }

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PaintualUI.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="Transparent" MouseDown="Grid_MouseDown" MouseMove="Grid_MouseMove" MouseUp="Grid_MouseUp" ClipToBounds="True">
+    <Grid Background="Transparent" MouseDown="E_Grid_MouseDown" MouseMove="E_Grid_MouseMove" MouseUp="E_Grid_MouseUp" ClipToBounds="True">
             
     </Grid>
 </UserControl>

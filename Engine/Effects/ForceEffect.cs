@@ -50,13 +50,13 @@ namespace Engine.Effects
         public override void Process()
         {
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
-            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
 
         }
 
         private void ThreadedProcess()
         {
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
 
             Engine.Effects.Particles.Attractor attr1 = new Particles.Attractor(new Engine.Calc.Vector(400, 600));
             Engine.Effects.Particles.Attractor attr2 = new Particles.Attractor(new Engine.Calc.Vector(800, 600));
@@ -98,7 +98,7 @@ namespace Engine.Effects
                 }
             }
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         // see Tools.MotionAttribute where original method exists

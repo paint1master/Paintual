@@ -81,8 +81,6 @@ namespace Engine.Threading
             {
                 cookies[i].AsyncWaitHandle.Close();
             }
-
-            //System.Threading.ThreadPool.SetMinThreads(workerThreads, completionPortsThreads);
         }
 
         #region Dispose
@@ -158,14 +156,20 @@ namespace Engine.Threading
                             someDisposableObjectWithAnEventHandler = null;
                         }*/
 
-                        for (int i = 0; i < dels.Length; i++)
+                        if (dels != null)
                         {
-                            dels[i] = null;
+                            for (int i = 0; i < dels.Length; i++)
+                            {
+                                dels[i] = null;
+                            }
                         }
 
-                        for (int i = 0; i < cookies.Length; i++)
+                        if (cookies != null)
                         {
-                            cookies[i] = null;
+                            for (int i = 0; i < cookies.Length; i++)
+                            {
+                                cookies[i] = null;
+                            }
                         }
 
                         // If this is a WinForm/UI control, uncomment this code

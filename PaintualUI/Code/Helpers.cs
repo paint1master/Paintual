@@ -25,46 +25,39 @@ SOFTWARE.
 **********************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 
-namespace Engine.Utilities
+
+namespace PaintualUI.Code
 {
     /// <summary>
+    /// 
     /// </summary>
-    public static class Converter
+    /// <remarks>code taken here : https://stackoverflow.com/questions/302839/wpf-user-control-parent by Eric Coulson</remarks>
+    public static class ExVisualTreeHelper
     {
-        public static object Convert(string text, Engine.PropertyDataTypes dataType)
+        /// <summary>
+        /// Finds the visual parent.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sender">The sender.</param>
+        /// <returns></returns>
+        public static T FindVisualParent<T>(DependencyObject sender) where T : DependencyObject
         {
-            switch (dataType)
+            if (sender == null)
             {
-                case PropertyDataTypes.Int:
-                    if (String.IsNullOrEmpty(text))
-                    {
-                        return 0;
-                    }
-
-                    // if user enters a . as in "0.5"
-                    float t = float.Parse(text);
-
-                    return (int)t;
-
-                case PropertyDataTypes.Double:
-                    if (String.IsNullOrEmpty(text))
-                    {
-                        return 0;
-                    }
-
-                    return float.Parse(text);
-
-                case PropertyDataTypes.Object:
-                    return text;
-
+                return (null);
             }
-
-            return text;
+            else if (VisualTreeHelper.GetParent(sender) is T)
+            {
+                return (VisualTreeHelper.GetParent(sender) as T);
+            }
+            else
+            {
+                DependencyObject parent = VisualTreeHelper.GetParent(sender);
+                return (FindVisualParent<T>(parent));
+            }
         }
     }
 }

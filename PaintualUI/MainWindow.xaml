@@ -42,6 +42,8 @@
                 <MenuItem Header="Grainy Pen" Click="GrainyTool_Click" />
                 <MenuItem Header="Particle Pen" Click="ParticlePen_Click" />
                 <MenuItem Header="Attractor Pen" Click="AttractorPen_Click" />
+                <!--<MenuItem Header="Ripple" Click="Ripple_Click" />-->
+                <MenuItem Header="Brightness" Click="Brightness_Click" />
             </MenuItem>
 
             <MenuItem Header="Effects" >

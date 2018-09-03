@@ -101,6 +101,10 @@ namespace PaintualUI.Controls.PropertyPage
 
             if (vp.Count == 0)
             {
+                // ensure no properties are left from a previous workflow-document
+                t_properties = null;
+                t_canAutoApply = false;
+
                 return;
             }
 
@@ -418,7 +422,7 @@ namespace PaintualUI.Controls.PropertyPage
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="auto">Determines whether the method is calle dautomatically after the page has loaded or
+        /// <param name="auto">Determines whether the method is called automatically after the page has loaded or
         /// called by a user clicking on the Apply button (in the former, prevents effects to be applied).</param>
         private void AutoApply(bool auto)
         {

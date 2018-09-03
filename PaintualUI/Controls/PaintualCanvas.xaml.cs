@@ -38,6 +38,9 @@ namespace PaintualUI.Controls
     public partial class PaintualCanvas : UserControl, IDisposable
     {
         private Engine.Workflow t_workflow;
+
+        // that reference may be useful later, but not used right now.
+        private DrawingBoard t_parent;
         private System.Windows.Threading.DispatcherTimer t_timer;
 
         public PaintualCanvas()
@@ -47,105 +50,118 @@ namespace PaintualUI.Controls
             t_timer = new System.Windows.Threading.DispatcherTimer();
             t_timer.Tick += new EventHandler(UpdateVisual);
             t_timer.Interval = new TimeSpan(0, 0, 0, 0, 35); // below 35 not all draw points are shown on MouseUp // they will on next mouse down
-            // timer runs continuously but VIOME has a flag that prevents unnecessary canvas refresh when there is no activity.
-            t_timer.Start();
+            // timer runs continuously but Workflow has a flag that prevents unnecessary canvas refresh when there is no activity.
+            // timer to only start when a Workflow is attached to the parent DrawingBoard, this happens in .SetWorkflow()
+            //t_timer.Start();
+
+            // this event approcimately fires when the control is fully initialized and rendered (?) in the VisualTree
+            this.Loaded += PaintualCanvas_Loaded;
         }
 
-        public void SetWorkflow(Engine.Workflow w)
+        private void PaintualCanvas_Loaded(object sender, RoutedEventArgs e)
+        {
+            DependencyObject parent = PaintualUI.Code.ExVisualTreeHelper.FindVisualParent<PaintualUI.Controls.DrawingBoard>(this);
+            t_parent = (DrawingBoard)parent;
+        }
+
+        internal void SetWorkflow(Engine.Workflow w)
         {
             t_workflow = w;
-            t_workflow.Closing += T_workflow_Closing;
-            t_workflow.Viome.InvalidateRequested += T_viome_InvalidateRequested;
+            if (t_timer.IsEnabled == false)
+            {
+                t_timer.Start();
+            }
+
+            t_workflow.Closing += E_workflow_Closing;
+            t_workflow.InvalidateRequested += E_Workflow_InvalidateRequested;
         }
 
-        private void T_workflow_Closing(object sender, EventArgs e)
+        private void E_workflow_Closing(object sender, EventArgs e)
         {
-            // to prevent a call to UpdateVisual, which needs either the Workflow or the Viome, both about to be deleted.
+            // to prevent a call to UpdateVisual, which needs the Workflow about to be deleted.
             t_timer.Stop();
         }
 
-        public Engine.Workflow GetWorkflow()
+        private void E_Workflow_InvalidateRequested(object sender, Engine.WorkflowDrawingBoardEventArgs e)
         {
-            return t_workflow;
-        }
+            switch (e.RequestType)
+            {
+                case Engine.WorkflowDrawingBoardRequestType.Invalidate:
+                    try
+                    {
+                        this.InvalidateVisual();
+                    }
+                    catch (InvalidOperationException err)
+                    {
+                        System.Diagnostics.Debug.WriteLine("In PaintualCanvas, InvalidateVisual() caused an error. Mostly due to cross thread invalid call." + err.Message);
+                    }
+                    break;
 
-        private void T_viome_InvalidateRequested(object sender, Engine.WorkflowDrawingBoardEventArgs e)
-        {
-            //System.Diagnostics.Debug.WriteLine(String.Format("InvalidateRequested in PaintualCanvas from {0}", sender.ToString()));
+                case Engine.WorkflowDrawingBoardRequestType.HandleEndOfProcess:
+                case Engine.WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess:
+                    t_workflow.CurrentEffect.ProcessEnded += E_CurrentEffect_ProcessEnded;
+                    break;
 
-            if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.Invalidate)
-            {
-                try
-                {
-                    this.InvalidateVisual();
-                }
-                catch (InvalidOperationException err)
-                {
-                    System.Diagnostics.Debug.WriteLine("In PaintualCanvas, InvalidateVisual() caused an error. Mostly due to cross thread invalid call.");
-                }
-            }
-            else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.HandleEndOfProcess)
-            {
-                t_workflow.CurrentEffect.ProcessEnded += CurrentEffect_ProcessEnded;
-            }
-            else if (e.RequestType == Engine.WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess)
-            {
-                t_workflow.CurrentEffect.ProcessEnded -= CurrentEffect_ProcessEnded;
+                default:
+                    throw new ArgumentOutOfRangeException(String.Format("In PaintualCanvas.E_Workflow_InvalidateRequested() the WorkflowDrawingBoardRequestType {0} is not supported.", e.RequestType));
             }
         }
 
-        private void CurrentEffect_ProcessEnded(object sender, EventArgs e)
+        private void E_CurrentEffect_ProcessEnded(object sender, EventArgs e)
         {
-            this.InvalidateVisual();
-        }
-
-        private void DrawingBoardSizeHasChanged(int width, int height)
-        {
-            t_workflow.Viome.CoordinatesManager.DrawingBoardSizeChanged(width, height);
+            try
+            {
+                this.InvalidateVisual();
+            }
+            catch (InvalidOperationException err)
+            {
+                System.Diagnostics.Debug.WriteLine("In PaintualCanvas.E_CurrentEffect_ProcessEnded() caused an error. Mostly due to cross thread invalid call." + err.Message);
+            }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            // TODO verify that this never happens
+            // happens until workflow is set, OnRender is called even before Loaded even
             if (t_workflow == null)
             {
                 return;
             }
 
-            drawingContext.DrawImage(t_workflow.GetImage(), t_workflow.Viome.CoordinatesManager.GetImageSizeAndPosition());
+            drawingContext.DrawImage(t_workflow.GetImage(), t_workflow.CoordinatesManager.GetImageSizeAndPosition());
 
             base.OnRender(drawingContext);
         }
 
         /// <summary>
-        /// method signature to match required EventHandler of DispatcherTimer
+        /// The method calle dby the Timer to update the image on screen
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void UpdateVisual(object sender, EventArgs e)
+        /// <remarks>Method signature to match required EventHandler of DispatcherTimer</remarks>
+        private void UpdateVisual(object sender, EventArgs e)
         {
-            if (t_workflow.Viome.AllowCanvasRefresh)
+            if (t_workflow.AllowInvalidate)
             {
                 this.InvalidateVisual();
             }
         }
 
-        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        private void E_Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseDown);
-            t_workflow.Viome.FeedMouseAction(mp);
+            t_workflow.FeedMouseAction(mp);
         }
 
-        private void Grid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void E_Grid_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseMove);
-            t_workflow.Viome.FeedMouseAction(mp);
+            t_workflow.FeedMouseAction(mp);
         }
 
-        private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
+        private void E_Grid_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Engine.MousePoint mp = new Engine.MousePoint(e.GetPosition(this).X, e.GetPosition(this).Y, Engine.MouseActionType.MouseUp);
-            t_workflow.Viome.FeedMouseAction(mp);
+            t_workflow.FeedMouseAction(mp);
         }
 
         protected override void OnPreviewKeyUp(KeyEventArgs e)
@@ -233,9 +249,10 @@ namespace PaintualUI.Controls
                             someDisposableObjectWithAnEventHandler.Dispose();
                             someDisposableObjectWithAnEventHandler = null;
                         }*/
-                        if (t_workflow.Viome != null)
+                        if (t_workflow != null)
                         {
-                            t_workflow.Viome.InvalidateRequested -= T_viome_InvalidateRequested;
+                            t_workflow.Closing -= E_workflow_Closing;
+                            t_workflow.InvalidateRequested -= E_Workflow_InvalidateRequested;
                             // do not delete t_workflow because it doesn't belong to PaintualCanvas.
                         }
                         // If this is a WinForm/UI control, uncomment this code
@@ -269,7 +286,5 @@ namespace PaintualUI.Controls
         //     Dispose( false );
         //  }
         #endregion
-
-
     }
 }

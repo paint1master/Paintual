@@ -47,12 +47,12 @@ namespace PaintualUI.Code
         public ActiveContentHelper(Cuisine.Windows.WindowsManager windowsManager)
         {
             t_windowsManager = windowsManager;
-            t_windowsManager.ActiveDocumentChanged += T_windowsManager_ActiveDocumentChanged;
+            t_windowsManager.ActiveDocumentChanged += E_windowsManager_ActiveDocumentChanged;
 
             _app = PaintualUI.Code.Application.Instance;
         }
 
-        private void T_windowsManager_ActiveDocumentChanged(object sender, Cuisine.Windows.ActiveDocumentChangedEventArgs e)
+        private void E_windowsManager_ActiveDocumentChanged(object sender, Cuisine.Windows.ActiveDocumentChangedEventArgs e)
         {
             System.Windows.Controls.TabControl tabControl = e.TabControl;
 
@@ -91,8 +91,8 @@ namespace PaintualUI.Code
             {
                 t_currentDrawingBoard = db;
 
-                Engine.Workflow w = t_currentDrawingBoard.GetWorkflow();
-                Engine.Application.Workflows.SetAsActiveWorkflow(w.Key);
+                Engine.Workflow w = t_currentDrawingBoard.Workflow;
+                Engine.WorkflowCollection.SetAsActiveWorkflow(w.Key);
 
                 // VisualPropertyPage has registered to this event
                 OnCurrentDrawingBoardChanged();
@@ -101,8 +101,8 @@ namespace PaintualUI.Code
 
         public void DeleteDrawingBoard(PaintualUI.Controls.DrawingBoard db)
         {
-            Engine.Workflow w = db.GetWorkflow();
-            Engine.Application.Workflows.EndWorkflow(w.Key);
+            Engine.Workflow w = db.Workflow;
+            Engine.WorkflowCollection.EndWorkflow(w.Key);
         }
 
         /// <summary>
@@ -116,13 +116,13 @@ namespace PaintualUI.Code
 
         public event CurrentDrawingBoardChangedEventHandler CurrentDrawingBoardChanged;
 
-        public void OnCurrentDrawingBoardChanged()
+        private void OnCurrentDrawingBoardChanged()
         {
             CurrentDrawingBoardChanged?.Invoke(this, new CurrentDrawingBoardChangedEventArgs(t_currentDrawingBoard));
-        }
-
-        public delegate void CurrentDrawingBoardChangedEventHandler(object sender, CurrentDrawingBoardChangedEventArgs e);
+        }       
     }
+
+    public delegate void CurrentDrawingBoardChangedEventHandler(object sender, CurrentDrawingBoardChangedEventArgs e);
 
     public class CurrentDrawingBoardChangedEventArgs : EventArgs
     {

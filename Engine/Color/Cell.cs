@@ -144,19 +144,45 @@ namespace Engine.Color
             imageData[offset] = Int;
         }
 
+        public void InArray(ref int[] blue, ref int[] green, ref int[] red, int index)
+        {
+            blue[index] = Blue;
+            green[index] = Green;
+            red[index] = Red;
+        }
+
+
+        /// <summary>
+        /// Modifies each color channel by the amount provided.
+        /// </summary>
+        /// <param name="amount">The amount by which to increase or decrase the brightness.</param>
+        public void ChangeBrightness(int amount)
+        {
+            // a negative int, when cast to byte gives 255 - negative int, ie  if amount is -25
+            // max byte is 255, then 256 - 25  = 231;
+            if (amount < 0)
+            {
+                amount = (byte)(amount * -1);
+                Blue = (byte)Engine.Calc.Math.ClampValue(Blue - (byte)amount, 0, 255);
+                Green = (byte)Engine.Calc.Math.ClampValue(Green - (byte)amount, 0, 255);
+                Red = (byte)Engine.Calc.Math.ClampValue(Red - (byte)amount, 0, 255);
+                return;
+            }
+
+            Blue = (byte)Engine.Calc.Math.ClampValue(Blue + (byte)amount, 0, 255);
+            Green = (byte)Engine.Calc.Math.ClampValue(Green + (byte)amount, 0, 255);
+            Red = (byte)Engine.Calc.Math.ClampValue(Red + (byte)amount, 0, 255);
+        }
+
         public byte Blue
         {
             get
             {
                 return t_blue;
-                /*
-                return BitConverter.GetBytes(t_color)[0];*/
             }
             set
             {
                 t_blue = value;
-                /*
-                t_color = NewColor(value, Engine.Channel.Blue);*/
             }
         }
 
@@ -165,14 +191,10 @@ namespace Engine.Color
             get
             {
                 return t_green;
-                /*
-                return BitConverter.GetBytes(t_color)[1];*/
             }
             set
             {
                 t_green = value;
-                /*
-                t_color = NewColor(value, Engine.Channel.Green);*/
             }
         }
 
@@ -181,14 +203,10 @@ namespace Engine.Color
             get
             {
                 return t_red;
-                /*
-                return BitConverter.GetBytes(t_color)[2];*/
             }
             set
             {
                 t_red = value;
-                /*
-                t_color = NewColor(value, Engine.Channel.Red);*/
             }
         }
 
@@ -197,44 +215,20 @@ namespace Engine.Color
             get
             {
                 return t_alpha;
-                /*
-                return BitConverter.GetBytes(t_color)[3];*/
             }
             set
             {
                 t_alpha = value;
-                /*
-                t_color = NewColor(value, Engine.Channel.Alpha);*/
             }
         }
 
-        /*
         /// <summary>
-        /// Direct access to a specific channel
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        public unsafe byte this[Engine.Channel channel]
-        {
-            get
-            {
-                return BitConverter.GetBytes(t_color)[(int)channel];
-            }
-
-            set
-            {
-                NewColor(value, channel);
-            }
-        }*/
-
-        /// <summary>
-        /// Returns a System.Drawing.Color from the BGRA values contained in the current cell
+        /// Returns a System.Drawing.Color from the B G R A values contained in the current cell
         /// </summary>
         public System.Drawing.Color Color {
             get
             {
                 return System.Drawing.Color.FromArgb(t_alpha, t_red, t_green, t_blue);
-                //return System.Drawing.Color.FromArgb(Int);
             }
         }
 
@@ -322,13 +316,6 @@ namespace Engine.Color
         public static Engine.Color.Cell ShadeOfGray(byte intensity)
         {
             return new Color.Cell(intensity, intensity, intensity, Engine.ColorOpacity.Opaque);
-        }
-
-        public static Engine.Color.Cell Noise()
-        {
-            byte level = (byte)Engine.Calc.Math.Rand.Next(255);
-
-            return Engine.Color.Cell.ShadeOfGray(level);
         }
 
         public static Engine.Color.Cell RandomColorRandomAlpha()

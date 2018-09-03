@@ -61,7 +61,7 @@ namespace Engine.Tools
             t_imageSource = t_workflow.Canvas;
 
             // clear the drawing surface of all work layers created by previous tools or effects
-            t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Delete);
+            t_workflow.SelectionGlassRequest(SelectionGlassRequestType.Delete);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Engine.Tools
         /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public abstract void BeforeDraw(int x, int y);
+        public abstract void BeforeDraw(MousePoint p);
 
         public virtual int Draw(List<MousePoint> points)
         {
@@ -85,17 +85,14 @@ namespace Engine.Tools
 
         public virtual void PreProcess()
         {
-            if (t_workflow.Viome.MotionAttribute.PointCount == 0)
+            if (t_workflow.MotionAttribute.PointCount == 0)
             {
                 return;
             }
 
-            List<MousePoint> points = t_workflow.Viome.MotionAttribute.LinearInterpolate();
+            List<MousePoint> points = t_workflow.MotionAttribute.LinearInterpolate();
 
-            foreach (MousePoint p in points)
-            {
-                BeforeDraw(p.X, p.Y);
-            }
+            BeforeDraw(points[points.Count - 1]);
         }
 
         /// <summary>
@@ -103,12 +100,14 @@ namespace Engine.Tools
         /// </summary>
         public virtual void Process()
         {
-            if (t_workflow.Viome.MotionAttribute.PointCount == 0)
+            if (t_workflow.MotionAttribute.PointCount == 0)
             {
                 return;
             }
 
-            List<MousePoint> points = t_workflow.Viome.MotionAttribute.LinearInterpolate();
+            // TODO allow inherited classes to modify behaviour of MotionAttribute, for example, do not LinearInterpolate on complex
+            // or intensive drawing processes
+            List<MousePoint> points = t_workflow.MotionAttribute.LinearInterpolate();
 
             foreach (MousePoint p in points)
             {
@@ -121,14 +120,26 @@ namespace Engine.Tools
 
         }
 
+        public virtual void PostProcess()
+        {
+            if (t_workflow.MotionAttribute.PointCount == 0)
+            {
+                return;
+            }
+
+            List<MousePoint> points = t_workflow.MotionAttribute.LinearInterpolate();
+
+            // only provide the last point, AdterDraw should not draw but finalize the drawing process at the point location
+            AfterDraw(points[points.Count - 1]);
+        }
+
         /// <summary>
         /// Called by the Workflow when MouseUp event is received by UI. Allows tool to do any post processing
         /// before final commit to surface
         /// </summary>
-        /// <param name="source"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public abstract int AfterDraw(Point p);
+        public abstract void AfterDraw(MousePoint p);
 
         public virtual Engine.Attributes.AttributeCollection CollectedPropertyValues
         {

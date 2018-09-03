@@ -6,51 +6,119 @@ using System.Threading.Tasks;
 
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace Engine
 {
+    #region Enums
+    public enum SelectionGlassRequestType
+    {
+        Create,
+        Delete
+    }
+
+    public enum WorkflowDrawingBoardRequestType
+    {
+        ZoomIn,
+        ZoomOut,
+        Invalidate,
+        ViewPortSize,
+        HandleEndOfProcess,
+        DetachHandleEndOfProcess
+    }
+
+    public enum WorkflowPropertyPageRequestType
+    {
+        ContentUpdate,
+        ClosePage
+    }
+
+    public enum DrawingBoardModes
+    {
+        Disabled,
+        None,
+        Pan,
+        SuspendPan,
+        Draw,
+        SuspendDraw
+    }
+    #endregion
+
     public class Workflow : IDisposable
     {
-        private int t_key;
-        private Engine.Viome t_viome;
+        private Engine.Surface.Canvas t_canvas;
 
         /// <summary>
-        /// The current version of the image.
+        /// Interpolates mouse points
         /// </summary>
-        private Engine.Surface.Canvas t_currentCanvas;
+        private Engine.MotionAttribute t_motionAttribute;
 
+        private Engine.Threading.BackgroundQueue t_queue;
+
+        private MouseAndKeyboardManagerBase t_mouseAndKeyboardManager;
 
         internal Workflow(int key)
         {
-            t_key = key;
-            t_currentCanvas = new Engine.Surface.Canvas(1200, 1200, Engine.Color.Cell.ShadeOfGray(255));
-            t_viome = Engine.Application.Viomes.NewViome(this);
+            Key = key;
+
+            DrawingBoardMode = DrawingBoardModes.None;
+            AllowInvalidate = false;
+
+            CoordinatesManager = new Engine.CoordinatesManager();
+            CoordinatesManager.ZoomFactorChanged += E_coordinatesManager_ZoomFactorChanged;
+            t_motionAttribute = new Engine.MotionAttribute();
+            t_queue = new Engine.Threading.BackgroundQueue("Workflow", true);
+            t_mouseAndKeyboardManager = new MouseAndKeyboardManagerBase(this);
         }
 
-        internal Workflow(int key, string fileName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c">The main image of the current worflow process to be displayed on the PaintualCanvas within
+        /// the DrawingBoard (UI)</param>
+        public void SetCanvas(Engine.Surface.Canvas c)
         {
-            t_key = key;
-            t_currentCanvas = new Surface.Canvas(fileName);
-            t_viome = Engine.Application.Viomes.NewViome(this);
+            t_canvas = c;
+            CoordinatesManager.SetImageSize(c.Width, c.Height);
         }
-
-        public Engine.Viome Viome { get => t_viome; }
 
         public void SetActivity(Engine.Tools.IGraphicActivity activity)
         {
             GraphicActivity = activity;
             GraphicActivity.Initialize(this);
 
-            t_viome.ChangeActivity(activity);
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.DetachHandleEndOfProcess);
+
+            if (GraphicActivity is Engine.Effects.Effect)
+            {
+                // for effects, must disable mouse input in workflow because
+                // they are working on different thread and cause failure in EffectBase.Process()
+                DrawingBoardMode = DrawingBoardModes.Disabled;
+
+                // DrawingBoardMode can be re-enabled by clicking on "Draw" button in UI
+                // or selecting a new drawing tool.
+            }
+
+            if (GraphicActivity is Engine.Tools.Tool)
+            {
+                DrawingBoardMode = DrawingBoardModes.None; // will cycle to SuspendDraw and Draw
+            }
+
+            if (GraphicActivity.HasVisualProperties)
+            {
+                OnPropertyPageActionRequested(WorkflowPropertyPageRequestType.ContentUpdate);
+            }
+            else
+            {
+                OnPropertyPageActionRequested(WorkflowPropertyPageRequestType.ClosePage);
+            }
         }
 
-        #region Image methods
-        public void SetImage(Engine.Surface.Canvas c)
-        {
-            t_currentCanvas = c;
-            t_viome.ChangeImage(c, true);
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>Called by the UI (PaintualCanvas) upon the OnRender event.</remarks>
         public System.Windows.Media.Imaging.BitmapSource GetImage()
         {
             if (CurrentEffect != null && CurrentEffect.ImageProcessed != null)
@@ -77,28 +145,48 @@ namespace Engine
 
             // TODO see also https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=netframework-4.7.2
             // where there is an example to use System.Windows.Media.Imaging.WriteableBitmap, one that is an array of int
-            // that can be manipulated. web link also savec in bmp_creator/improving surface code
+            // that can be manipulated. web link also saved in bmp_creator/improving surface code
 
             return bmpSource;
         }
 
-        public void SetImage(Engine.Surface.Canvas c, bool forceRefresh)
+        /// <summary>
+        /// Called by EffectBase when updating Canvas (t_imageSource in GraphicActivity) with the modified t_imageProcessed
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="forceRefresh"></param>
+        internal void UpdateImage(Engine.Surface.Canvas c, bool forceRefresh)
         {
-            t_currentCanvas = c;
-            t_viome.ChangeImage(c, forceRefresh);
+            SetCanvas(c);
+            ChangeImage(c, forceRefresh);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="forceRefresh">Forces the UI to refresh the visual</param>
+        private void ChangeImage(Engine.Surface.Canvas image, bool forceRefresh)
+        {
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.ViewPortSize);
+
+            if (forceRefresh)
+            {
+                OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
+            }
         }
 
         public void SaveImage(string fileName, Engine.Surface.ImageFileFormats format)
         {
-            Engine.Surface.Ops.Save(t_currentCanvas, fileName, format);
+            Engine.Surface.Ops.Save(Canvas, fileName, format);
         }
 
-        #endregion //Image methods
+        /// <summary>
+        /// The current version of the image.
+        /// </summary>
+        public Engine.Surface.Canvas Canvas { get => t_canvas; }
 
-        #region Properties
-        public Engine.Surface.Canvas Canvas { get => t_currentCanvas; }
-
-        public int Key { get => t_key; }
+        public int Key { get; private set; }
 
         public Engine.Tools.IGraphicActivity GraphicActivity { get; private set; }
 
@@ -130,9 +218,117 @@ namespace Engine
 
         public string LastSavedFolder { get; set; }
 
-        #endregion
+        private void E_coordinatesManager_ZoomFactorChanged(object sender, ZoomFactorChangedEventArgs e)
+        {
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.Invalidate);
+        }
 
-        public delegate void WorkflowClosingEventHandler(object sender, EventArgs e);
+        internal void SelectionGlassRequest(SelectionGlassRequestType type)
+        {
+            switch (type)
+            {
+                case SelectionGlassRequestType.Create:
+                case SelectionGlassRequestType.Delete:
+                    OnSelectionGlassRequested(type);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(String.Format("In Engine.Workflow.SelectionGlassRequest(), type '{0}' is not supported.", type));
+            }
+        }
+
+        internal void SetUIAwarenessOfEnfOfProcess()
+        {
+            OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType.HandleEndOfProcess);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <remarks>Called by UI (PaintualCanvas) to provide mouse actions and coordinates to the MouseAndKeyboardManager
+        /// which in turn will ask CoordinatesManager to adjust coordinates according to scrolling and zooming.</remarks>
+        public void FeedMouseAction(Engine.MousePoint e)
+        {
+            t_mouseAndKeyboardManager.FeedMouseAction(e);
+        }
+
+        /// <summary>
+        /// Feeds the Workflow with key code information from the UI
+        /// </summary>
+        /// <param name="e"></param>
+        public void FeedKeyCode(KeyEventArgs e)
+        {
+            t_mouseAndKeyboardManager.FeedKeyCode(e);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>Method instead of property setter, required by MouseAndKeyboardManager threading queue.</remarks>
+        public void DisallowInvalidate()
+        {
+            AllowInvalidate = false;
+        }
+
+        public Engine.CoordinatesManager CoordinatesManager { get; private set; }
+
+        public bool AllowInvalidate { get; internal set; }
+
+        internal DrawingBoardModes DrawingBoardMode { get ; set; }
+
+        internal Engine.MotionAttribute MotionAttribute
+        {
+            get { return t_motionAttribute; }
+        }
+
+        internal Engine.Threading.BackgroundQueue ThreadingQueue
+        {
+            get { return t_queue; }
+        }
+
+        public event WorkflowDrawingBoardEventHandler DrawingBoardSizeRequested;
+        public event WorkflowDrawingBoardEventHandler InvalidateRequested;
+        public event WorkflowSelectionGlassEventHandler SelectionGlassRequested;
+
+        // the following not used at this time
+        public event WorkflowPropertyPageEventHandler PropertyPageContentUpdateRequested;
+
+        internal void OnDrawingBoardActionRequested(WorkflowDrawingBoardRequestType requestType)
+        {
+            if (requestType == WorkflowDrawingBoardRequestType.Invalidate)
+            {
+                InvalidateRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
+                return;
+            }
+
+            if (requestType == WorkflowDrawingBoardRequestType.ViewPortSize)
+            {
+                DrawingBoardSizeRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
+
+                return;
+            }
+
+            if (requestType == WorkflowDrawingBoardRequestType.HandleEndOfProcess)
+            {
+                InvalidateRequested?.Invoke(this, new WorkflowDrawingBoardEventArgs(requestType));
+                return;
+            }
+        }
+
+        private void OnPropertyPageActionRequested(WorkflowPropertyPageRequestType requestType)
+        {
+            if (requestType == WorkflowPropertyPageRequestType.ContentUpdate)
+            {
+                PropertyPageContentUpdateRequested?.Invoke(this, new WorkflowPropertyPageEventArgs(requestType));
+            }
+        }
+
+        private void OnSelectionGlassRequested(SelectionGlassRequestType requestType)
+        {
+            SelectionGlassRequested?.Invoke(this, new WorkflowSelectionGlassEventArgs(requestType));
+        }
 
         public event WorkflowClosingEventHandler Closing;
 
@@ -204,16 +400,14 @@ namespace Engine
                     // allocated for them.
                     if (isDisposing)
                     {
-                        t_viome = null;
-                        t_currentCanvas = null;
-                        /*t_activity = null;
+                        t_canvas = null;
 
-                        t_coordinatesManager.Dispose();
-                        t_coordinatesManager = null;
+                        CoordinatesManager.Dispose();
+                        CoordinatesManager = null;
 
                         t_queue = null;
 
-                        t_mouseAndKeyboardManager = null;*/
+                        t_mouseAndKeyboardManager = null;
 
                         // Release all managed resources here
                         // Need to unregister/detach yourself from the events. Always make sure
@@ -256,5 +450,44 @@ namespace Engine
         //     Dispose( false );
         //  }
         #endregion
+
+
+    }
+
+    public delegate void WorkflowClosingEventHandler(object sender, EventArgs e);
+
+    public delegate void WorkflowDrawingBoardEventHandler(object sender, WorkflowDrawingBoardEventArgs e);
+    public delegate void WorkflowSelectionGlassEventHandler(object sender, WorkflowSelectionGlassEventArgs e);
+
+    public delegate void WorkflowPropertyPageEventHandler(object sender, WorkflowPropertyPageEventArgs e);
+
+    public class WorkflowDrawingBoardEventArgs : EventArgs
+    {
+        public WorkflowDrawingBoardRequestType RequestType;
+
+        public WorkflowDrawingBoardEventArgs(WorkflowDrawingBoardRequestType requestType)
+        {
+            this.RequestType = requestType;
+        }
+    }
+
+    public class WorkflowPropertyPageEventArgs : EventArgs
+    {
+        public WorkflowPropertyPageRequestType RequestType;
+
+        public WorkflowPropertyPageEventArgs(WorkflowPropertyPageRequestType requestType)
+        {
+            this.RequestType = requestType;
+        }
+    }
+
+    public class WorkflowSelectionGlassEventArgs : EventArgs
+    {
+        public SelectionGlassRequestType RequestType;
+
+        public WorkflowSelectionGlassEventArgs(SelectionGlassRequestType requestType)
+        {
+            this.RequestType = requestType;
+        }
     }
 }

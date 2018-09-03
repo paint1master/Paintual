@@ -63,7 +63,7 @@ namespace Engine.Effects.Scanner
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
             t_imagePerlin = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
 
-            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
@@ -72,10 +72,10 @@ namespace Engine.Effects.Scanner
             CreateFlowField();
 
             // call this as late as possible, just before actual effect processing
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
             Flow();
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         private void CreateFlowField()

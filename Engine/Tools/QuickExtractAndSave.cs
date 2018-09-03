@@ -70,20 +70,19 @@ namespace Engine.Tools
 
         }
 
-        public override int AfterDraw(Point p)
+        public override void AfterDraw(MousePoint p)
         {
-            // required by t_workflow.ThreadingQueue
-            return 0;
+            ;
         }
 
-        public override void BeforeDraw(int x, int y)
+        public override void BeforeDraw(MousePoint p)
         {
-            throw new NotImplementedException();
+            ;
         }
 
         internal override void Draw(MousePoint p)
         {
-
+            ;
         }
 
         public override IGraphicActivity Duplicate(Engine.Workflow w)
@@ -145,11 +144,11 @@ namespace Engine.Tools
                 {
                     // if there are errors then remove the selection glass so the user is not mislead into using
                     // the tool while it doesn't actually work
-                    t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Delete);
+                    t_workflow.SelectionGlassRequest(SelectionGlassRequestType.Delete);
                 }
                 else
                 {
-                    t_workflow.Viome.SelectionGlassRequest(SelectionGlassRequestType.Create);
+                    t_workflow.SelectionGlassRequest(SelectionGlassRequestType.Create);
                 }
             }
         }

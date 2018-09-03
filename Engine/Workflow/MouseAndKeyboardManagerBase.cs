@@ -35,16 +35,16 @@ namespace Engine
 {
     internal class MouseAndKeyboardManagerBase
     {
-        protected Engine.Viome t_workflow;
+        protected Engine.Workflow t_workflow;
 
-        public MouseAndKeyboardManagerBase(Engine.Viome w)
+        public MouseAndKeyboardManagerBase(Engine.Workflow w)
         {
             t_workflow = w;
         }
 
         internal void FeedMouseAction(Engine.MousePoint e)
         {
-            if (t_workflow.CurrentDrawingBoardMode == DrawingBoardModes.Disabled)
+            if (t_workflow.DrawingBoardMode == DrawingBoardModes.Disabled)
             {
                 return;
             }
@@ -55,21 +55,21 @@ namespace Engine
             switch (e.MouseAction)
             {
                 case Engine.MouseActionType.MouseDown:
-                    switch (t_workflow.CurrentDrawingBoardMode)
+                    switch (t_workflow.DrawingBoardMode)
                     {
                         case DrawingBoardModes.None:
                         case DrawingBoardModes.SuspendDraw:
-                            t_workflow.CurrentDrawingBoardMode = DrawingBoardModes.Draw;
+                            t_workflow.DrawingBoardMode = DrawingBoardModes.Draw;
                             ActivityPreProcess(correctedPoint);
                             // no threaded because drawing action would start before canvas is allowed to refresh its content.
-                            t_workflow.AllowInvalidate();
+                            t_workflow.AllowInvalidate = true;
                             ActivityProcess(correctedPoint);
                             break;
                     }
                     break;
 
                 case Engine.MouseActionType.MouseMove:
-                    switch (t_workflow.CurrentDrawingBoardMode)
+                    switch (t_workflow.DrawingBoardMode)
                     {
                         case DrawingBoardModes.Draw:
                             ActivityProcess(correctedPoint);
@@ -79,13 +79,17 @@ namespace Engine
 
 
                 case Engine.MouseActionType.MouseUp:
-                    t_workflow.CurrentDrawingBoardMode = DrawingBoardModes.SuspendDraw;
+                    t_workflow.DrawingBoardMode = DrawingBoardModes.SuspendDraw;
 
                     // should find a way to force display of final brush stroke although it will be shown
                     // by PaintualCanvas at next tick of timer unless t_allowInvalidate is set to false before
 
                     //t_motionAttribute.ThisIsLastMousePoint();
-                    t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.MotionAttribute.Clear)); // <MousePoint, int>(t_motionAttribute.AddMousePoint, correctedPoint);
+
+                    // waiting for the action to complete before calling DisallowInvalidate, this may prevent end of brush stroke to no
+                    // be displayed as this was the case before (when using RunAndForget)
+                    ActivityPostProcess(correctedPoint);
+                    t_workflow.ThreadingQueue.RunAndAwait(new Action(t_workflow.MotionAttribute.Clear));
                     t_workflow.ThreadingQueue.RunAndForget(new Action(t_workflow.DisallowInvalidate));
                     break;
 
@@ -151,13 +155,19 @@ namespace Engine
         private void ActivityProcess(Engine.MousePoint correctedPoint)
         {
             t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
-            t_workflow.ThreadingQueue.RunAndForget(t_workflow.CurrentActivity.Process);
+            t_workflow.ThreadingQueue.RunAndForget(t_workflow.GraphicActivity.Process);
         }
 
         private void ActivityPreProcess(Engine.MousePoint correctedPoint)
         {
             t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
-            t_workflow.ThreadingQueue.RunAndForget(t_workflow.CurrentActivity.PreProcess);
+            t_workflow.ThreadingQueue.RunAndForget(t_workflow.GraphicActivity.PreProcess);
+        }
+
+        private void ActivityPostProcess(Engine.MousePoint correctedPoint)
+        {
+            t_workflow.ThreadingQueue.RunAndReturn<MousePoint, int>(t_workflow.MotionAttribute.AddMousePoint, correctedPoint);
+            t_workflow.ThreadingQueue.RunAndForget(t_workflow.GraphicActivity.PostProcess);
         }
     }
 }

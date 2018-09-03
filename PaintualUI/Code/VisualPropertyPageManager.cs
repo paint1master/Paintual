@@ -69,8 +69,8 @@ namespace PaintualUI.Code
                 t_visualPropertyPage = new PaintualUI.Controls.PropertyPage.VisualPropertyPage();
                 g = new Grid();
                 g.Background = Brushes.DarkGray;
-                g.Children.Add(t_visualPropertyPage);
                 t_docContent.Content = g;
+                g.Children.Add(t_visualPropertyPage);
 
                 t_docContent.Close += Pane_Close;
 
@@ -88,20 +88,9 @@ namespace PaintualUI.Code
             t_visualPropertyPage.Build(w);
         }
 
-        /*/// <summary>
-        /// Rebuilds the controls in the VisualPropertyPage and fills the controls with values saved within the Graphic activity
-        /// (effect, tool) set in the provided Viome instance.
-        /// </summary>
-        private void Refresh()
-        {
-            Engine.Workflow w = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetWorkflow();
-
-            Show(w);
-        }*/
-
         public void Refresh(object sender, PaintualUI.Code.CurrentDrawingBoardChangedEventArgs e)
         {
-            Engine.Workflow w = _app.ActiveContentHelper.GetCurrentDrawingBoard().GetWorkflow();
+            Engine.Workflow w = _app.ActiveContentHelper.GetCurrentDrawingBoard().Workflow;
 
             Show(w);
         }

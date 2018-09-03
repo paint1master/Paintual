@@ -34,13 +34,10 @@ namespace Engine
 {
     public class MotionAttribute
     {
-        private Engine.Viome t_viom;
-
         private List<Engine.MousePoint> t_mousePoints;
 
-        public MotionAttribute(Engine.Viome w)
+        public MotionAttribute()
         {
-            t_viom = w;
             t_mousePoints = new List<Engine.MousePoint>();
         }
 

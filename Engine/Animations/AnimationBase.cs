@@ -28,6 +28,7 @@ using System;
 
 namespace Engine.Animations
 {
+    // TODO inherit from Tool because Tool has all the infrastructure for UI interactions
     public class AnimationBase : Engine.Tools.IGraphicActivity
     {
 
@@ -87,7 +88,7 @@ namespace Engine.Animations
         }
 
         // to be called by UI because Effect is being processed in separate thread
-        public virtual void ProcessCompleted()
+        public virtual void PostProcess()
         {
             /// there is a bug here. Sometimes the final image is not refreshed on screen due to bad synchronization
             /// between threads and last image updated on screen. see solution in Effects

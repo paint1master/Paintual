@@ -37,6 +37,8 @@ namespace Engine
     public class CoordinatesManager : IDisposable
     {
         private double t_zoomFactor = 1d;
+        private bool t_firstLoad = true;
+        private bool t_fitToViewPort = true;
 
         /// <summary>
         /// The actual size of the image, in pixels. This value is never modified by the zoom factor.
@@ -46,8 +48,6 @@ namespace Engine
         /// <summary>
         /// Represents the actual image size, zoom factor independent, as a size struct suitable for WPF measurement operations.
         /// </summary>
-        /// <remark>Eventually will replace <see cref="t_imageSize">t_imageSize</see> when all Paintual code 
-        /// is ported to WPF.</remark>
         private System.Windows.Size t_WPFImageSize = new System.Windows.Size(0, 0);
 
         /// <summary>
@@ -87,17 +87,7 @@ namespace Engine
 
             SetOriginToZeroIfNeeded();
 
-
-            /*Engine.Calc.SizeComparison comp = Engine.Calc.Math.IsWiderOrHigher(t_imageSize.Width, t_drawingBoardSize.Width, t_imageSize.Height, t_drawingBoardSize.Height);
-
-            if (comp == Engine.Calc.SizeComparison.IsSmaller)
-            {
-                t_originalImage_OriginPoint = new Point(t_boardCenterPoint.X - (t_imageSize.Width / 2), t_boardCenterPoint.Y - (t_imageSize.Height / 2));
-                return;
-            }*/
-
-            // here resize image to fit the drawing board. calculate it so that there is a margin of at least 30 px around image to allow paint operations
-            // on the edges
+            // for first display of image zoomed to fit the viewport, see SetViewPortSize()
         }
 
         private void SetOriginToZeroIfNeeded()
@@ -197,6 +187,46 @@ namespace Engine
 
         public void SetZoomFactor(double zoomFactor)
         {
+            ValidateZoomFactor(zoomFactor);
+
+            CalculateFactoredSize();
+
+            OnZoomFactorChanged();
+        }
+
+        public void ZoomIn()
+        {
+            SetZoomFactor(t_zoomFactor * 1.25f);
+        }
+
+        public void ZoomOut()
+        {
+            SetZoomFactor(t_zoomFactor / 1.25f);
+        }
+
+        public void SetViewPortSize(double viewPortWidth, double viewPortHeight, bool forceFit)
+        {
+            t_drawingBoardSize = new Engine.Size((int)viewPortWidth, (int)viewPortHeight);
+
+            if ((t_fitToViewPort && t_firstLoad) || forceFit)
+            {
+                t_firstLoad = false;
+
+                // 20 is to get a visual margin
+                double factorH = (double)t_drawingBoardSize.Height / (t_imageSize.Height + 20);
+                double factorW = (double)t_drawingBoardSize.Width / (t_imageSize.Width + 20);
+
+                double factorWH = System.Math.Min(factorH, factorW);
+
+                SetZoomFactor(factorWH);
+
+                // need to specifically call this in case image is not at 0:0, scrollbars in DrawingBoard must be updated
+                OnZoomFactorChanged();
+            }
+        }
+
+        private void ValidateZoomFactor(double zoomFactor)
+        {
             if (zoomFactor == t_zoomFactor)
             {
                 return;
@@ -215,20 +245,6 @@ namespace Engine
             {
                 t_zoomFactor = zoomFactor;
             }
-
-            CalculateFactoredSize();
-
-            OnZoomFactorChanged();
-        }
-
-        public void ZoomIn()
-        {
-            SetZoomFactor(t_zoomFactor * 1.25f);
-        }
-
-        public void ZoomOut()
-        {
-            SetZoomFactor(t_zoomFactor / 1.25f);
         }
 
         /// <summary>
@@ -256,6 +272,7 @@ namespace Engine
 
         public event ZoomFactorChangedEventHandler ZoomFactorChanged;
         public delegate void ZoomFactorChangedEventHandler(object sender, ZoomFactorChangedEventArgs e);
+        public delegate void ZoomFactorUpdateRequestEventHandler(object sender, ZoomFactorUpdateRequestEventArgs e);
 
         public event ImagePositionChangedEventHandler ImagePositionChanged;
         public delegate void ImagePositionChangedEventHandler(object sender, ImagePositionChangedEventArgs e);
@@ -384,6 +401,14 @@ namespace Engine
         public ZoomFactorChangedEventArgs(double zoomFactor)
         {
             ZoomFactor = zoomFactor;
+        }
+    }
+
+    public class ZoomFactorUpdateRequestEventArgs : EventArgs
+    {
+        public ZoomFactorUpdateRequestEventArgs()
+        {
+
         }
     }
 

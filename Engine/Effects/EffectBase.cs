@@ -82,25 +82,21 @@ namespace Engine.Effects
         /// Processes the effect on a copy of the current image stored in the Workflow,
         /// then updates the workflow image
         /// </summary>
-        /// <remarks>This method is called at the end of Process() in every class that inherits EffectBase.</remarks>
+        /// <remarks></remarks>
         public virtual void Process()
         {
 
         }
 
-        // we are in the worker thread
-        public virtual void ProcessCompleted()
+        public virtual void PostProcess()
         {
             t_isImageProcessed = true;
 
-            // setting image will cause a crash sometimes because a window refresh can't be called from here
-            // the problem is within Coord Manager
-            t_workflow.SetImage(t_imageProcessed, false);
-
+            t_workflow.UpdateImage(t_imageProcessed, true);
 
             // leaving a little time to thread stuff to be cleaned before updating final image
             System.Threading.Thread.Sleep(100);
-            t_workflow.Viome.DisallowInvalidate();
+            t_workflow.AllowInvalidate = false;
             OnProcessEnded();
         }
 

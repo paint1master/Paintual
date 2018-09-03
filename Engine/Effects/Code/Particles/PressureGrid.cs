@@ -34,6 +34,19 @@ namespace Engine.Effects.Code.Particles
             int numberRows = Width / t_gridCellWidth;
             int numberColumns = Height / t_gridCellHeight;
 
+            /*
+            // depending on image ratio, portion of image may not be modified because there is one row missing
+            if (numberRows * t_gridCellWidth < Width)
+            {
+                numberRows++;
+            }
+
+            // depending on image ratio, portion of image may not be modified because there is one column missing
+            if (numberColumns * t_gridCellHeight < Height)
+            {
+                numberColumns++;
+            }*/
+
             t_cells = new PressureGridCell[numberRows, numberColumns];
 
             Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
@@ -43,13 +56,10 @@ namespace Engine.Effects.Code.Particles
 
             loop.Loop(numberRows, Threaded_SetGrid, paramList);
             loop.Dispose();
-
-            //Threaded_SetGrid(0, numberRows, paramList);
         }
 
         private int Threaded_SetGrid(int start, int end, Engine.Threading.ParamList paramList)
         {
-            //System.Diagnostics.Debug.WriteLine(String.Format("start {0}  end {1}", start, end));
             int numCol = (int)paramList.Get("numCol").Value;
 
             for (int x = start; x < end; x++)
@@ -80,8 +90,6 @@ namespace Engine.Effects.Code.Particles
 
         private int Threaded_GetParticles(int start, int end, Threading.ParamList paramlist)
         {
-            System.Diagnostics.Debug.WriteLine(String.Format(" start end {0}, {1}", start, end));
-
             Engine.Effects.Code.Particles.AutonomousParticle[] particles = (Engine.Effects.Code.Particles.AutonomousParticle[])paramlist.Get("particles").Value;
 
             for (int x = start; x < end; x++)
@@ -98,7 +106,7 @@ namespace Engine.Effects.Code.Particles
                     vel.SetMagnitude(2);
                     particles[offset].Velocity = vel;
 
-                    t_cells[x, y].CalculateAveragePressure(t_flowField, x * t_gridCellWidth, y * t_gridCellHeight);
+                    //t_cells[x, y].CalculateAveragePressure(t_flowField, x * t_gridCellWidth, y * t_gridCellHeight);
                 }
             }
 

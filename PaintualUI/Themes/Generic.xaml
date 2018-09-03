@@ -11,8 +11,8 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Background="#FF505050">
-                            <!--<Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050" Width="300">
+                            <!--<Canvas Background="#FF505050" Margin="0,0,0,0" Height="40">
                                 <TextBox Name="TextBox" Width="80" Height="20" Canvas.Left="150" Canvas.Top="10"></TextBox>
                                 <Label Name="Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                                 <local:InfoIcon x:Name="InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
@@ -31,8 +31,8 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Background="#FF505050">
-                            <Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050" Width="300">
+                            <Canvas Background="#FF505050" Margin="0,0,0,0" Height="40">
                                 <TextBox x:Name="C_TextBox" Width="80" Height="20" Canvas.Left="150" Canvas.Top="10"></TextBox>
                                 <Label x:Name="C_Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                                 <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
@@ -51,8 +51,8 @@
                 <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Background="#FF505050">
-                            <Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050" Width="300">
+                            <Canvas Background="#FF505050" Margin="0,0,0,0" Height="40">
                             <TextBox x:Name="C_TextBox" Width="80" Height="20" Canvas.Left="150" Canvas.Top="10"></TextBox>
                             <Label x:Name="C_Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                             <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
@@ -72,8 +72,8 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Background="#FF505050">
-                            <Canvas Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050" Width="300">
+                            <Canvas Background="#FF505050" Margin="0,0,0,0" Height="40">
                                 <TextBox x:Name="C_TextBox" Width="80" Height="20" Canvas.Left="150" Canvas.Top="10"></TextBox>
                                 <Label x:Name="C_Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                                 <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
@@ -93,8 +93,8 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Background="#FF505050">
-                            <Canvas x:Name="C_Canvas" Background="#FF505050" Margin="0,0,0,0" Width="260" Height="40">
+                        <Grid Background="#FF505050" Width="300">
+                            <Canvas x:Name="C_Canvas" Background="#FF505050" Margin="0,0,0,0" Height="40">
                                 <Label x:Name="C_Label" Content="Sample text" Width="137" Height="24" Canvas.Left="10" Canvas.Top="8" />
                                 <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
                             </Canvas>
@@ -117,6 +117,7 @@
                                 <TextBox Name="C_TextBox" Width="198" Height="20" Canvas.Left="57" Canvas.Top="9"/>
                                 <Label Name="C_Label" Content="Folder" Width="42" Height="24" Canvas.Left="10" Canvas.Top="11" />
                                 <Button Name="C_BtnFolder" Content=". . ." Width="30" Height="20" Canvas.Left="260" Canvas.Top="9" />
+                                <local:InfoIcon x:Name="C_InfoIcon" Canvas.Left="235" Canvas.Top="10" Width="20" Height="20"/>
                             </Canvas>
                         </Grid>
                     </Border>
@@ -165,7 +166,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="#FFA0A0A0"
                             BorderThickness="2">
-                        <Grid Background="#FF505050">
+                        <Grid Background="#FF505050" Width="300">
                             <Slider x:Name="C_SliderFrequency" HorizontalAlignment="Left" Margin="108,29,0,0" VerticalAlignment="Top" Width="182" Minimum="1" Maximum="1000"/>
                             <Slider x:Name="C_SliderRange" HorizontalAlignment="Left" Margin="108,67,0,0" VerticalAlignment="Top" Width="182" Minimum="1" Maximum="255"/>
                             <Label x:Name="C_LblFrequency" Content="Frequency" HorizontalAlignment="Left" Margin="18,29,0,0" VerticalAlignment="Top" Width="85"/>
@@ -188,8 +189,8 @@
                             BorderBrush="#FFA0A0A0"
                             BorderThickness="2">
                         <Grid Background="#FF505050" Width="300">
-                        <Label x:Name="C_Label" Content="Color From Image" HorizontalAlignment="Left" Margin="18,4,0,0" VerticalAlignment="Top" Width="85"/>
-                        <CheckBox x:Name="C_ChkFromImage" HorizontalAlignment="Left" VerticalAlignment="top" Width="20" Height="20" Margin="116,9,0,0" />
+                        <Label x:Name="C_Label" Content="Color From Image" HorizontalAlignment="Left" Margin="18,4,0,0" VerticalAlignment="Top" Width="200"/>
+                        <CheckBox x:Name="C_ChkFromImage" HorizontalAlignment="Right" VerticalAlignment="top" Width="20" Height="20" Margin="0,9,10,0" />
                         </Grid>
                     </Border>
                 </ControlTemplate>

@@ -340,7 +340,27 @@ namespace Engine.Calc
             b = temp;
         }
 
+        public static void Swap(ref byte a, ref byte b)
+        {
+            byte temp = a;
+            a = b;
+            b = temp;
+        }
+
         public static void Swap(ref double[] a, ref double[] b)
+        {
+            if (a.Length != b.Length)
+            {
+                throw new ArgumentException("arrays of different lengths.");
+            }
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                Swap(ref a[i], ref b[i]);
+            }
+        }
+
+        public static void Swap(ref byte[] a, ref byte[] b)
         {
             if (a.Length != b.Length)
             {
@@ -493,6 +513,27 @@ namespace Engine.Calc
             points.Add(new Engine.MousePoint(X2, Y2, Engine.MouseActionType.MouseMove, true));
 
             return points;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dividende"></param>
+        /// <param name="diviseur"></param>
+        /// <returns></returns>
+        public static int[] Division_RemainderLess(int dividende, int diviseur)
+        {
+            int quotient = dividende / diviseur;
+            int remainder = dividende % diviseur;
+
+            int[] quotients = new int[diviseur];
+
+            for (int i = 0; i < diviseur; i++)
+            {
+                quotients[i] = quotient + (remainder-- > 0 ? 1 : 0);
+            }
+
+            return quotients;
         }
     }
 }

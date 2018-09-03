@@ -82,7 +82,7 @@ namespace Engine.Effects.Noise
 
         public override void Process()
         {
-            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
@@ -146,7 +146,7 @@ namespace Engine.Effects.Noise
             
             t_imageProcessed = new Engine.Surface.Canvas(t_imageSource.Width, t_imageSource.Height);
 
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
 
             Engine.Threading.ThreadedLoop loop = new Threading.ThreadedLoop();
 
@@ -156,7 +156,7 @@ namespace Engine.Effects.Noise
             loop.Loop(t_imageSource.Height, Threaded_Process, paramList);
             loop.Dispose();
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         private int Threaded_Process(int start, int end, Engine.Threading.ParamList paramList)

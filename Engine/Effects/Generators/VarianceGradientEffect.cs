@@ -55,12 +55,12 @@ namespace Engine.Effects
         public override void Process()
         {
             t_imageProcessed = Engine.Surface.Ops.Copy(t_imageSource);
-            t_workflow.Viome.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
+            t_workflow.ThreadingQueue.RunAndForget(new Action(ThreadedProcess));
         }
 
         private void ThreadedProcess()
         {
-            t_workflow.Viome.AllowInvalidate();
+            t_workflow.AllowInvalidate = true;
 
             Engine.Color.Cell c = Engine.Application.UISelectedValues.SelectedColor;
             t_colorVariance.SetColor(c);
@@ -85,7 +85,7 @@ namespace Engine.Effects
                 }
             }
 
-            base.ProcessCompleted();
+            base.PostProcess();
         }
 
         public override string Name { get => "Variance Gradient Effect"; }
